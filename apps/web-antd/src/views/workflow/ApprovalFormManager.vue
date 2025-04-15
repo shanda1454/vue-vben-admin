@@ -4,14 +4,17 @@ import type { FormInstance } from 'ant-design-vue/es/form';
 
 import { onMounted, reactive, ref, watch } from 'vue';
 
+// 导入主题相关
+import { usePreferences } from '@vben/preferences';
+
 import {
   CloseOutlined,
   PlusOutlined,
   UploadOutlined,
 } from '@ant-design/icons-vue';
-import { 
+import {
   Button as AButton,
-  Card as ACard, 
+  Card as ACard,
   Col as ACol,
   DatePicker as ADatePicker,
   Divider as ADivider,
@@ -19,7 +22,6 @@ import {
   FormItem as AFormItem,
   Input as AInput,
   InputNumber as AInputNumber,
-  message,
   Modal as AModal,
   Popconfirm as APopconfirm,
   Row as ARow,
@@ -29,11 +31,9 @@ import {
   Switch as ASwitch,
   Table as ATable,
   Textarea as ATextarea,
-  Upload as AUpload
+  Upload as AUpload,
+  message,
 } from 'ant-design-vue';
-
-// 导入主题相关
-import { preferences, usePreferences } from '@vben/preferences';
 
 // 导入工作流主题样式
 import './styles/workflow-theme.less';
@@ -191,13 +191,13 @@ watch(
   () => isDark.value,
   () => {
     applyThemeStyles();
-  }
+  },
 );
 
 // 应用主题样式
 const applyThemeStyles = () => {
   if (!containerRef.value) return;
-  
+
   // 应用暗色主题或亮色主题样式
   if (isDark.value) {
     containerRef.value.classList.add('workflow-dark-theme');
@@ -363,17 +363,17 @@ onMounted(() => {
 
 <template>
   <div class="approval-form-container" ref="containerRef">
-    <a-card title="表单管理">
+    <ACard title="表单管理">
       <template #extra>
-        <a-button type="primary" @click="handleCreateForm">
+        <AButton type="primary" @click="handleCreateForm">
           <template #icon>
             <PlusOutlined />
           </template>
           新建表单
-        </a-button>
+        </AButton>
       </template>
 
-      <a-table
+      <ATable
         :columns="columns"
         :data-source="formList"
         :loading="loading"
@@ -383,95 +383,106 @@ onMounted(() => {
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
-            <a-space>
-              <a-button type="primary" size="small" @click="handlePreviewForm(record)">
+            <ASpace>
+              <AButton
+                type="primary"
+                size="small"
+                @click="handlePreviewForm(record)"
+              >
                 预览
-              </a-button>
-              <a-button size="small" @click="handleEditForm(record)">
+              </AButton>
+              <AButton size="small" @click="handleEditForm(record)">
                 编辑
-              </a-button>
-              <a-popconfirm
+              </AButton>
+              <APopconfirm
                 title="确定要删除该表单吗?"
                 ok-text="确定"
                 cancel-text="取消"
                 @confirm="handleDeleteForm(record)"
               >
-                <a-button danger size="small">
-                  删除
-                </a-button>
-              </a-popconfirm>
-            </a-space>
+                <AButton danger size="small"> 删除 </AButton>
+              </APopconfirm>
+            </ASpace>
           </template>
         </template>
-      </a-table>
-    </a-card>
+      </ATable>
+    </ACard>
 
-    <a-modal
+    <AModal
       v-model:open="modal.open"
       :title="modal.title"
-      :maskClosable="false"
-      :destroyOnClose="true"
+      :mask-closable="false"
+      :destroy-on-close="true"
       @ok="handleModalOk"
       @cancel="handleModalCancel"
-      :confirmLoading="loading"
+      :confirm-loading="loading"
     >
-      <a-form
-        ref="formRef"
-        :model="formState"
-        :rules="rules"
-        layout="vertical"
-      >
-        <a-form-item label="表单名称" name="name">
-          <a-input v-model:value="formState.name" placeholder="请输入表单名称" />
-        </a-form-item>
-        <a-form-item label="表单描述" name="description">
-          <a-textarea v-model:value="formState.description" :rows="3" placeholder="请输入表单描述" />
-        </a-form-item>
-        <a-form-item label="表单类型" name="type">
-          <a-select v-model:value="formState.type" placeholder="请选择表单类型">
-            <a-select-option value="leave">请假申请</a-select-option>
-            <a-select-option value="expense">报销申请</a-select-option>
-            <a-select-option value="purchase">采购申请</a-select-option>
-            <a-select-option value="custom">自定义</a-select-option>
-          </a-select>
-        </a-form-item>
+      <AForm ref="formRef" :model="formState" :rules="rules" layout="vertical">
+        <AFormItem label="表单名称" name="name">
+          <AInput v-model:value="formState.name" placeholder="请输入表单名称" />
+        </AFormItem>
+        <AFormItem label="表单描述" name="description">
+          <ATextarea
+            v-model:value="formState.description"
+            :rows="3"
+            placeholder="请输入表单描述"
+          />
+        </AFormItem>
+        <AFormItem label="表单类型" name="type">
+          <ASelect v-model:value="formState.type" placeholder="请选择表单类型">
+            <ASelectOption value="leave">请假申请</ASelectOption>
+            <ASelectOption value="expense">报销申请</ASelectOption>
+            <ASelectOption value="purchase">采购申请</ASelectOption>
+            <ASelectOption value="custom">自定义</ASelectOption>
+          </ASelect>
+        </AFormItem>
 
-        <a-divider orientation="left">表单字段</a-divider>
-        
-        <div v-for="(field, index) in formState.fields" :key="index" class="field-item">
-          <a-row :gutter="16" align="middle">
-            <a-col :span="8">
-              <a-form-item
+        <ADivider orientation="left">表单字段</ADivider>
+
+        <div
+          v-for="(field, index) in formState.fields"
+          :key="index"
+          class="field-item"
+        >
+          <ARow :gutter="16" align="middle">
+            <ACol :span="8">
+              <AFormItem
                 label="字段名称"
                 :name="['fields', index, 'name']"
                 :rules="[{ required: true, message: '请输入字段名称' }]"
               >
-                <a-input v-model:value="field.name" placeholder="请输入字段名称" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="7">
-              <a-form-item
+                <AInput
+                  v-model:value="field.name"
+                  placeholder="请输入字段名称"
+                />
+              </AFormItem>
+            </ACol>
+            <ACol :span="7">
+              <AFormItem
                 label="字段类型"
                 :name="['fields', index, 'type']"
                 :rules="[{ required: true, message: '请选择字段类型' }]"
               >
-                <a-select v-model:value="field.type" placeholder="请选择字段类型">
-                  <a-select-option value="text">单行文本</a-select-option>
-                  <a-select-option value="textarea">多行文本</a-select-option>
-                  <a-select-option value="number">数字</a-select-option>
-                  <a-select-option value="select">下拉选择</a-select-option>
-                  <a-select-option value="date">日期</a-select-option>
-                  <a-select-option value="file">附件</a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item label="是否必填" :name="['fields', index, 'required']">
-                <a-switch v-model:checked="field.required" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="3" class="field-actions">
-              <a-button
+                <ASelect
+                  v-model:value="field.type"
+                  placeholder="请选择字段类型"
+                >
+                  <ASelectOption value="text">单行文本</ASelectOption>
+                  <ASelectOption value="textarea">多行文本</ASelectOption>
+                  <ASelectOption value="number">数字</ASelectOption>
+                  <ASelectOption value="select">下拉选择</ASelectOption>
+                  <ASelectOption value="date">日期</ASelectOption>
+                  <ASelectOption value="file">附件</ASelectOption>
+                </ASelect>
+              </AFormItem>
+            </ACol>
+            <ACol :span="6">
+              <AFormItem label="是否必填" :name="['fields', index, 'required']">
+                <ASwitch v-model:checked="field.required" />
+              </AFormItem>
+            </ACol>
+            <ACol :span="3" class="field-actions">
+              <AButton
                 danger
                 shape="circle"
                 @click="removeField(index)"
@@ -480,23 +491,23 @@ onMounted(() => {
                 <template #icon>
                   <CloseOutlined />
                 </template>
-              </a-button>
-            </a-col>
-          </a-row>
+              </AButton>
+            </ACol>
+          </ARow>
         </div>
 
         <div class="add-field">
-          <a-button type="dashed" block @click="addField">
+          <AButton type="dashed" block @click="addField">
             <template #icon>
               <PlusOutlined />
             </template>
             添加字段
-          </a-button>
+          </AButton>
         </div>
-      </a-form>
-    </a-modal>
+      </AForm>
+    </AModal>
 
-    <a-modal
+    <AModal
       v-model:open="previewModal.open"
       title="表单预览"
       width="700px"
@@ -511,57 +522,61 @@ onMounted(() => {
             {{ previewModal.form.description }}
           </a-descriptions-item>
           <a-descriptions-item label="表单类型">
-            {{ 
+            {{
               {
                 leave: '请假申请',
                 expense: '报销申请',
                 purchase: '采购申请',
-                custom: '自定义'
-              }[previewModal.form.type] || previewModal.form.type 
+                custom: '自定义',
+              }[previewModal.form.type] || previewModal.form.type
             }}
           </a-descriptions-item>
         </a-descriptions>
 
-        <a-divider orientation="left">表单字段</a-divider>
-        
+        <ADivider orientation="left">表单字段</ADivider>
+
         <div class="preview-form">
-          <a-form layout="vertical">
-            <template v-for="(field, index) in previewModal.form.fields" :key="index">
-              <a-form-item
-                :label="field.name"
-                :required="field.required"
-              >
+          <AForm layout="vertical">
+            <template
+              v-for="(field, index) in previewModal.form.fields"
+              :key="index"
+            >
+              <AFormItem :label="field.name" :required="field.required">
                 <template v-if="field.type === 'text'">
-                  <a-input placeholder="请输入" disabled />
+                  <AInput placeholder="请输入" disabled />
                 </template>
                 <template v-else-if="field.type === 'textarea'">
-                  <a-textarea :rows="3" placeholder="请输入" disabled />
+                  <ATextarea :rows="3" placeholder="请输入" disabled />
                 </template>
                 <template v-else-if="field.type === 'number'">
-                  <a-input-number style="width: 100%" placeholder="请输入" disabled />
+                  <AInputNumber
+                    style="width: 100%"
+                    placeholder="请输入"
+                    disabled
+                  />
                 </template>
                 <template v-else-if="field.type === 'select'">
-                  <a-select placeholder="请选择" disabled />
+                  <ASelect placeholder="请选择" disabled />
                 </template>
                 <template v-else-if="field.type === 'date'">
-                  <a-date-picker style="width: 100%" disabled />
+                  <ADatePicker style="width: 100%" disabled />
                 </template>
                 <template v-else-if="field.type === 'file'">
-                  <a-upload>
-                    <a-button disabled>
+                  <AUpload>
+                    <AButton disabled>
                       <template #icon>
                         <UploadOutlined />
                       </template>
                       上传文件
-                    </a-button>
-                  </a-upload>
+                    </AButton>
+                  </AUpload>
                 </template>
-              </a-form-item>
+              </AFormItem>
             </template>
-          </a-form>
+          </AForm>
         </div>
       </template>
-    </a-modal>
+    </AModal>
   </div>
 </template>
 

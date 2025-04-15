@@ -3,21 +3,21 @@ import type { TablePaginationConfig } from 'ant-design-vue';
 
 import { h, onMounted, reactive, ref, watch } from 'vue';
 
-import { 
-  Badge, 
-  Button as AButton, 
-  Card as ACard, 
-  Form as AForm,
-  FormItem as AFormItem, 
-  message,
-  Modal as AModal, 
-  Space as ASpace, 
-  Table as ATable,
-  Textarea as ATextarea
-} from 'ant-design-vue';
-
 // 导入主题相关
-import { preferences, usePreferences } from '@vben/preferences';
+import { usePreferences } from '@vben/preferences';
+
+import {
+  Button as AButton,
+  Card as ACard,
+  Form as AForm,
+  FormItem as AFormItem,
+  Modal as AModal,
+  Space as ASpace,
+  Table as ATable,
+  Textarea as ATextarea,
+  Badge,
+  message,
+} from 'ant-design-vue';
 
 // 导入工作流主题样式
 import './styles/workflow-theme.less';
@@ -147,13 +147,13 @@ watch(
   () => isDark.value,
   () => {
     applyThemeStyles();
-  }
+  },
 );
 
 // 应用主题样式
 const applyThemeStyles = () => {
   if (!containerRef.value) return;
-  
+
   // 应用暗色主题或亮色主题样式
   if (isDark.value) {
     containerRef.value.classList.add('workflow-dark-theme');
@@ -253,8 +253,8 @@ onMounted(() => {
 
 <template>
   <div class="approval-task-container" ref="containerRef">
-    <a-card title="我的审批任务">
-      <a-table
+    <ACard title="我的审批任务">
+      <ATable
         :columns="columns"
         :data-source="taskList"
         :loading="loading"
@@ -264,46 +264,46 @@ onMounted(() => {
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
-            <a-space>
-              <a-button
+            <ASpace>
+              <AButton
                 type="primary"
                 size="small"
                 @click="handleApprove(record)"
               >
                 同意
-              </a-button>
-              <a-button danger size="small" @click="handleReject(record)">
+              </AButton>
+              <AButton danger size="small" @click="handleReject(record)">
                 拒绝
-              </a-button>
-              <a-button
+              </AButton>
+              <AButton
                 type="link"
                 size="small"
                 @click="viewProcessDetails(record)"
               >
                 查看详情
-              </a-button>
-            </a-space>
+              </AButton>
+            </ASpace>
           </template>
         </template>
-      </a-table>
-    </a-card>
+      </ATable>
+    </ACard>
 
-    <a-modal
+    <AModal
       v-model:open="modal.open"
       :title="modal.title"
       @ok="handleModalOk"
       @cancel="handleModalCancel"
     >
-      <a-form :model="formState" layout="vertical">
-        <a-form-item label="审批意见" name="comment">
-          <a-textarea
+      <AForm :model="formState" layout="vertical">
+        <AFormItem label="审批意见" name="comment">
+          <ATextarea
             v-model:value="formState.comment"
             :rows="4"
             placeholder="请输入审批意见"
           />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+        </AFormItem>
+      </AForm>
+    </AModal>
   </div>
 </template>
 

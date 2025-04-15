@@ -3,29 +3,29 @@ import type { TablePaginationConfig } from 'ant-design-vue';
 
 import { onMounted, reactive, ref, watch } from 'vue';
 
-import { 
+// 导入主题相关
+import { usePreferences } from '@vben/preferences';
+
+import {
   Button as AButton,
   Card as ACard,
   Descriptions as ADescriptions,
   DescriptionsItem as ADescriptionsItem,
   Divider as ADivider,
-  Input,
-  message,
   Modal as AModal,
   Table as ATable,
   Tag as ATag,
   Timeline as ATimeline,
-  TimelineItem as ATimelineItem
+  TimelineItem as ATimelineItem,
+  Input,
+  message,
 } from 'ant-design-vue';
-
-// 创建一个组合组件的别名
-const AInputSearch = Input.Search;
-
-// 导入主题相关
-import { preferences, usePreferences } from '@vben/preferences';
 
 // 导入工作流主题样式
 import './styles/workflow-theme.less';
+
+// 创建一个组合组件的别名
+const AInputSearch = Input.Search;
 
 interface ProcessTask {
   id: string;
@@ -256,13 +256,13 @@ watch(
   () => isDark.value,
   () => {
     applyThemeStyles();
-  }
+  },
 );
 
 // 应用主题样式
 const applyThemeStyles = () => {
   if (!containerRef.value) return;
-  
+
   // 应用暗色主题或亮色主题样式
   if (isDark.value) {
     containerRef.value.classList.add('workflow-dark-theme');
@@ -363,9 +363,9 @@ onMounted(() => {
 
 <template>
   <div class="process-history-container" ref="containerRef">
-    <a-card title="流程历史记录">
+    <ACard title="流程历史记录">
       <template #extra>
-        <a-input-search
+        <AInputSearch
           v-model:value="searchKeyword"
           placeholder="输入关键词搜索"
           style="width: 250px"
@@ -373,7 +373,7 @@ onMounted(() => {
         />
       </template>
 
-      <a-table
+      <ATable
         :columns="columns"
         :data-source="processHistoryList"
         :loading="loading"
@@ -383,68 +383,68 @@ onMounted(() => {
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
-            <a-tag :color="getStatusColor(record.status)">
+            <ATag :color="getStatusColor(record.status)">
               {{ getStatusText(record.status) }}
-            </a-tag>
+            </ATag>
           </template>
           <template v-else-if="column.key === 'action'">
-            <a-button type="link" @click="viewProcessDetails(record)">
+            <AButton type="link" @click="viewProcessDetails(record)">
               查看详情
-            </a-button>
+            </AButton>
           </template>
         </template>
-      </a-table>
-    </a-card>
+      </ATable>
+    </ACard>
 
-    <a-modal
+    <AModal
       v-model:open="detailVisible"
       title="流程详情"
       width="800px"
       :footer="null"
     >
       <template v-if="currentProcess">
-        <a-descriptions bordered :column="2">
-          <a-descriptions-item label="流程名称" :span="2">
+        <ADescriptions bordered :column="2">
+          <ADescriptionsItem label="流程名称" :span="2">
             {{ currentProcess.name }}
-          </a-descriptions-item>
-          <a-descriptions-item label="流程实例ID">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="流程实例ID">
             {{ currentProcess.id }}
-          </a-descriptions-item>
-          <a-descriptions-item label="流程定义ID">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="流程定义ID">
             {{ currentProcess.definitionId }}
-          </a-descriptions-item>
-          <a-descriptions-item label="发起人">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="发起人">
             {{ currentProcess.initiator }}
-          </a-descriptions-item>
-          <a-descriptions-item label="发起时间">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="发起时间">
             {{ currentProcess.startTime }}
-          </a-descriptions-item>
-          <a-descriptions-item label="结束时间">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="结束时间">
             {{ currentProcess.endTime || '-' }}
-          </a-descriptions-item>
-          <a-descriptions-item label="状态">
-            <a-tag :color="getStatusColor(currentProcess.status)">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="状态">
+            <ATag :color="getStatusColor(currentProcess.status)">
               {{ getStatusText(currentProcess.status) }}
-            </a-tag>
-          </a-descriptions-item>
-          <a-descriptions-item label="业务标题" :span="2">
+            </ATag>
+          </ADescriptionsItem>
+          <ADescriptionsItem label="业务标题" :span="2">
             {{ currentProcess.businessTitle }}
-          </a-descriptions-item>
-          <a-descriptions-item label="说明" :span="2">
+          </ADescriptionsItem>
+          <ADescriptionsItem label="说明" :span="2">
             {{ currentProcess.description }}
-          </a-descriptions-item>
-        </a-descriptions>
+          </ADescriptionsItem>
+        </ADescriptions>
 
-        <a-divider orientation="left">流程变量</a-divider>
-        <a-descriptions bordered :column="2">
+        <ADivider orientation="left">流程变量</ADivider>
+        <ADescriptions bordered :column="2">
           <template v-for="(value, key) in currentProcess.variables" :key="key">
-            <a-descriptions-item :label="key">{{ value }}</a-descriptions-item>
+            <ADescriptionsItem :label="key">{{ value }}</ADescriptionsItem>
           </template>
-        </a-descriptions>
+        </ADescriptions>
 
-        <a-divider orientation="left">流程审批记录</a-divider>
-        <a-timeline>
-          <a-timeline-item
+        <ADivider orientation="left">流程审批记录</ADivider>
+        <ATimeline>
+          <ATimelineItem
             v-for="(task, index) in currentProcess.tasks"
             :key="index"
             :color="getTaskColor(task.status)"
@@ -459,18 +459,18 @@ onMounted(() => {
               <div class="task-assignee">处理人: {{ task.assignee }}</div>
               <div class="task-status">
                 状态:
-                <a-tag :color="getStatusColor(task.status)">
+                <ATag :color="getStatusColor(task.status)">
                   {{ getStatusText(task.status) }}
-                </a-tag>
+                </ATag>
               </div>
               <div v-if="task.comment" class="task-comment">
                 审批意见: {{ task.comment }}
               </div>
             </div>
-          </a-timeline-item>
-        </a-timeline>
+          </ATimelineItem>
+        </ATimeline>
 
-        <a-divider orientation="left">流程图</a-divider>
+        <ADivider orientation="left">流程图</ADivider>
         <div class="process-diagram">
           <div class="diagram-placeholder">
             <h3>流程图展示区域</h3>
@@ -478,7 +478,7 @@ onMounted(() => {
           </div>
         </div>
       </template>
-    </a-modal>
+    </AModal>
   </div>
 </template>
 
@@ -501,7 +501,7 @@ onMounted(() => {
 
       .task-time {
         color: rgba(0, 0, 0, 0.45);
-        
+
         .workflow-dark-theme & {
           color: rgba(255, 255, 255, 0.65);
         }
@@ -518,7 +518,7 @@ onMounted(() => {
       padding: 8px;
       border-radius: 4px;
       margin-top: 8px;
-      
+
       .workflow-dark-theme & {
         background-color: hsl(var(--accent-dark));
       }
@@ -537,7 +537,7 @@ onMounted(() => {
     .diagram-placeholder {
       text-align: center;
       color: rgba(0, 0, 0, 0.45);
-      
+
       .workflow-dark-theme & {
         color: rgba(255, 255, 255, 0.65);
       }
