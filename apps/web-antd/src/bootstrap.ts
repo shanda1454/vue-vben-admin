@@ -7,15 +7,16 @@ import { initStores } from '@vben/stores';
 import '@vben/styles';
 import '@vben/styles/antd';
 
+// 导入Ant Design Vue 及其图标
+// eslint-disable-next-line n/no-extraneous-import
+import * as AntdIcons from '@ant-design/icons-vue';
 import { useTitle } from '@vueuse/core';
+import Antd from 'ant-design-vue';
 
 import { $t, setupI18n } from '#/locales';
 
-// 导入Ant Design图标
-// 这个导入是必要的，用于全局注册所有Ant Design图标组件
-import * as AntdIcons from '@ant-design/icons-vue';
-
 import { initComponentAdapter } from './adapter/component';
+// @ts-ignore - Vue文件导入类型问题，app.vue是有效的Vue组件
 import App from './app.vue';
 import { router } from './router';
 
@@ -23,11 +24,12 @@ async function bootstrap(namespace: string) {
   // 初始化组件适配器
   await initComponentAdapter();
 
-  // // 设置弹窗的默认配置
+  // 设置弹窗的默认配置
   // setDefaultModalProps({
   //   fullscreenButton: false,
   // });
-  // // 设置抽屉的默认配置
+
+  // 设置抽屉的默认配置
   // setDefaultDrawerProps({
   //   zIndex: 1020,
   // });
@@ -35,9 +37,12 @@ async function bootstrap(namespace: string) {
   const app = createApp(App);
 
   // 注册所有Ant Design图标组件
-  Object.keys(AntdIcons).forEach(key => {
+  Object.keys(AntdIcons).forEach((key) => {
     app.component(key, (AntdIcons as Record<string, any>)[key]);
   });
+
+  // 全局注册Ant Design Vue组件
+  app.use(Antd);
 
   // 注册v-loading指令
   registerLoadingDirective(app, {

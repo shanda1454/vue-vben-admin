@@ -1,9 +1,31 @@
 <script lang="ts" setup>
 import type { TablePaginationConfig } from 'ant-design-vue';
 
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 
-import { message } from 'ant-design-vue';
+import { 
+  Button as AButton,
+  Card as ACard,
+  Descriptions as ADescriptions,
+  DescriptionsItem as ADescriptionsItem,
+  Divider as ADivider,
+  Input,
+  message,
+  Modal as AModal,
+  Table as ATable,
+  Tag as ATag,
+  Timeline as ATimeline,
+  TimelineItem as ATimelineItem
+} from 'ant-design-vue';
+
+// 创建一个组合组件的别名
+const AInputSearch = Input.Search;
+
+// 导入主题相关
+import { preferences, usePreferences } from '@vben/preferences';
+
+// 导入工作流主题样式
+import './styles/workflow-theme.less';
 
 interface ProcessTask {
   id: string;
@@ -223,6 +245,32 @@ const searchKeyword = ref('');
 const detailVisible = ref(false);
 const currentProcess = ref<null | ProcessHistory>(null);
 
+// 容器引用
+const containerRef = ref<HTMLElement | null>(null);
+
+// 获取主题信息
+const { isDark } = usePreferences();
+
+// 监听主题变化
+watch(
+  () => isDark.value,
+  () => {
+    applyThemeStyles();
+  }
+);
+
+// 应用主题样式
+const applyThemeStyles = () => {
+  if (!containerRef.value) return;
+  
+  // 应用暗色主题或亮色主题样式
+  if (isDark.value) {
+    containerRef.value.classList.add('workflow-dark-theme');
+  } else {
+    containerRef.value.classList.remove('workflow-dark-theme');
+  }
+};
+
 // 获取状态颜色
 const getStatusColor = (status: string) => {
   const colorMap: Record<string, string> = {
@@ -306,14 +354,15 @@ const viewProcessDetails = (record: ProcessHistory) => {
   detailVisible.value = true;
 };
 
-// 组件挂载时加载数据
+// 组件挂载时初始化
 onMounted(() => {
   loadProcessHistory();
+  applyThemeStyles();
 });
 </script>
 
 <template>
-  <div class="process-history-container">
+  <div class="process-history-container" ref="containerRef">
     <a-card title="流程历史记录">
       <template #extra>
         <a-input-search
@@ -348,7 +397,7 @@ onMounted(() => {
     </a-card>
 
     <a-modal
-      v-model:visible="detailVisible"
+      v-model:open="detailVisible"
       title="流程详情"
       width="800px"
       :footer="null"
@@ -435,6 +484,7 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .process-history-container {
+  height: 100%;
   padding: 16px;
 
   .task-item {
@@ -451,6 +501,10 @@ onMounted(() => {
 
       .task-time {
         color: rgba(0, 0, 0, 0.45);
+        
+        .workflow-dark-theme & {
+          color: rgba(255, 255, 255, 0.65);
+        }
       }
     }
 
@@ -464,6 +518,10 @@ onMounted(() => {
       padding: 8px;
       border-radius: 4px;
       margin-top: 8px;
+      
+      .workflow-dark-theme & {
+        background-color: hsl(var(--accent-dark));
+      }
     }
   }
 
@@ -479,6 +537,10 @@ onMounted(() => {
     .diagram-placeholder {
       text-align: center;
       color: rgba(0, 0, 0, 0.45);
+      
+      .workflow-dark-theme & {
+        color: rgba(255, 255, 255, 0.65);
+      }
     }
   }
 }

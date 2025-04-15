@@ -1,9 +1,26 @@
 <script lang="ts" setup>
 import type { TablePaginationConfig } from 'ant-design-vue';
 
-import { h, onMounted, reactive, ref } from 'vue';
+import { h, onMounted, reactive, ref, watch } from 'vue';
 
-import { Badge, message } from 'ant-design-vue';
+import { 
+  Badge, 
+  Button as AButton, 
+  Card as ACard, 
+  Form as AForm,
+  FormItem as AFormItem, 
+  message,
+  Modal as AModal, 
+  Space as ASpace, 
+  Table as ATable,
+  Textarea as ATextarea
+} from 'ant-design-vue';
+
+// 导入主题相关
+import { preferences, usePreferences } from '@vben/preferences';
+
+// 导入工作流主题样式
+import './styles/workflow-theme.less';
 
 interface TaskItem {
   id: string;
@@ -108,7 +125,7 @@ const pagination = reactive<TablePaginationConfig>({
 
 // 模态框状态
 const modal = reactive({
-  visible: false,
+  open: false,
   title: '审批',
   action: '',
   taskId: '',
@@ -118,6 +135,32 @@ const modal = reactive({
 const formState = reactive({
   comment: '',
 });
+
+// 容器引用
+const containerRef = ref<HTMLElement | null>(null);
+
+// 获取主题信息
+const { isDark } = usePreferences();
+
+// 监听主题变化
+watch(
+  () => isDark.value,
+  () => {
+    applyThemeStyles();
+  }
+);
+
+// 应用主题样式
+const applyThemeStyles = () => {
+  if (!containerRef.value) return;
+  
+  // 应用暗色主题或亮色主题样式
+  if (isDark.value) {
+    containerRef.value.classList.add('workflow-dark-theme');
+  } else {
+    containerRef.value.classList.remove('workflow-dark-theme');
+  }
+};
 
 // 加载任务列表
 const loadTaskList = async () => {
@@ -145,7 +188,7 @@ const handleTableChange = (pag: TablePaginationConfig) => {
 
 // 审批处理
 const handleApprove = (record: TaskItem) => {
-  modal.visible = true;
+  modal.open = true;
   modal.title = '同意审批';
   modal.action = 'approve';
   modal.taskId = record.id;
@@ -153,7 +196,7 @@ const handleApprove = (record: TaskItem) => {
 
 // 拒绝处理
 const handleReject = (record: TaskItem) => {
-  modal.visible = true;
+  modal.open = true;
   modal.title = '拒绝审批';
   modal.action = 'reject';
   modal.taskId = record.id;
@@ -185,7 +228,7 @@ const handleModalOk = async () => {
     }
 
     message.success(modal.action === 'approve' ? '审批已同意' : '审批已拒绝');
-    modal.visible = false;
+    modal.open = false;
     formState.comment = '';
   } catch (error) {
     console.error('提交审批失败', error);
@@ -197,18 +240,19 @@ const handleModalOk = async () => {
 
 // 模态框取消
 const handleModalCancel = () => {
-  modal.visible = false;
+  modal.open = false;
   formState.comment = '';
 };
 
-// 组件挂载时加载数据
+// 组件挂载时初始化
 onMounted(() => {
   loadTaskList();
+  applyThemeStyles();
 });
 </script>
 
 <template>
-  <div class="approval-task-container">
+  <div class="approval-task-container" ref="containerRef">
     <a-card title="我的审批任务">
       <a-table
         :columns="columns"
@@ -245,7 +289,7 @@ onMounted(() => {
     </a-card>
 
     <a-modal
-      v-model:visible="modal.visible"
+      v-model:open="modal.open"
       :title="modal.title"
       @ok="handleModalOk"
       @cancel="handleModalCancel"
@@ -265,6 +309,6 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .approval-task-container {
-  padding: 16px;
+  height: 100%;
 }
 </style>
