@@ -118,5 +118,12 @@
       "canvas",
       "node-gyp"
     ]
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
+    "@bpmn-io/properties-panel": "^3.26.4",
+    "bpmn-js": "^18.4.0",
+    "bpmn-js-properties-panel": "^5.35.0",
+    "diagram-js": "^15.2.4"
   }
 }

@@ -11,6 +11,10 @@ import { useTitle } from '@vueuse/core';
 
 import { $t, setupI18n } from '#/locales';
 
+// 导入Ant Design图标
+// 这个导入是必要的，用于全局注册所有Ant Design图标组件
+import * as AntdIcons from '@ant-design/icons-vue';
+
 import { initComponentAdapter } from './adapter/component';
 import App from './app.vue';
 import { router } from './router';
@@ -29,6 +33,11 @@ async function bootstrap(namespace: string) {
   // });
 
   const app = createApp(App);
+
+  // 注册所有Ant Design图标组件
+  Object.keys(AntdIcons).forEach(key => {
+    app.component(key, (AntdIcons as Record<string, any>)[key]);
+  });
 
   // 注册v-loading指令
   registerLoadingDirective(app, {
