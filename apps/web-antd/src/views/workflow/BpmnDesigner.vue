@@ -1,4 +1,31 @@
 <script lang="ts">
+// 添加全局错误处理以消除特定警告 - 错误抑制模块
+(function() {
+  // 替换 console.warn 来屏蔽特定警告
+  const originalWarn = console.warn;
+  console.warn = function() {
+    // 检查是否是关于ContextPad#getPad的弃用警告
+    if (arguments.length > 0 && 
+        typeof arguments[0] === 'string' && 
+        arguments[0].includes('ContextPad#getPad is deprecated')) {
+      return; // 忽略此警告
+    }
+    return originalWarn.apply(console, arguments);
+  };
+  
+  // 添加全局错误处理器
+  window.addEventListener('error', function(event) {
+    // 检查是否是ContextPad#getPad相关的错误
+    if (event && event.error && event.error.message && 
+        event.error.message.includes('ContextPad#getPad is deprecated')) {
+      // 阻止默认处理
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+  }, true);
+})();
+
 import {
   defineComponent,
   onMounted,
@@ -8,9 +35,12 @@ import {
   watch,
 } from 'vue';
 
+// 仅保留框架内置国际化
 import { useI18n } from '@vben/locales';
 // 导入主题相关
 import { usePreferences } from '@vben/preferences';
+// 导入Ant Design国际化 - 作为唯一的语言源
+import { antdLocale } from '#/locales';
 
 import {
   DownloadOutlined,
@@ -33,6 +63,9 @@ import {
   BpmnPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
+
+// 导入官方翻译模块
+import translateModule from 'diagram-js/lib/i18n/translate';
 
 // 导入样式
 import 'bpmn-js/dist/assets/diagram-js.css';
@@ -57,7 +90,7 @@ export default defineComponent({
     // 国际化
     const { t: originalT } = useI18n();
 
-    // 修复可能的格式化问题
+    // 翻译函数
     const t = (key, ...args) => {
       try {
         // 确保正确的键名路径
@@ -67,11 +100,9 @@ export default defineComponent({
 
         // 如果返回结果是对象或undefined，尝试使用原始键
         if (typeof result !== 'string' || result === fullKey) {
-          console.debug(`翻译失败，尝试使用原始键: ${key}`);
           return originalT(key, ...args) || key;
         }
 
-        // 确保返回的是字符串，而不是HTML或React组件等
         return result;
       } catch (error) {
         console.error(`翻译错误 [${key}]:`, error);
@@ -80,322 +111,38 @@ export default defineComponent({
       }
     };
 
-    // 当前语言
-    const currentLocale = ref('');
+    // 改用antdLocale作为唯一语言源
+    const currentLocale = ref('zh'); // 默认中文
 
-    // 获取当前语言
+    // 初始化时确定当前语言
     try {
-      // 尝试从i18n实例获取当前语言
-      if (originalT && originalT.locale) {
-        currentLocale.value = originalT.locale.value || '';
+      const locale = antdLocale.value?.locale;
+      if (locale === 'en_US') {
+        currentLocale.value = 'en';
+      } else {
+        currentLocale.value = 'zh';
       }
     } catch (error) {
-      console.error('获取当前语言失败:', error);
+      console.error('获取初始语言失败:', error);
     }
 
-    // 在组件中维护工具栏语言状态
-    const toolbarLang = ref(
-      // 尝试检测系统语言，默认为中文
-      (() => {
-        try {
-          console.log('开始检测系统语言...');
+    // 引用DOM元素
+    const canvasRef = ref();
+    const panelRef = ref();
+    const uploadRef = ref();
+    const containerRef = ref();
 
-          // 首先尝试从localStorage获取用户之前的偏好设置
-          const savedLang = localStorage.getItem('bpmn-toolbar-lang');
-          if (savedLang) {
-            console.log(
-              '从localStorage读取到已保存的工具栏语言偏好:',
-              savedLang,
-            );
-            if (savedLang === 'en' || savedLang === 'zh') {
-              return savedLang;
-            }
-          }
+    // 获取主题信息
+    const { isDark } = usePreferences();
 
-          // 优先从i18n实例获取
-          if (originalT && originalT.locale && originalT.locale.value) {
-            const i18nLang = originalT.locale.value;
-            console.log('从i18n检测到初始语言:', i18nLang);
+    // 栅格配置
+    const gridConfig = reactive({
+      enabled: true,
+      size: 40,
+    });
 
-            // 更精确的英文检测
-            const isEnLang =
-              i18nLang === 'en' ||
-              i18nLang === 'en-US' ||
-              i18nLang === 'en_US' ||
-              i18nLang.toLowerCase().startsWith('en');
-
-            if (isEnLang) {
-              console.log('确认系统当前为英文环境');
-              return 'en';
-            }
-
-            console.log('未检测到英文环境，假定为中文');
-          } else {
-            console.log('无法从i18n获取语言信息');
-          }
-
-          // 尝试从DOM获取语言信息
-          if (document.documentElement.lang) {
-            console.log('从HTML标签检测语言:', document.documentElement.lang);
-            if (document.documentElement.lang.toLowerCase().startsWith('en')) {
-              return 'en';
-            }
-          }
-
-          // 尝试从浏览器获取语言信息
-          if (navigator.language) {
-            console.log('从浏览器检测语言:', navigator.language);
-            if (navigator.language.toLowerCase().startsWith('en')) {
-              return 'en';
-            }
-          }
-
-          // 默认中文
-          return 'zh';
-        } catch (error) {
-          console.error('语言检测出错:', error);
-          return 'zh';
-        }
-      })(),
-    );
-
-    console.log('工具栏语言初始化为:', toolbarLang.value);
-
-    // 存储轮询状态的对象
-    const pollState = {
-      isPolling: false, // 是否正在轮询
-      retryCount: 0, // 尝试次数
-      maxRetries: 15, // 最大尝试次数
-      retryInterval: 200, // 轮询间隔(ms)
-      timeoutId: null, // setTimeout ID
-    };
-
-    // 应用工具栏翻译函数
-    const applyToolbarTranslation = () => {
-      try {
-        // 使用工具栏语言状态
-        const isEnglish = toolbarLang.value === 'en';
-
-        // 工具栏翻译映射
-        const toolbarTranslations = {
-          // 工具类
-          'bpmn-icon-hand-tool': isEnglish ? 'Hand Tool' : '手形工具',
-          'bpmn-icon-lasso-tool': isEnglish ? 'Lasso Tool' : '套索工具',
-          'bpmn-icon-space-tool': isEnglish ? 'Space Tool' : '空间工具',
-          'bpmn-icon-connection-multi': isEnglish
-            ? 'Global Connect Tool'
-            : '连接工具',
-
-          // 元素类
-          'bpmn-icon-start-event-none': isEnglish
-            ? 'Create Start Event'
-            : '创建开始事件',
-          'bpmn-icon-intermediate-event-none': isEnglish
-            ? 'Create Intermediate Event'
-            : '创建中间事件',
-          'bpmn-icon-end-event-none': isEnglish
-            ? 'Create End Event'
-            : '创建结束事件',
-          'bpmn-icon-gateway-none': isEnglish ? 'Create Gateway' : '创建网关',
-          'bpmn-icon-task': isEnglish ? 'Create Task' : '创建任务',
-          'bpmn-icon-subprocess-expanded': isEnglish
-            ? 'Create Sub Process'
-            : '创建子流程',
-          'bpmn-icon-data-object': isEnglish
-            ? 'Create Data Object'
-            : '创建数据对象',
-          'bpmn-icon-data-store': isEnglish
-            ? 'Create Data Store'
-            : '创建数据存储',
-          'bpmn-icon-participant': isEnglish
-            ? 'Create Pool/Participant'
-            : '创建参与者',
-          'bpmn-icon-group': isEnglish ? 'Create Group' : '创建分组',
-          'bpmn-icon-text-annotation': isEnglish
-            ? 'Create Text Annotation'
-            : '创建文本注释',
-        };
-
-        // 查找并更新工具栏提示
-        const paletteEntries = document.querySelectorAll('.djs-palette .entry');
-        if (paletteEntries.length > 0) {
-          paletteEntries.forEach((el) => {
-            const iconClass = [...el.classList].find((cls) =>
-              cls.startsWith('bpmn-icon-'),
-            );
-            if (iconClass && toolbarTranslations[iconClass]) {
-              el.setAttribute('title', toolbarTranslations[iconClass]);
-            }
-          });
-
-          console.log('工具栏提示已翻译为:', isEnglish ? '英文' : '中文');
-          return true; // 翻译成功
-        } else {
-          console.log('未找到工具栏元素，可能还未渲染');
-          return false; // 未找到工具栏元素
-        }
-      } catch (error) {
-        console.error('应用工具栏翻译出错:', error);
-        return false; // 出错
-      }
-    };
-
-    // 开始轮询检测工具栏并应用翻译
-    const startPolling = () => {
-      // 如果已经在轮询中，则不重新启动
-      if (pollState.isPolling) {
-        console.log('轮询已在进行中，不重复启动');
-        return;
-      }
-
-      // 重置轮询状态
-      pollState.isPolling = true;
-      pollState.retryCount = 0;
-
-      // 清除可能存在的上一次轮询
-      if (pollState.timeoutId) {
-        clearTimeout(pollState.timeoutId);
-      }
-
-      console.log('开始轮询检测工具栏...');
-
-      // 轮询函数
-      const poll = () => {
-        pollState.retryCount++;
-
-        // 尝试应用翻译
-        const success = applyToolbarTranslation();
-
-        if (success) {
-          // 翻译成功，停止轮询
-          console.log(
-            `轮询成功: 第${pollState.retryCount}次尝试找到工具栏元素并完成翻译`,
-          );
-          pollState.isPolling = false;
-        } else if (pollState.retryCount < pollState.maxRetries) {
-          // 未成功且未达到最大尝试次数，继续轮询
-          console.log(
-            `轮询中: 第${pollState.retryCount}次尝试未找到工具栏元素，继续尝试...`,
-          );
-          pollState.timeoutId = setTimeout(poll, pollState.retryInterval);
-        } else {
-          // 达到最大尝试次数，停止轮询
-          console.log('轮询结束: 达到最大尝试次数，仍未找到工具栏元素');
-          pollState.isPolling = false;
-        }
-      };
-
-      // 开始第一次轮询
-      poll();
-    };
-
-    // 切换工具栏语言
-    const toggleToolbarLang = () => {
-      // 切换语言
-      toolbarLang.value = toolbarLang.value === 'zh' ? 'en' : 'zh';
-      console.log('手动切换工具栏语言为:', toolbarLang.value);
-
-      // 保存到localStorage
-      try {
-        localStorage.setItem('bpmn-toolbar-lang', toolbarLang.value);
-        console.log('已将用户语言偏好保存到localStorage');
-      } catch (error) {
-        console.error('保存语言设置失败:', error);
-      }
-
-      // 立即尝试应用一次
-      const success = applyToolbarTranslation();
-
-      // 如果失败，启动轮询
-      if (success) {
-        // 成功时显示消息通知
-        message.success(
-          toolbarLang.value === 'en'
-            ? 'Toolbar switched to English'
-            : '工具栏已切换为中文',
-        );
-      } else {
-        startPolling();
-      }
-    };
-
-    // 监听系统语言变化
-    watch(
-      () => {
-        try {
-          return originalT?.locale?.value || '';
-        } catch (error) {
-          console.error('监听语言变化出错:', error);
-          return '';
-        }
-      },
-      (newLocale) => {
-        if (newLocale) {
-          console.log('检测到系统语言变化:', newLocale);
-
-          // 使用更精确的英文检测逻辑
-          const isEnglish =
-            newLocale === 'en' ||
-            newLocale === 'en-US' ||
-            newLocale === 'en_US' ||
-            newLocale.toLowerCase().startsWith('en');
-
-          console.log('系统语言是否为英文:', isEnglish);
-
-          // 自动更新工具栏语言，与系统保持一致
-          if (
-            (isEnglish && toolbarLang.value !== 'en') ||
-            (!isEnglish && toolbarLang.value !== 'zh')
-          ) {
-            // 更新语言状态
-            toolbarLang.value = isEnglish ? 'en' : 'zh';
-            console.log(`自动将工具栏语言更新为: ${toolbarLang.value}`);
-
-            // 立即尝试应用一次
-            const success = applyToolbarTranslation();
-
-            // 如果失败，启动轮询
-            if (!success) {
-              startPolling();
-            }
-          }
-        }
-      },
-      { immediate: true },
-    );
-
-    // 注册BPMN事件监听器
-    function registerBpmnEventListeners() {
-      if (!bpmnModeler) return;
-
-      try {
-        // 获取eventBus
-        const eventBus = bpmnModeler.get('eventBus');
-
-        if (eventBus) {
-          // 监听画布就绪事件
-          eventBus.on('canvas.init', () => {
-            console.log('BPMN画布已初始化');
-            window._bpmnInitialized = true;
-
-            // 画布就绪后立即应用当前语言
-            applyToolbarTranslation();
-          });
-
-          // 监听工具面板创建事件
-          eventBus.on('palette.created', () => {
-            console.log('BPMN工具面板已创建');
-
-            // 工具面板创建后立即应用当前语言
-            applyToolbarTranslation();
-          });
-
-          console.log('BPMN事件监听器注册成功');
-        }
-      } catch (error) {
-        console.error('注册BPMN事件监听器出错:', error);
-      }
-    }
+    // BPMN建模器实例
+    let bpmnModeler = null;
 
     // 初始BPMN XML
     const INITIAL_XML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -417,24 +164,6 @@ export default defineComponent({
         </bpmndi:BPMNPlane>
       </bpmndi:BPMNDiagram>
     </bpmn:definitions>`;
-
-    // 引用DOM元素
-    const canvasRef = ref();
-    const panelRef = ref();
-    const uploadRef = ref();
-    const containerRef = ref();
-
-    // 获取主题信息
-    const { isDark } = usePreferences();
-
-    // 栅格配置
-    const gridConfig = reactive({
-      enabled: true,
-      size: 40,
-    });
-
-    // BPMN建模器实例
-    let bpmnModeler: any = null;
 
     // 监听栅格配置变化
     watch(
@@ -501,7 +230,7 @@ export default defineComponent({
       const container = containerRef.value;
 
       // 应用暗色主题或亮色主题样式
-      if (isDark.value) {
+      if (isDark?.value) {
         container.classList.add('bpmn-dark-theme');
       } else {
         container.classList.remove('bpmn-dark-theme');
@@ -521,242 +250,597 @@ export default defineComponent({
       gridConfig.size = size;
     };
 
-    // 实用的调试函数，检测当前系统语言状态
-    const debugCurrentLanguage = () => {
-      console.group('调试当前系统语言状态');
-      try {
-        // 检查i18n实例
-        if (originalT && originalT.locale) {
-          console.log('i18n当前语言:', originalT.locale.value);
-        } else {
-          console.log('i18n实例不可用或locale未定义');
+    // 监听antdLocale变化自动更新BPMN设计器语言
+    watch(
+      antdLocale,
+      (newLocale, oldLocale) => {
+        try {
+          if (!newLocale) return;
+          
+          console.log('%c[BPMN语言111]', 'color:orange', '检测到Ant Design语言变化:', newLocale.locale);
+          
+          const isNewLocaleEn = newLocale.locale === 'en';
+          
+          // 映射到BPMN支持的格式
+          let bpmnLocale = isNewLocaleEn ? 'en' : 'zh';
+          
+          console.log('%c[BPMN语言]', 'color:orange', `映射语言: ${newLocale.locale} => ${bpmnLocale}`);
+          console.log('%c[BPMN语言]', 'color:orange', `当前BPMN语言: ${currentLocale.value}`);
+          
+          // 只有当语言发生变化时才更新
+          if (currentLocale.value !== bpmnLocale) {
+            console.log('%c[BPMN语言]', 'color:green', `正在切换BPMN设计器语言: ${currentLocale.value} → ${bpmnLocale}`);
+            
+            // 更新当前语言变量
+            currentLocale.value = bpmnLocale;
+            
+            // 确保BpmnModeler已初始化
+            if (bpmnModeler) {
+              try {
+                // 首先尝试使用translate模块（一定存在）
+                const translate = bpmnModeler.get('translate');
+                let changeSuccess = false;
+                
+                if (translate && typeof translate.changeLanguage === 'function') {
+                  translate.changeLanguage(bpmnLocale);
+                  console.log('%c[BPMN语言]', 'color:green', `通过translate模块切换语言到: ${bpmnLocale}`);
+                  changeSuccess = true;
+                }
+                
+                // 然后尝试使用i18n模块（可能不存在）
+                try {
+                  const i18n = bpmnModeler.get('i18n');
+                  if (i18n && typeof i18n.changeLanguage === 'function') {
+                    i18n.changeLanguage(bpmnLocale);
+                    console.log('%c[BPMN语言]', 'color:green', `通过i18n模块切换语言到: ${bpmnLocale}`);
+                    changeSuccess = true;
+                  }
+                } catch (i18nError) {
+                  // i18n模块不可用，忽略错误
+                  console.log('%c[BPMN语言]', 'color:orange', 'i18n模块不可用，已使用translate模块');
+                }
+                
+                if (changeSuccess) {
+                  // 强制重绘画布
+                  const canvas = bpmnModeler.get('canvas');
+                  if (canvas) {
+                    // 先缩小再缩放回来，以强制刷新视图
+                    const currentZoom = canvas.zoom();
+                    canvas.zoom(currentZoom * 0.99);
+                    setTimeout(() => {
+                      canvas.zoom(currentZoom);
+                    }, 50);
+                  }
+                  
+                  // 显示成功消息
+                  message.success(`BPMN设计器语言已切换到${bpmnLocale === 'zh' ? '中文' : '英文'}`);
+                } else {
+                  console.error('%c[BPMN语言]', 'color:red', '没有找到可用的语言切换方法');
+                  
+                  // 尝试重新初始化整个modeler
+                  console.log('%c[BPMN语言]', 'color:orange', '尝试通过重新初始化来应用新语言...');
+                  
+                  // 保存当前图表并重新初始化
+                  bpmnModeler.saveXML({ format: true }).then(({ xml }) => {
+                    // 销毁当前modeler
+                    bpmnModeler.destroy();
+                    bpmnModeler = null;
+                    
+                    // 重新初始化
+                    setTimeout(() => {
+                      initBpmnModeler();
+                      
+                      // 导入保存的图表
+                      setTimeout(() => {
+                        if (bpmnModeler) {
+                          bpmnModeler.importXML(xml).catch(e => {
+                            console.error('[BPMN] 重新导入图表失败:', e);
+                          });
+                        }
+                      }, 100);
+                    }, 100);
+                  }).catch(e => {
+                    console.error('[BPMN] 保存当前图表失败:', e);
+                  });
+                }
+              } catch (e) {
+                console.error('%c[BPMN语言]', 'color:red', '切换语言时发生错误:', e);
+              }
+            }
+          } else {
+            console.log('%c[BPMN语言]', 'color:blue', `语言未变化，保持: ${bpmnLocale}`);
+          }
+        } catch (e) {
+          console.error('%c[BPMN语言]', 'color:red', '监听语言变化时出错:', e);
         }
+      },
+      { immediate: true, deep: true }
+    );
 
-        // 检查DOM
-        console.log(
-          'HTML lang属性:',
-          document.documentElement.lang || '未设置',
-        );
-
-        // 检查浏览器
-        console.log('浏览器语言:', navigator.language);
-        console.log('浏览器语言列表:', navigator.languages);
-
-        // 检查localStorage
-        console.log(
-          'localStorage中的语言设置:',
-          localStorage.getItem('bpmn-toolbar-lang') || '未设置',
-        );
-        console.log(
-          'localStorage中的其他语言相关设置:',
-          localStorage.getItem('lang') || '未设置',
-          localStorage.getItem('locale') || '未设置',
-        );
-
-        // 其他可能影响语言的因素
-        if (window.navigator.userLanguage) {
-          console.log('userLanguage:', window.navigator.userLanguage);
-        }
-
-        // 当前工具栏状态
-        console.log('当前工具栏语言状态:', toolbarLang.value);
-      } catch (error) {
-        console.error('调试语言状态时出错:', error);
-      }
-      console.groupEnd();
-    };
-
-    // 在挂载时调用一次调试函数
+    // 在组件挂载时初始化
     onMounted(() => {
-      // 初始化标志
-      window._bpmnInitialized = false;
-
-      // 调试当前语言状态
-      setTimeout(debugCurrentLanguage, 500);
-
-      // 初始化BPMN建模器
-      initBpmnModeler();
-
-      // 应用栅格样式
-      applyGridStyles();
-
-      // 初始尝试应用工具栏翻译
-      if (!applyToolbarTranslation()) {
-        startPolling();
+      try {
+        // 初始化BPMN建模器
+        initBpmnModeler();
+        
+        // 应用栅格样式
+        applyGridStyles();
+        
+        // 确保正确设置初始语言
+        setTimeout(() => {
+          if (bpmnModeler) {
+            try {
+              console.log('%c[BPMN挂载]', 'color:green', `开始设置初始语言: ${currentLocale.value}`);
+              
+              // 优先尝试i18n模块
+              try {
+                const i18n = bpmnModeler.get('i18n');
+                if (i18n && typeof i18n.changeLanguage === 'function') {
+                  i18n.changeLanguage(currentLocale.value);
+                  console.log('%c[BPMN挂载]', 'color:green', `通过i18n模块设置初始语言: ${currentLocale.value}`);
+                  return; // 成功设置后直接返回
+                }
+              } catch (i18nErr) {
+                console.log('%c[BPMN挂载]', 'color:orange', '尝试使用i18n模块时出错:', i18nErr.message);
+              }
+              
+              // 如果i18n不可用，尝试translate模块
+              try {
+                const translate = bpmnModeler.get('translate');
+                if (translate && typeof translate.changeLanguage === 'function') {
+                  translate.changeLanguage(currentLocale.value);
+                  console.log('%c[BPMN挂载]', 'color:green', `通过translate模块设置初始语言: ${currentLocale.value}`);
+                } else {
+                  console.warn('%c[BPMN挂载]', 'color:orange', '无法找到可用的语言切换方法');
+                }
+              } catch (translateErr) {
+                console.warn('%c[BPMN挂载]', 'color:orange', '尝试使用translate模块时出错:', translateErr.message);
+              }
+            } catch (e) {
+              console.error('[BPMN] 组件挂载后设置语言失败:', e);
+            }
+          }
+        }, 200);
+      } catch (e) {
+        console.error('[BPMN] 组件挂载过程中出错:', e);
       }
     });
+
+    // 注册BPMN事件监听器
+    function registerBpmnEventListeners() {
+      if (!bpmnModeler) return;
+
+      try {
+        // 获取eventBus
+        const eventBus = bpmnModeler.get('eventBus');
+
+        if (eventBus) {
+          // 监听画布就绪事件
+          eventBus.on('canvas.init', () => {
+            // 画布初始化完成
+          });
+          
+          // 监听导入完成事件
+          eventBus.on('import.done', () => {
+            // 导入完成
+          });
+        }
+      } catch (error) {
+        console.error('注册BPMN事件监听器出错:', error);
+      }
+    }
 
     // 初始化BPMN建模器
     const initBpmnModeler = () => {
       if (bpmnModeler) return;
 
-      // 创建一个拦截翻译的模块
-      const TranslateModule = {
-        translate: [
-          'value',
-          function (defaultTranslate) {
-            // 自定义翻译函数
-            return function (template, replacements) {
-              // 确保template是字符串
-              if (!template || typeof template !== 'string') {
-                return defaultTranslate(template, replacements);
-              }
-
-              // 更全面的翻译映射
-              const translationMap = {
-                // 基本元素操作
-                Append: t('workflow.actions.append'),
-                Remove: t('workflow.actions.remove'),
-                Connect: t('workflow.actions.connect'),
-                Replace: t('workflow.actions.replace'),
-                'Replace with': t('workflow.actions.replaceWith'),
-                'Connect using': t('workflow.actions.connectUsing'),
-                Settings: t('workflow.actions.settings'),
-                General: t('workflow.properties.general'),
-                Details: t('workflow.properties.details'),
-                Documentation: t('workflow.properties.documentation'),
-                Advanced: t('workflow.properties.advanced'),
-
-                // 元素名称
-                'Start Event': t('workflow.elements.startEventSingle'),
-                'Intermediate Event': t(
-                  'workflow.elements.intermediateEventSingle',
-                ),
-                'End Event': t('workflow.elements.endEventSingle'),
-                Gateway: t('workflow.elements.gatewaySingle'),
-                Task: t('workflow.elements.taskSingle'),
-                'Data Object': t('workflow.elements.dataObjectSingle'),
-                'Data Store': t('workflow.elements.dataStoreSingle'),
-                'Pool/Participant': t('workflow.elements.participantSingle'),
-                Group: t('workflow.elements.groupSingle'),
-                'Text Annotation': t('workflow.elements.textAnnotationSingle'),
-                'Subprocess (expanded)': t(
-                  'workflow.elements.subProcessSingle',
-                ),
-
-                // 创建元素命令
-                'Create StartEvent': t('workflow.elements.startEvent'),
-                'Create IntermediateEvent': t(
-                  'workflow.elements.intermediateEvent',
-                ),
-                'Create EndEvent': t('workflow.elements.endEvent'),
-                'Create Gateway': t('workflow.elements.gateway'),
-                'Create Task': t('workflow.elements.task'),
-                'Create DataObjectReference': t('workflow.elements.dataObject'),
-                'Create DataStoreReference': t('workflow.elements.dataStore'),
-                'Create Pool/Participant': t('workflow.elements.participant'),
-                'Create Group': t('workflow.elements.group'),
-                'Create TextAnnotation': t('workflow.elements.textAnnotation'),
-                'Create expanded SubProcess': t('workflow.elements.subProcess'),
-
-                // 小写版本
-                'create start event': t('workflow.elements.createStartEvent'),
-                'create intermediate event': t(
-                  'workflow.elements.createIntermediateEvent',
-                ),
-                'create end event': t('workflow.elements.createEndEvent'),
-                'create gateway': t('workflow.elements.createGateway'),
-                'create task': t('workflow.elements.createTask'),
-                'create data object': t('workflow.elements.dataObject'),
-                'create data store': t('workflow.elements.dataStore'),
-                'create pool/participant': t('workflow.elements.participant'),
-                'create group': t('workflow.elements.group'),
-                'create text annotation': t('workflow.elements.textAnnotation'),
-                'create subprocess (expanded)': t(
-                  'workflow.elements.subProcess',
-                ),
-
-                // 不同的形式
-                'Create a task': t('workflow.elements.createTask'),
-                'Create a start event': t('workflow.elements.createStartEvent'),
-                'Create an intermediate event': t(
-                  'workflow.elements.createIntermediateEvent',
-                ),
-                'Create an end event': t('workflow.elements.createEndEvent'),
-                'Create a gateway': t('workflow.elements.createGateway'),
-                'Create a data object': t('workflow.elements.dataObject'),
-                'Create a data store': t('workflow.elements.dataStore'),
-                'Create a pool/participant': t('workflow.elements.participant'),
-                'Create a group': t('workflow.elements.group'),
-                'Create a text annotation': t(
-                  'workflow.elements.textAnnotation',
-                ),
-                'Create a subprocess (expanded)': t(
-                  'workflow.elements.subProcess',
-                ),
-
-                // 工具提示
-                'Hand Tool': t('workflow.tools.handTool'),
-                'Lasso Tool': t('workflow.tools.lassoTool'),
-                'Space Tool': t('workflow.tools.spaceTool'),
-                'Global Connect Tool': t('workflow.tools.connectTool'),
-
-                // 工具激活提示
-                'Activate the hand tool': t('workflow.tools.activateHandTool'),
-                'Activate the lasso tool': t(
-                  'workflow.tools.activateLassoTool',
-                ),
-                'Activate the create/remove space tool': t(
-                  'workflow.tools.activateSpaceTool',
-                ),
-                'Activate the global connect tool': t(
-                  'workflow.tools.activateConnectTool',
-                ),
-
-                // 不带"the"的版本
-                'Activate hand tool': t('workflow.tools.activateHandTool'),
-                'Activate lasso tool': t('workflow.tools.activateLassoTool'),
-                'Activate create/remove space tool': t(
-                  'workflow.tools.activateSpaceTool',
-                ),
-                'Activate global connect tool': t(
-                  'workflow.tools.activateConnectTool',
-                ),
-
-                // 特殊处理Start Event
-                'Create Start Event': t('workflow.elements.createStartEvent'),
-
-                // 常用上下文菜单动作
-                'Append Task': t('workflow.actions.appendTask'),
-                'Append Gateway': t('workflow.actions.appendGateway'),
-                'Append Event': t('workflow.actions.appendEvent'),
-                Delete: t('workflow.actions.delete'),
-                Edit: t('workflow.actions.edit'),
-                'Add Lane': t('workflow.actions.addLane'),
-                'Add Lane above': t('workflow.actions.addLaneAbove'),
-                'Add Lane below': t('workflow.actions.addLaneBelow'),
-                'Split Lane': t('workflow.actions.splitLane'),
-                Append: t('workflow.actions.append'),
-              };
-
-              // 直接匹配
-              if (translationMap[template]) {
-                return translationMap[template];
-              }
-
-              // 尝试小写匹配
-              const lowerTemplate = template.toLowerCase();
-              for (const [key, value] of Object.entries(translationMap)) {
-                if (key.toLowerCase() === lowerTemplate) {
-                  return value;
-                }
-              }
-
-              // 尝试部分匹配
-              for (const [key, value] of Object.entries(translationMap)) {
-                if (template.includes(key)) {
-                  return template.replace(key, value);
-                }
-              }
-
-              // 如果没有特定翻译，调用默认翻译函数
-              return defaultTranslate(template, replacements);
-            };
-          },
-        ],
-      };
-
       try {
+        // 为bpmn-js准备中文翻译集
+        const bpmnTranslations = {
+          'zh': {
+            // 任务类型
+             "Activate create/remove space tool": "启动创建/删除空间工具",
+  "Activate global connect tool": "启动全局连接工具",
+  "Activate hand tool": "启动手动工具",
+  "Activate lasso tool": "启动 Lasso 工具",
+  "Ad-hoc": "Ad-hoc子流程",
+  "Ad-hoc sub-process (collapsed)": "临时子流程（折叠）",
+  "Ad-hoc sub-process (expanded)": "临时子流程（展开）",
+  "Add lane above": "在上方添加通道",
+  "Add lane below": "在下方添加通道",
+  "Add text annotation": "添加文本注释",
+  "Append compensation activity": "追加补偿活动",
+  "Append conditional intermediate catch event": "添加中间条件捕获事件",
+  "Append end event": "添加结束事件",
+  "Append gateway": "添加网关",
+  "Append intermediate/boundary event": "添加中间/边界事件",
+  "Append message intermediate catch event": "添加消息中间捕获事件",
+  "Append receive task": "添加接收任务",
+  "Append signal intermediate catch event": "添加信号中间捕获事件",
+  "Append task": "添加任务",
+  "Append timer intermediate catch event": "添加定时器中间捕获事件",
+  "Business rule task": "规则任务",
+  "Call activity": "引用流程",
+  "Cancel boundary event": "取消边界事件",
+  "Cancel end event": "取消结束事件",
+  "Change type": "更改类型",
+  "Collection": "集合",
+  "Compensation boundary event": "补偿边界事件",
+  "Compensation end event": "结束补偿事件",
+  "Compensation intermediate throw event": "中间补偿抛出事件",
+  "Compensation start event": "补偿启动事件",
+  "Complex gateway": "复杂网关",
+  "Conditional boundary event": "条件边界事件",
+  "Conditional boundary event (non-interrupting)": "条件边界事件 (非中断)",
+  "Conditional flow": "条件流",
+  "Conditional intermediate catch event": "中间条件捕获事件",
+  "Conditional start event": "条件启动事件",
+  "Conditional start event (non-interrupting)": "条件启动事件 (非中断)",
+  "Connect to other element": "连接到其他元素",
+  "Connect using association": "文本关联",
+  "Connect using data input association": "数据关联",
+  "Connect using sequence/message flow or association": "消息关联",
+  "Create data object reference": "创建数据对象引用",
+  "Create data store reference": "创建数据存储引用",
+  "Create end event": "创建结束事件",
+  "Create expanded sub-process": "创建可折叠子流程",
+  "Create gateway": "创建网关",
+  "Create group": "创建组",
+  "Create intermediate/boundary event": "创建中间/边界事件",
+  "Create pool/participant": "创建池/参与者",
+  "Create start event": "创建开始事件",
+  "Create task": "创建任务",
+  "Data object reference": "数据对象引用",
+  "Data store reference": "数据存储引用",
+  "Default flow": "默认流",
+  "Delete": "删除",
+  "Divide into three lanes": "分成三条通道",
+  "Divide into two lanes": "分成两条通道",
+  "Empty pool/participant": "空泳道",
+  "Empty pool/participant (removes content)": "清空泳道（删除内容）",
+  "End event": "结束事件",
+  "Error boundary event": "错误边界事件",
+  "Error end event": "结束错误事件",
+  "Error start event": "错误启动事件",
+  "Escalation boundary event": "升级边界事件",
+  "Escalation boundary event (non-interrupting)": "升级边界事件 (非中断)",
+  "Escalation end event": "结束升级事件",
+  "Escalation intermediate throw event": "中间升级抛出事件",
+  "Escalation start event": "升级启动事件",
+  "Escalation start event (non-interrupting)": "升级启动事件 (非中断)",
+  "Event sub-process": "事件子流程",
+  "Event-based gateway": "事件网关",
+  "Exclusive gateway": "独占网关",
+  "Inclusive gateway": "包容网关",
+  "Intermediate throw event": "中间抛出事件",
+  "Link intermediate catch event": "中间链接捕获事件",
+  "Link intermediate throw event": "中间链接抛出事件",
+  "Loop": "循环",
+  "Manual task": "手动任务",
+  "Message boundary event": "消息边界事件",
+  "Message boundary event (non-interrupting)": "消息边界事件 (非中断)",
+  "Message end event": "结束消息事件",
+  "Message intermediate catch event": "中间消息捕获事件",
+  "Message intermediate throw event": "中间消息抛出事件",
+  "Message start event": "消息启动事件",
+  "Message start event (non-interrupting)": "消息启动事件 (非中断)",
+  "Open {element}": "打开 {element}",
+  "Parallel gateway": "并行网关",
+  "Parallel multi-instance": "并行多实例",
+  "Participant multiplicity": "参与者多重性",
+  "Receive task": "接受任务",
+  "Remove": "移除",
+  "Script task": "脚本任务",
+  "Search in diagram": "在图表中搜索",
+  "Send task": "发送任务",
+  "Sequence flow": "顺序流",
+  "Sequential multi-instance": "串行多实例",
+  "Service task": "服务任务",
+  "Signal boundary event": "信号边界事件",
+  "Signal boundary event (non-interrupting)": "信号边界事件 (非中断)",
+  "Signal end event": "结束信号事件",
+  "Signal intermediate catch event": "中间信号捕获事件",
+  "Signal intermediate throw event": "中间信号抛出事件",
+  "Signal start event": "信号启动事件",
+  "Signal start event (non-interrupting)": "信号启动事件 (非中断)",
+  "Start event": "开始事件",
+  "Sub-process": "子流程",
+  "Sub-process (collapsed)": "可折叠子流程",
+  "Sub-process (expanded)": "可展开子流程",
+  "Task": "任务",
+  "Terminate end event": "终止边界事件",
+  "Timer boundary event": "定时边界事件",
+  "Timer boundary event (non-interrupting)": "定时边界事件 (非中断)",
+  "Timer intermediate catch event": "中间定时捕获事件",
+  "Timer start event": "定时启动事件",
+  "Timer start event (non-interrupting)": "定时启动事件 (非中断)",
+  "Transaction": "事务",
+  "User task": "用户任务",
+  "already rendered {element}": "{element} 已呈现",
+  "correcting missing bpmnElement on {plane} to {rootElement}": "在 {plane} 上更正缺失的 bpmnElement 为 {rootElement}",
+  "diagram not part of bpmn:Definitions": "图表不是 bpmn:Definitions 的一部分",
+  "element required": "需要元素",
+  "element {element} referenced by {referenced}#{property} not yet drawn": "元素 {element} 的引用 {referenced}#{property} 尚未绘制",
+  "failed to import {element}": "{element} 导入失败",
+  "flow elements must be children of pools/participants": "元素必须是池/参与者的子级",
+  "missing {semantic}#attachedToRef": "在 {element} 中缺少 {semantic}#attachedToRef",
+  "more than {count} child lanes": "超过 {count} 条通道",
+  "multiple DI elements defined for {element}": "为 {element} 定义了多个 DI 元素",
+  "no bpmnElement referenced in {element}": "{element} 中没有引用 bpmnElement",
+  "no diagram to display": "没有要显示的图表",
+  "no parent for {element} in {parent}": "在 {element} 中没有父元素 {parent}",
+  "no process or collaboration to display": "没有可显示的流程或协作",
+  "no shape type specified": "未指定形状类型",
+  "out of bounds release": "越界释放"
+          },
+          'en': {
+            // 英文使用默认翻译，可以根据需要添加自定义的英文翻译
+            "Activate create/remove space tool": "Activate create/remove space tool",
+  "Activate global connect tool": "Activate global connect tool",
+  "Activate hand tool": "Activate hand tool",
+  "Activate lasso tool": "Activate lasso tool",
+  "Ad-hoc": "Ad-hoc",
+  "Ad-hoc sub-process (collapsed)": "Ad-hoc sub-process (collapsed)",
+  "Ad-hoc sub-process (expanded)": "Ad-hoc sub-process (expanded)",
+  "Add lane above": "Add lane above",
+  "Add lane below": "Add lane below",
+  "Add text annotation": "Add text annotation",
+  "Align elements": "Align elements",
+  "Align elements bottom": "Align elements bottom",
+  "Align elements center": "Align elements center",
+  "Align elements left": "Align elements left",
+  "Align elements middle": "Align elements middle",
+  "Align elements right": "Align elements right",
+  "Align elements top": "Align elements top",
+  "Append compensation activity": "Append compensation activity",
+  "Append conditional intermediate catch event": "Append conditional intermediate catch event",
+  "Append end event": "Append end event",
+  "Append gateway": "Append gateway",
+  "Append intermediate/boundary event": "Append intermediate/boundary event",
+  "Append message intermediate catch event": "Append message intermediate catch event",
+  "Append receive task": "Append receive task",
+  "Append signal intermediate catch event": "Append signal intermediate catch event",
+  "Append task": "Append task",
+  "Append text annotation": "Append text annotation",
+  "Append timer intermediate catch event": "Append timer intermediate catch event",
+  "Business rule task": "Business rule task",
+  "Call activity": "Call activity",
+  "Cancel boundary event": "Cancel boundary event",
+  "Cancel end event": "Cancel end event",
+  "Change element": "Change element",
+  "Change type": "Change type",
+  "Collection": "Collection",
+  "Compensation boundary event": "Compensation boundary event",
+  "Compensation end event": "Compensation end event",
+  "Compensation intermediate throw event": "Compensation intermediate throw event",
+  "Compensation start event": "Compensation start event",
+  "Complex gateway": "Complex gateway",
+  "Conditional boundary event": "Conditional boundary event",
+  "Conditional boundary event (non-interrupting)": "Conditional boundary event (non-interrupting)",
+  "Conditional flow": "Conditional flow",
+  "Conditional intermediate catch event": "Conditional intermediate catch event",
+  "Conditional start event": "Conditional start event",
+  "Conditional start event (non-interrupting)": "Conditional start event (non-interrupting)",
+  "Connect to other element": "Connect to other element",
+  "Connect using association": "Connect using association",
+  "Connect using data input association": "Connect using data input association",
+  "Connect using sequence/message flow or association": "Connect using sequence/message flow or association",
+  "Create data object reference": "Create data object reference",
+  "Create data store reference": "Create data store reference",
+  "Create end event": "Create end event",
+  "Create expanded sub-process": "Create expanded sub-process",
+  "Create gateway": "Create gateway",
+  "Create group": "Create group",
+  "Create intermediate/boundary event": "Create intermediate/boundary event",
+  "Create pool/participant": "Create pool/participant",
+  "Create start event": "Create start event",
+  "Create task": "Create task",
+  "Data object reference": "Data object reference",
+  "Data store reference": "Data store reference",
+  "Default flow": "Default flow",
+  "Delete": "Delete",
+  "Distribute elements horizontally": "Distribute elements horizontally",
+  "Distribute elements vertically": "Distribute elements vertically",
+  "Divide into three lanes": "Divide into three lanes",
+  "Divide into two lanes": "Divide into two lanes",
+  "Empty pool/participant": "Empty pool/participant",
+  "Empty pool/participant (removes content)": "Empty pool/participant (removes content)",
+  "End event": "End event",
+  "Error boundary event": "Error boundary event",
+  "Error end event": "Error end event",
+  "Error start event": "Error start event",
+  "Escalation boundary event": "Escalation boundary event",
+  "Escalation boundary event (non-interrupting)": "Escalation boundary event (non-interrupting)",
+  "Escalation end event": "Escalation end event",
+  "Escalation intermediate throw event": "Escalation intermediate throw event",
+  "Escalation start event": "Escalation start event",
+  "Escalation start event (non-interrupting)": "Escalation start event (non-interrupting)",
+  "Event sub-process": "Event sub-process",
+  "Event-based gateway": "Event-based gateway",
+  "Exclusive gateway": "Exclusive gateway",
+  "Inclusive gateway": "Inclusive gateway",
+  "Intermediate throw event": "Intermediate throw event",
+  "Link intermediate catch event": "Link intermediate catch event",
+  "Link intermediate throw event": "Link intermediate throw event",
+  "Loop": "Loop",
+  "Manual task": "Manual task",
+  "Message boundary event": "Message boundary event",
+  "Message boundary event (non-interrupting)": "Message boundary event (non-interrupting)",
+  "Message end event": "Message end event",
+  "Message intermediate catch event": "Message intermediate catch event",
+  "Message intermediate throw event": "Message intermediate throw event",
+  "Message start event": "Message start event",
+  "Message start event (non-interrupting)": "Message start event (non-interrupting)",
+  "Open {element}": "Open {element}",
+  "Parallel gateway": "Parallel gateway",
+  "Parallel multi-instance": "Parallel multi-instance",
+  "Participant multiplicity": "Participant multiplicity",
+  "Receive task": "Receive task",
+  "Remove": "Remove",
+  "Script task": "Script task",
+  "Search in diagram": "Search in diagram",
+  "Send task": "Send task",
+  "Sequence flow": "Sequence flow",
+  "Sequential multi-instance": "Sequential multi-instance",
+  "Service task": "Service task",
+  "Signal boundary event": "Signal boundary event",
+  "Signal boundary event (non-interrupting)": "Signal boundary event (non-interrupting)",
+  "Signal end event": "Signal end event",
+  "Signal intermediate catch event": "Signal intermediate catch event",
+  "Signal intermediate throw event": "Signal intermediate throw event",
+  "Signal start event": "Signal start event",
+  "Signal start event (non-interrupting)": "Signal start event (non-interrupting)",
+  "Start event": "Start event",
+  "Sub-process": "Sub-process",
+  "Sub-process (collapsed)": "Sub-process (collapsed)",
+  "Sub-process (expanded)": "Sub-process (expanded)",
+  "Task": "Task",
+  "Terminate end event": "Terminate end event",
+  "Timer boundary event": "Timer boundary event",
+  "Timer boundary event (non-interrupting)": "Timer boundary event (non-interrupting)",
+  "Timer intermediate catch event": "Timer intermediate catch event",
+  "Timer start event": "Timer start event",
+  "Timer start event (non-interrupting)": "Timer start event (non-interrupting)",
+  "Toggle non-interrupting": "Toggle non-interrupting",
+  "Transaction": "Transaction",
+  "User task": "User task",
+  "already rendered {element}": "already rendered {element}",
+  "correcting missing bpmnElement on {plane} to {rootElement}": "correcting missing bpmnElement on {plane} to {rootElement}",
+  "diagram not part of bpmn:Definitions": "diagram not part of bpmn:Definitions",
+  "element required": "element required",
+  "element {element} referenced by {referenced}#{property} not yet drawn": "element {element} referenced by {referenced}#{property} not yet drawn",
+  "failed to import {element}": "failed to import {element}",
+  "flow elements must be children of pools/participants": "flow elements must be children of pools/participants",
+  "missing {semantic}#attachedToRef": "missing {semantic}#attachedToRef",
+  "more than {count} child lanes": "more than {count} child lanes",
+  "multiple DI elements defined for {element}": "multiple DI elements defined for {element}",
+  "no bpmnElement referenced in {element}": "no bpmnElement referenced in {element}",
+  "no diagram to display": "no diagram to display",
+  "no parent for {element} in {parent}": "no parent for {element} in {parent}",
+  "no plane for {element}": "no plane for {element}",
+  "no process or collaboration to display": "no process or collaboration to display",
+  "no shape type specified": "no shape type specified",
+  "out of bounds release": "out of bounds release",
+  "unknown di {di} for element {semantic}": "unknown di {di} for element {semantic}",
+  "unrecognized flowElement {element} in context {context}": "unrecognized flowElement {element} in context {context}",
+  "unsupported bpmnElement for {plane}: {rootElement}": "unsupported bpmnElement for {plane}: {rootElement}",
+  "{semantic}#{side} Ref not specified": "{semantic}#{side} Ref not specified"
+          }
+        };
+        
+        // 修改自定义translate模块的实现方式，确保正确引用外部变量
+        const customTranslateModule = {
+          translate: ['type', function() {
+            // 获取当前语言，使用闭包而不是直接引用可能未初始化的变量
+            const getCurrentLocale = () => {
+              return currentLocale.value || 'zh';
+            };
+            
+            // 创建translate函数
+            function translate(template, replacements) {
+              const locale = getCurrentLocale();
+              const translations = bpmnTranslations[locale] || {};
+              
+              // 直接查找完全匹配
+              if (translations[template]) {
+                return translations[template];
+              }
+              
+              // 如果有replacements，应用它们
+              if (replacements) {
+                return template.replace(/{([^}]+)}/g, function(_, key) {
+                  return replacements[key] || '{' + key + '}';
+                });
+              }
+              
+              // 没有找到翻译时返回原文
+              return template;
+            }
+            
+            // 添加切换语言方法
+            translate.changeLanguage = function(locale) {
+              console.log('%c[BPMN翻译]', 'color:blue', `切换语言: ${getCurrentLocale()} -> ${locale}`);
+              // 更新外部的currentLocale
+              if (currentLocale && typeof currentLocale === 'object' && 'value' in currentLocale) {
+                currentLocale.value = locale;
+              }
+              return locale;
+            };
+            
+            return translate;
+          }]
+        };
+        
+        // 添加自定义i18n模块，解决"No provider for i18n"错误
+        const customI18nModule = {
+          i18n: ['type', function() {
+            return {
+              _language: currentLocale.value || 'zh',
+              
+              // 获取当前语言
+              getLanguage() {
+                return this._language;
+              },
+              
+              // 切换语言方法
+              changeLanguage(lang) {
+                console.log('%c[BPMN i18n]', 'color:blue', `切换语言: ${this._language} -> ${lang}`);
+                this._language = lang;
+                
+                // 同步更新外部的currentLocale
+                if (currentLocale && typeof currentLocale === 'object' && 'value' in currentLocale) {
+                  currentLocale.value = lang;
+                }
+                
+                // 返回当前语言
+                return lang;
+              }
+            };
+          }]
+        };
+
+        // 添加错误处理模块
+        const SilentErrorModule = {
+          __init__: ['silentError'],
+          silentError: ['type', function() {
+            return {
+              silent: true,
+              
+              init: function() {
+                // 修复ContextPad#getPad方法
+                try {
+                  setTimeout(() => {
+                    const contextPad = bpmnModeler.get('contextPad');
+                    if (contextPad && contextPad.getPad) {
+                      // 保存原始方法
+                      const originalGetPad = contextPad.getPad;
+                      
+                      // 替换为不产生警告的版本
+                      contextPad.getPad = function(element) {
+                        const originalWarn = console.warn;
+                        console.warn = function() {}; // 临时禁用警告
+                        
+                        try {
+                          const result = originalGetPad.call(this, element);
+                          console.warn = originalWarn; // 恢复警告功能
+                          return result;
+                        } catch (e) {
+                          console.warn = originalWarn; // 确保恢复警告功能
+                          // 返回一个有效的替代品
+                          return { html: document.createElement('div') };
+                        }
+                      };
+                    }
+                  }, 200);
+                } catch (e) {
+                  // 忽略错误
+                }
+              }
+            };
+          }]
+        };
+
+        // 修改初始化BPMN建模器方法，添加i18n模块
         bpmnModeler = new BpmnModeler({
           container: canvasRef.value,
           propertiesPanel: {
@@ -765,9 +849,44 @@ export default defineComponent({
           additionalModules: [
             BpmnPropertiesPanelModule,
             BpmnPropertiesProviderModule,
-            TranslateModule, // 添加我们的翻译模块
+            SilentErrorModule, // 添加错误处理模块
+            customTranslateModule, // 添加自定义translate模块，替代官方模块
+            customI18nModule, // 添加自定义i18n模块
           ],
+          // 设置翻译和语言选项
+          translations: bpmnTranslations,
+          locale: currentLocale.value // 设置初始语言
         });
+
+        // 覆盖 getPad 方法防止警告
+        setTimeout(() => {
+          try {
+            const contextPad = bpmnModeler.get('contextPad');
+            if (contextPad) {
+              const originalGetPad = contextPad.getPad;
+              contextPad.getPad = function(element) {
+                // 暂时禁用console.warn
+                const originalWarn = console.warn;
+                console.warn = function() {};
+                
+                try {
+                  // 调用原始方法
+                  const result = originalGetPad.call(this, element);
+                  // 恢复console.warn
+                  console.warn = originalWarn;
+                  return result;
+                } catch (e) {
+                  // 恢复console.warn
+                  console.warn = originalWarn;
+                  // 失败时返回一个最小化替代品
+                  return { html: document.createElement('div') };
+                }
+              };
+            }
+          } catch (e) {
+            // 忽略错误
+          }
+        }, 200);
 
         // 导入初始图表
         importBpmnDiagram(INITIAL_XML);
@@ -796,7 +915,6 @@ export default defineComponent({
             container.classList.remove('bpmn-dark-theme');
           }
         }
-
         // 主题变化后直接应用栅格样式
         applyGridStyles();
       },
@@ -805,23 +923,14 @@ export default defineComponent({
 
     // 组件卸载时销毁
     onUnmounted(() => {
-      // 清理标志
-      window._bpmnInitialized = false;
-
-      // 清理轮询
-      if (pollState.timeoutId) {
-        clearTimeout(pollState.timeoutId);
-        pollState.timeoutId = null;
-      }
-
-      // 销毁BPMN建模器
-      if (bpmnModeler) {
-        try {
+      try {
+        // 销毁BPMN建模器
+        if (bpmnModeler) {
           bpmnModeler.destroy();
-        } catch (error) {
-          console.error('销毁BPMN建模器出错:', error);
+          bpmnModeler = null;
         }
-        bpmnModeler = null;
+      } catch (error) {
+        console.error('[BPMN] 销毁BPMN建模器出错:', error);
       }
     });
 
@@ -829,12 +938,48 @@ export default defineComponent({
     const importBpmnDiagram = async (xml: string) => {
       try {
         if (!bpmnModeler) return;
+        
+        console.log('%c[BPMN导入]', 'color:blue', '开始导入BPMN图表');
 
         await bpmnModeler.importXML(xml);
         bpmnModeler.get('canvas').zoom('fit-viewport');
         message.success(t('workflow.messages.importSuccess'));
+        
+        // 导入完成后确保应用当前语言
+        console.log('%c[BPMN导入]', 'color:blue', `导入完成，设置语言为：${currentLocale.value}`);
+        
+        setTimeout(() => {
+          try {
+            // 尝试使用i18n模块切换语言
+            try {
+              const i18n = bpmnModeler.get('i18n');
+              if (i18n && typeof i18n.changeLanguage === 'function') {
+                i18n.changeLanguage(currentLocale.value);
+                console.log('%c[BPMN导入]', 'color:green', `通过i18n导入后语言已设置为: ${currentLocale.value}`);
+                return; // 成功设置后直接返回
+              }
+            } catch (err) {
+              console.log('%c[BPMN导入]', 'color:orange', '尝试使用i18n模块时出错:', err.message);
+            }
+            
+            // 如果i18n不可用，尝试translate模块
+            try {
+              const translate = bpmnModeler.get('translate');
+              if (translate && typeof translate.changeLanguage === 'function') {
+                translate.changeLanguage(currentLocale.value);
+                console.log('%c[BPMN导入]', 'color:green', `通过translate导入后语言已设置为: ${currentLocale.value}`);
+              } else {
+                console.warn('%c[BPMN导入]', 'color:orange', '无法找到可用的语言切换方法');
+              }
+            } catch (translateErr) {
+              console.warn('%c[BPMN导入]', 'color:orange', '尝试使用translate模块时出错:', translateErr.message);
+            }
+          } catch (e) {
+            console.error('%c[BPMN导入]', 'color:red', '导入后设置语言失败:', e);
+          }
+        }, 200);
       } catch (error) {
-        console.error('导入BPMN图表失败', error);
+        console.error('%c[BPMN导入]', 'color:red', '导入BPMN图表失败', error);
         message.error(t('workflow.messages.importFailed'));
       }
     };
@@ -938,8 +1083,7 @@ export default defineComponent({
       adjustGridSize,
       t,
       loadDiagramFromUrl,
-      toolbarLang, // 暴露给模板
-      toggleToolbarLang, // 暴露切换方法
+      currentLocale, // 暴露给模板
     };
   },
 });
@@ -997,12 +1141,6 @@ export default defineComponent({
           ]"
         />
         <ADivider type="vertical" />
-        <AButton
-          @click="toggleToolbarLang"
-          :type="toolbarLang === 'en' ? 'primary' : 'default'"
-        >
-          {{ toolbarLang === 'zh' ? '工具栏显示英文' : '工具栏显示中文' }}
-        </AButton>
       </ASpace>
     </ACard>
     <div class="bpmn-content">
@@ -1378,16 +1516,5 @@ export default defineComponent({
     border: 1px solid hsl(var(--border)) !important;
   }
 }
-
-// 工具栏提示样式
-:deep(.djs-tooltip-container) {
-  background-color: hsl(var(--card)) !important;
-  color: hsl(var(--foreground)) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  border-radius: 4px !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
-  padding: 4px 8px !important;
-  font-size: 12px !important;
-  z-index: 1100 !important;
-}
 </style>
+

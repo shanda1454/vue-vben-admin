@@ -25,7 +25,7 @@
     "connect": "连接",
     "replace": "替换",
     "replaceWith": "替换为",
-    "connectUsing": "使用连接",
+    "connectUsing": "使用连接方式",
     "settings": "设置",
     "create": "创建",
     "addLane": "添加泳道",
@@ -83,5 +83,25 @@
     "participantSingle": "参与者",
     "groupSingle": "分组",
     "textAnnotationSingle": "文本注释"
+  },
+  "types": {
+    "userTask": "用户任务",
+    "serviceTask": "服务任务",
+    "sendTask": "发送任务",
+    "receiveTask": "接收任务",
+    "manualTask": "手动任务",
+    "businessRuleTask": "业务规则任务",
+    "scriptTask": "脚本任务",
+    "callActivity": "调用活动",
+    "exclusiveGateway": "排他网关",
+    "parallelGateway": "并行网关",
+    "inclusiveGateway": "包容网关",
+    "complexGateway": "复杂网关",
+    "eventGateway": "事件网关"
+  },
+  "menus": {
+    "taskType": "任务类型",
+    "gatewayType": "网关类型",
+    "eventType": "事件类型"
   }
 }

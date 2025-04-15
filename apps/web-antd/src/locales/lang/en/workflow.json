@@ -33,5 +33,25 @@
     "saveSuccess": "Process saved successfully",
     "saveFailed": "Failed to save process",
     "downloadFailed": "Failed to download XML"
+  },
+  "types": {
+    "userTask": "User Task",
+    "serviceTask": "Service Task",
+    "sendTask": "Send Task",
+    "receiveTask": "Receive Task",
+    "manualTask": "Manual Task",
+    "businessRuleTask": "Business Rule Task",
+    "scriptTask": "Script Task",
+    "callActivity": "Call Activity",
+    "exclusiveGateway": "Exclusive Gateway",
+    "parallelGateway": "Parallel Gateway",
+    "inclusiveGateway": "Inclusive Gateway",
+    "complexGateway": "Complex Gateway",
+    "eventGateway": "Event-based Gateway"
+  },
+  "menus": {
+    "taskType": "Task Type",
+    "gatewayType": "Gateway Type",
+    "eventType": "Event Type"
   }
 }
