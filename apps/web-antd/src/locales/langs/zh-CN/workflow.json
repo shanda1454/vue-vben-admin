@@ -1,0 +1,56 @@
+{
+  "title": "工作流",
+  "actions": {
+    "save": "保存流程",
+    "download": "下载XML",
+    "import": "导入XML",
+    "openFile": "打开文件",
+    "showGrid": "显示网格",
+    "hideGrid": "隐藏网格"
+  },
+  "messages": {
+    "importSuccess": "导入流程成功",
+    "importFailed": "导入流程失败",
+    "saveSuccess": "保存流程成功",
+    "saveFailed": "保存流程失败",
+    "downloadFailed": "下载流程失败"
+  },
+  "tools": {
+    "handTool": "手形工具",
+    "lassoTool": "套索工具",
+    "spaceTool": "空间工具",
+    "connectTool": "连接工具",
+    "activateHandTool": "激活手形工具",
+    "activateLassoTool": "激活套索工具",
+    "activateSpaceTool": "激活空间工具",
+    "activateConnectTool": "激活连接工具"
+  },
+  "elements": {
+    "task": "创建任务",
+    "startEvent": "创建开始事件",
+    "intermediateEvent": "创建中间事件",
+    "endEvent": "创建结束事件",
+    "gateway": "创建网关",
+    "subProcess": "创建子流程",
+    "dataObject": "创建数据对象",
+    "dataStore": "创建数据存储",
+    "participant": "创建池/参与者",
+    "group": "创建分组",
+    "textAnnotation": "创建文本注解",
+    "createTask": "创建任务",
+    "createStartEvent": "创建开始事件",
+    "createIntermediateEvent": "创建中间事件",
+    "createEndEvent": "创建结束事件",
+    "createGateway": "创建网关",
+    "startEventSingle": "开始事件",
+    "intermediateEventSingle": "中间事件",
+    "endEventSingle": "结束事件",
+    "gatewaySingle": "网关",
+    "taskSingle": "任务",
+    "dataObjectSingle": "数据对象",
+    "dataStoreSingle": "数据存储",
+    "participantSingle": "池/参与者",
+    "groupSingle": "分组",
+    "textAnnotationSingle": "文本注解"
+  }
+}

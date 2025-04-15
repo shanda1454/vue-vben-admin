@@ -1,0 +1,37 @@
+{
+  "title": "工作流设计",
+  "tools": {
+    "handTool": "拖动工具",
+    "lassoTool": "套索工具",
+    "spaceTool": "空间工具",
+    "connectTool": "连接线工具"
+  },
+  "elements": {
+    "task": "任务",
+    "startEvent": "开始事件",
+    "intermediateEvent": "中间事件",
+    "endEvent": "结束事件",
+    "gateway": "网关",
+    "subProcess": "子流程",
+    "dataObject": "数据对象",
+    "dataStore": "数据存储",
+    "participant": "参与者",
+    "group": "分组",
+    "textAnnotation": "文本注释"
+  },
+  "actions": {
+    "save": "保存流程",
+    "download": "下载XML",
+    "import": "导入XML",
+    "openFile": "打开文件",
+    "hideGrid": "隐藏栅格",
+    "showGrid": "显示栅格"
+  },
+  "messages": {
+    "importSuccess": "流程图导入成功",
+    "importFailed": "流程图导入失败",
+    "saveSuccess": "流程保存成功",
+    "saveFailed": "流程保存失败",
+    "downloadFailed": "下载XML失败"
+  }
+}

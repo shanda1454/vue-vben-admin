@@ -1,0 +1,37 @@
+{
+  "title": "Workflow Designer",
+  "tools": {
+    "handTool": "Hand Tool",
+    "lassoTool": "Lasso Tool",
+    "spaceTool": "Space Tool",
+    "connectTool": "Connect Tool"
+  },
+  "elements": {
+    "task": "Task",
+    "startEvent": "Start Event",
+    "intermediateEvent": "Intermediate Event",
+    "endEvent": "End Event",
+    "gateway": "Gateway",
+    "subProcess": "Sub Process",
+    "dataObject": "Data Object",
+    "dataStore": "Data Store",
+    "participant": "Participant",
+    "group": "Group",
+    "textAnnotation": "Text Annotation"
+  },
+  "actions": {
+    "save": "Save Process",
+    "download": "Download XML",
+    "import": "Import XML",
+    "openFile": "Open File",
+    "hideGrid": "Hide Grid",
+    "showGrid": "Show Grid"
+  },
+  "messages": {
+    "importSuccess": "Process imported successfully",
+    "importFailed": "Failed to import process",
+    "saveSuccess": "Process saved successfully",
+    "saveFailed": "Failed to save process",
+    "downloadFailed": "Failed to download XML"
+  }
+}

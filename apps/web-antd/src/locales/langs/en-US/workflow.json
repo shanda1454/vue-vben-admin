@@ -1,0 +1,56 @@
+{
+  "title": "Workflow",
+  "actions": {
+    "save": "Save Process",
+    "download": "Download XML",
+    "import": "Import XML",
+    "openFile": "Open File",
+    "showGrid": "Show Grid",
+    "hideGrid": "Hide Grid"
+  },
+  "messages": {
+    "importSuccess": "Import process successful",
+    "importFailed": "Import process failed",
+    "saveSuccess": "Save process successful",
+    "saveFailed": "Save process failed",
+    "downloadFailed": "Download process failed"
+  },
+  "tools": {
+    "handTool": "Hand Tool",
+    "lassoTool": "Lasso Tool",
+    "spaceTool": "Space Tool",
+    "connectTool": "Connect Tool",
+    "activateHandTool": "Activate the hand tool",
+    "activateLassoTool": "Activate the lasso tool",
+    "activateSpaceTool": "Activate the create/remove space tool",
+    "activateConnectTool": "Activate the global connect tool"
+  },
+  "elements": {
+    "task": "Create Task",
+    "startEvent": "Create Start Event",
+    "intermediateEvent": "Create Intermediate Event",
+    "endEvent": "Create End Event",
+    "gateway": "Create Gateway",
+    "subProcess": "Create Sub Process",
+    "dataObject": "Create Data Object",
+    "dataStore": "Create Data Store",
+    "participant": "Create Pool/Participant",
+    "group": "Create Group",
+    "textAnnotation": "Create Text Annotation",
+    "createTask": "Create a task",
+    "createStartEvent": "Create a start event",
+    "createIntermediateEvent": "Create an intermediate event",
+    "createEndEvent": "Create an end event",
+    "createGateway": "Create a gateway",
+    "startEventSingle": "Start Event",
+    "intermediateEventSingle": "Intermediate Event",
+    "endEventSingle": "End Event",
+    "gatewaySingle": "Gateway",
+    "taskSingle": "Task",
+    "dataObjectSingle": "Data Object",
+    "dataStoreSingle": "Data Store",
+    "participantSingle": "Pool/Participant",
+    "groupSingle": "Group",
+    "textAnnotationSingle": "Text Annotation"
+  }
+}

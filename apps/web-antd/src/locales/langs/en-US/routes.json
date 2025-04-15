@@ -1,0 +1,9 @@
+{
+  "workflow": {
+    "workflow": "Workflow Management",
+    "designer": "Process Designer",
+    "approvalTask": "My Approvals",
+    "formManager": "Form Management",
+    "processHistory": "Process History"
+  }
+}
