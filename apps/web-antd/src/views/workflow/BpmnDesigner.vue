@@ -41,6 +41,8 @@ import { useI18n } from '@vben/locales';
 import { usePreferences } from '@vben/preferences';
 // 导入Ant Design国际化 - 作为唯一的语言源
 import { antdLocale } from '#/locales';
+// 缩略图
+import minimapModule from 'diagram-js-minimap';
 
 import {
   DownloadOutlined,
@@ -71,6 +73,7 @@ import translateModule from 'diagram-js/lib/i18n/translate';
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 import '@bpmn-io/properties-panel/dist/assets/properties-panel.css';
+import 'diagram-js-minimap/assets/diagram-js-minimap.css';
 
 export default defineComponent({
   name: 'BpmnDesigner',
@@ -257,20 +260,13 @@ export default defineComponent({
         try {
           if (!newLocale) return;
           
-          console.log('%c[BPMN语言111]', 'color:orange', '检测到Ant Design语言变化:', newLocale.locale);
-          
           const isNewLocaleEn = newLocale.locale === 'en';
           
           // 映射到BPMN支持的格式
           let bpmnLocale = isNewLocaleEn ? 'en' : 'zh';
           
-          console.log('%c[BPMN语言]', 'color:orange', `映射语言: ${newLocale.locale} => ${bpmnLocale}`);
-          console.log('%c[BPMN语言]', 'color:orange', `当前BPMN语言: ${currentLocale.value}`);
-          
           // 只有当语言发生变化时才更新
           if (currentLocale.value !== bpmnLocale) {
-            console.log('%c[BPMN语言]', 'color:green', `正在切换BPMN设计器语言: ${currentLocale.value} → ${bpmnLocale}`);
-            
             // 更新当前语言变量
             currentLocale.value = bpmnLocale;
             
@@ -283,8 +279,31 @@ export default defineComponent({
                 
                 if (translate && typeof translate.changeLanguage === 'function') {
                   translate.changeLanguage(bpmnLocale);
-                  console.log('%c[BPMN语言]', 'color:green', `通过translate模块切换语言到: ${bpmnLocale}`);
                   changeSuccess = true;
+                  
+                  // 强制重绘
+                  const canvas = bpmnModeler.get('canvas');
+                  if (canvas) {
+                    try {
+                      // 确保SVG已完全初始化
+                      const svgContainer = canvas._container && canvas._container.querySelector('svg');
+                      if (svgContainer && typeof svgContainer.createSVGMatrix === 'function') {
+                        // 安全的缩放操作
+                        const currentZoom = canvas.zoom();
+                        canvas.zoom(currentZoom * 0.99);
+                        setTimeout(() => {
+                          canvas.zoom(currentZoom);
+                        }, 50);
+                      } else {
+                        // 使用替代方法刷新视图
+                        if (canvas._viewport) {
+                          canvas._updateViewbox();
+                        }
+                      }
+                    } catch (zoomError) {
+                      console.error('缩放操作出错:', zoomError);
+                    }
+                  }
                 }
                 
                 // 然后尝试使用i18n模块（可能不存在）
@@ -292,33 +311,19 @@ export default defineComponent({
                   const i18n = bpmnModeler.get('i18n');
                   if (i18n && typeof i18n.changeLanguage === 'function') {
                     i18n.changeLanguage(bpmnLocale);
-                    console.log('%c[BPMN语言]', 'color:green', `通过i18n模块切换语言到: ${bpmnLocale}`);
                     changeSuccess = true;
                   }
                 } catch (i18nError) {
                   // i18n模块不可用，忽略错误
-                  console.log('%c[BPMN语言]', 'color:orange', 'i18n模块不可用，已使用translate模块');
                 }
                 
                 if (changeSuccess) {
-                  // 强制重绘画布
-                  const canvas = bpmnModeler.get('canvas');
-                  if (canvas) {
-                    // 先缩小再缩放回来，以强制刷新视图
-                    const currentZoom = canvas.zoom();
-                    canvas.zoom(currentZoom * 0.99);
-                    setTimeout(() => {
-                      canvas.zoom(currentZoom);
-                    }, 50);
-                  }
-                  
                   // 显示成功消息
                   message.success(`BPMN设计器语言已切换到${bpmnLocale === 'zh' ? '中文' : '英文'}`);
                 } else {
-                  console.error('%c[BPMN语言]', 'color:red', '没有找到可用的语言切换方法');
+                  console.error('没有找到可用的语言切换方法');
                   
                   // 尝试重新初始化整个modeler
-                  console.log('%c[BPMN语言]', 'color:orange', '尝试通过重新初始化来应用新语言...');
                   
                   // 保存当前图表并重新初始化
                   bpmnModeler.saveXML({ format: true }).then(({ xml }) => {
@@ -334,24 +339,22 @@ export default defineComponent({
                       setTimeout(() => {
                         if (bpmnModeler) {
                           bpmnModeler.importXML(xml).catch(e => {
-                            console.error('[BPMN] 重新导入图表失败:', e);
+                            console.error('重新导入图表失败:', e);
                           });
                         }
                       }, 100);
                     }, 100);
                   }).catch(e => {
-                    console.error('[BPMN] 保存当前图表失败:', e);
+                    console.error('保存当前图表失败:', e);
                   });
                 }
               } catch (e) {
-                console.error('%c[BPMN语言]', 'color:red', '切换语言时发生错误:', e);
+                console.error('切换语言时发生错误:', e);
               }
             }
-          } else {
-            console.log('%c[BPMN语言]', 'color:blue', `语言未变化，保持: ${bpmnLocale}`);
           }
         } catch (e) {
-          console.error('%c[BPMN语言]', 'color:red', '监听语言变化时出错:', e);
+          console.error('监听语言变化时出错:', e);
         }
       },
       { immediate: true, deep: true }
@@ -370,18 +373,15 @@ export default defineComponent({
         setTimeout(() => {
           if (bpmnModeler) {
             try {
-              console.log('%c[BPMN挂载]', 'color:green', `开始设置初始语言: ${currentLocale.value}`);
-              
               // 优先尝试i18n模块
               try {
                 const i18n = bpmnModeler.get('i18n');
                 if (i18n && typeof i18n.changeLanguage === 'function') {
                   i18n.changeLanguage(currentLocale.value);
-                  console.log('%c[BPMN挂载]', 'color:green', `通过i18n模块设置初始语言: ${currentLocale.value}`);
                   return; // 成功设置后直接返回
                 }
               } catch (i18nErr) {
-                console.log('%c[BPMN挂载]', 'color:orange', '尝试使用i18n模块时出错:', i18nErr.message);
+                console.warn('尝试使用i18n模块时出错:', i18nErr.message);
               }
               
               // 如果i18n不可用，尝试translate模块
@@ -389,20 +389,19 @@ export default defineComponent({
                 const translate = bpmnModeler.get('translate');
                 if (translate && typeof translate.changeLanguage === 'function') {
                   translate.changeLanguage(currentLocale.value);
-                  console.log('%c[BPMN挂载]', 'color:green', `通过translate模块设置初始语言: ${currentLocale.value}`);
                 } else {
-                  console.warn('%c[BPMN挂载]', 'color:orange', '无法找到可用的语言切换方法');
+                  console.warn('无法找到可用的语言切换方法');
                 }
               } catch (translateErr) {
-                console.warn('%c[BPMN挂载]', 'color:orange', '尝试使用translate模块时出错:', translateErr.message);
+                console.warn('尝试使用translate模块时出错:', translateErr.message);
               }
             } catch (e) {
-              console.error('[BPMN] 组件挂载后设置语言失败:', e);
+              console.error('组件挂载后设置语言失败:', e);
             }
           }
         }, 200);
       } catch (e) {
-        console.error('[BPMN] 组件挂载过程中出错:', e);
+        console.error('组件挂载过程中出错:', e);
       }
     });
 
@@ -571,7 +570,9 @@ export default defineComponent({
   "no parent for {element} in {parent}": "在 {element} 中没有父元素 {parent}",
   "no process or collaboration to display": "没有可显示的流程或协作",
   "no shape type specified": "未指定形状类型",
-  "out of bounds release": "越界释放"
+  "out of bounds release": "越界释放",
+  'Open minimap':'打开缩略图',
+  'Close minimap':'关闭缩略图',
           },
           'en': {
             // 英文使用默认翻译，可以根据需要添加自定义的英文翻译
@@ -852,6 +853,7 @@ export default defineComponent({
             SilentErrorModule, // 添加错误处理模块
             customTranslateModule, // 添加自定义translate模块，替代官方模块
             customI18nModule, // 添加自定义i18n模块
+            minimapModule,
           ],
           // 设置翻译和语言选项
           translations: bpmnTranslations,
@@ -942,7 +944,29 @@ export default defineComponent({
         console.log('%c[BPMN导入]', 'color:blue', '开始导入BPMN图表');
 
         await bpmnModeler.importXML(xml);
-        bpmnModeler.get('canvas').zoom('fit-viewport');
+        try {
+          // 确保SVG已完全初始化
+          const canvas = bpmnModeler.get('canvas');
+          if (canvas) {
+            const svgContainer = canvas._container && canvas._container.querySelector('svg');
+            if (svgContainer && typeof svgContainer.createSVGMatrix === 'function') {
+              canvas.zoom('fit-viewport');
+            } else {
+              console.log('%c[BPMN导入]', 'color:orange', 'SVG元素尚未初始化完成，延迟缩放操作');
+              // 延迟执行缩放
+              setTimeout(() => {
+                try {
+                  canvas.zoom('fit-viewport');
+                } catch (e) {
+                  console.error('延迟缩放失败:', e);
+                }
+              }, 100);
+            }
+          }
+        } catch (zoomError) {
+          console.error('缩放操作出错:', zoomError);
+        }
+        
         message.success(t('workflow.messages.importSuccess'));
         
         // 导入完成后确保应用当前语言
@@ -1340,29 +1364,6 @@ export default defineComponent({
     stroke-width: 1.5px !important; // 加粗边框以增强可见性
   }
 
-  // 显式处理所有BPMN元素类型
-  :deep(
-    .djs-container .bpmn-icon-task,
-    .djs-container .bpmn-icon-start-event,
-    .djs-container .bpmn-icon-end-event,
-    .djs-container .bpmn-icon-intermediate-event,
-    .djs-container .bpmn-icon-gateway-none,
-    .djs-container .bpmn-icon-gateway-parallel,
-    .djs-container .bpmn-icon-gateway-xor,
-    .djs-container .bpmn-icon-gateway-or,
-    .djs-container .bpmn-icon-gateway-complex,
-    .djs-container .bpmn-icon-gateway-eventbased,
-    .djs-container .bpmn-icon-subprocess-expanded,
-    .djs-container .bpmn-icon-data-object,
-    .djs-container .bpmn-icon-data-store,
-    .djs-container .bpmn-icon-participant,
-    .djs-container .bpmn-icon-group,
-    .djs-container .bpmn-icon-text-annotation
-  ) {
-    fill: hsl(var(--foreground)) !important;
-    stroke: hsl(var(--foreground)) !important;
-  }
-
   // 修复开始事件、结束事件等圆形节点
   :deep(
     .djs-container .djs-shape[data-element-id*='StartEvent'] .djs-visual circle,
@@ -1514,6 +1515,29 @@ export default defineComponent({
     background-color: hsl(var(--card)) !important;
     color: hsl(var(--foreground)) !important;
     border: 1px solid hsl(var(--border)) !important;
+  }
+
+  // 显式处理所有BPMN元素类型
+  :deep(
+    .djs-container .bpmn-icon-task,
+    .djs-container .bpmn-icon-start-event,
+    .djs-container .bpmn-icon-end-event,
+    .djs-container .bpmn-icon-intermediate-event,
+    .djs-container .bpmn-icon-gateway-none,
+    .djs-container .bpmn-icon-gateway-parallel,
+    .djs-container .bpmn-icon-gateway-xor,
+    .djs-container .bpmn-icon-gateway-or,
+    .djs-container .bpmn-icon-gateway-complex,
+    .djs-container .bpmn-icon-gateway-eventbased,
+    .djs-container .bpmn-icon-subprocess-expanded,
+    .djs-container .bpmn-icon-data-object,
+    .djs-container .bpmn-icon-data-store,
+    .djs-container .bpmn-icon-participant,
+    .djs-container .bpmn-icon-group,
+    .djs-container .bpmn-icon-text-annotation
+  ) {
+    fill: hsl(var(--foreground)) !important;
+    stroke: hsl(var(--foreground)) !important;
   }
 }
 </style>
