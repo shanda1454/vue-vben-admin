@@ -287,17 +287,48 @@ export default defineComponent({
                     try {
                       // 使用安全的方法刷新视图，避免访问createSVGMatrix
                       if (canvas._viewport) {
-                        // 直接使用内部方法更新视图
-                        canvas._updateViewbox();
+                        // 使用更安全的刷新方法 - 避免直接调用内部方法
+                        // 获取当前视图状态
+                        const viewbox = canvas.viewbox();
                         
-                        // 发布重绘事件，通知UI组件刷新
+                        // 触发视图变化事件
                         const eventBus = bpmnModeler.get('eventBus');
                         if (eventBus) {
-                          eventBus.fire('canvas.viewbox.changed', { viewbox: canvas.viewbox() });
+                          // 先触发一个小的变化，然后恢复
+                          const tempViewbox = { ...viewbox, scale: viewbox.scale * 0.999 };
+                          eventBus.fire('canvas.viewbox.changing', { viewbox: tempViewbox });
+                          setTimeout(() => {
+                            eventBus.fire('canvas.viewbox.changed', { viewbox: viewbox });
+                          }, 10);
+                        }
+                      } else {
+                        // 备用方法：尝试触发其他事件来刷新
+                        const eventBus = bpmnModeler.get('eventBus');
+                        if (eventBus) {
+                          eventBus.fire('diagram.refresh');
+                          eventBus.fire('render.shape');
+                          eventBus.fire('render.connection');
                         }
                       }
                     } catch (zoomError) {
                       console.warn('视图刷新出错:', zoomError);
+                      
+                      // 降级处理：尝试使用zoom方法，但增加安全检查
+                      try {
+                        // 只有在可以安全调用zoom时才调用
+                        if (typeof canvas.zoom === 'function') {
+                          const canvasContainer = canvas._container;
+                          if (canvasContainer) {
+                            const svg = canvasContainer.querySelector('svg');
+                            if (svg) {
+                              // 安全的方式调用zoom
+                              canvas.zoom('fit-viewport', 'auto');
+                            }
+                          }
+                        }
+                      } catch (e) {
+                        console.warn('降级刷新方法也失败:', e);
+                      }
                     }
                   }
                 }
