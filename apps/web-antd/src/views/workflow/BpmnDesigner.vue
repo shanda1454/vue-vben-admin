@@ -1265,8 +1265,58 @@ export default defineComponent({
 }
 
 :deep(.djs-context-pad) {
-  background-color: hsl(var(--card)) !important;
-  border-color: hsl(var(--border)) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  
+  .entry {
+    background-color: hsla(var(--card) / 0.9) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    
+    &:hover {
+      background-color: hsl(var(--accent-hover)) !important;
+    }
+    
+    // 修复图标
+    i {
+      &:before {
+        color: hsl(var(--foreground)) !important;
+      }
+    }
+    
+    svg, path, circle, rect, polygon {
+      fill: hsl(var(--foreground)) !important;
+      stroke: none !important; // 去掉边框
+    }
+    
+    // 针对特定图标类型的覆盖
+    &[class*="bpmn-icon"] {
+      &:before, &:after {
+        border: none !important;
+        box-shadow: none !important;
+        stroke: none !important;
+      }
+    }
+    
+    // 连接器图标特殊处理
+    &[data-action="connect"] {
+      svg, path, circle, rect, polygon {
+        stroke-width: 0 !important;
+      }
+    }
+    
+    // 删除图标特殊处理
+    &[data-action="delete"] {
+      svg, path {
+        fill: hsl(var(--destructive)) !important;
+        stroke: none !important;
+      }
+      
+      &:hover {
+        background-color: hsla(var(--destructive) / 0.1) !important;
+      }
+    }
+  }
 }
 
 :deep(.djs-popup-header) {
@@ -1329,9 +1379,155 @@ export default defineComponent({
     background-color: hsl(var(--background-deep)) !important;
   }
 
+  // 全局图标修复
+  :deep(.djs-container svg) {
+    background-color: hsl(var(--background-deep)) !important;
+
+    // 修复所有SVG图标元素
+    path, polyline, rect, circle, polygon {
+      stroke: hsl(var(--foreground)) !important;
+    }
+
+    // 强制所有图标元素具有较高的对比度
+    .djs-visual {
+      path, polyline, rect, circle, polygon {
+        stroke-width: 1.5px !important;
+      }
+    }
+  }
+
+  // 工具栏图标修复
+  :deep(.bpmn-icon-task),
+  :deep(.bpmn-icon-start-event),
+  :deep(.bpmn-icon-end-event),
+  :deep(.bpmn-icon-intermediate-event),
+  :deep(.bpmn-icon-gateway-none),
+  :deep(.bpmn-icon-gateway-parallel),
+  :deep(.bpmn-icon-gateway-xor),
+  :deep(.bpmn-icon-gateway-or),
+  :deep(.bpmn-icon-gateway-complex),
+  :deep(.bpmn-icon-gateway-eventbased),
+  :deep(.bpmn-icon-subprocess-expanded),
+  :deep(.bpmn-icon-data-object),
+  :deep(.bpmn-icon-data-store),
+  :deep(.bpmn-icon-participant),
+  :deep(.bpmn-icon-group),
+  :deep(.bpmn-icon-connection),
+  :deep(.bpmn-icon-connection-multi),
+  :deep(.bpmn-icon-lasso-tool),
+  :deep(.bpmn-icon-space-tool),
+  :deep(.bpmn-icon-hand-tool),
+  :deep(.bpmn-icon-global-connect-tool),
+  :deep(.bpmn-icon-text-annotation) {
+    color: hsl(var(--foreground)) !important;
+    path, polyline, rect, circle, polygon, line {
+      fill: hsl(var(--foreground)) !important;
+      stroke: hsl(var(--foreground)) !important;
+    }
+  }
+
+  // 修复元素基本样式
+  :deep(.djs-element .djs-visual) {
+    // 基本形状
+    rect, circle, path, polygon {
+      stroke: hsl(var(--foreground)) !important;
+      stroke-width: 2px !important;
+      fill: hsla(var(--card) / 0.8) !important;
+    }
+
+    // 线条元素
+    polyline, line {
+      stroke: hsl(var(--foreground)) !important;
+      stroke-width: 2px !important;
+    }
+
+    // 文本标签
+    text, tspan {
+      fill: hsl(var(--foreground)) !important;
+      stroke: none !important;
+    }
+  }
+
+  // 特殊元素修复
+  // 任务
+  :deep(.djs-container .djs-shape[data-element-id*="Task"] .djs-visual rect) {
+    fill: hsla(var(--primary) / 0.1) !important;
+    stroke: hsl(var(--primary)) !important;
+    stroke-width: 2px !important;
+  }
+
+  // 子流程
+  :deep(.djs-container .djs-shape[data-element-id*="SubProcess"] .djs-visual rect) {
+    fill: hsla(var(--accent) / 0.1) !important;
+    stroke: hsl(var(--accent)) !important;
+    stroke-width: 2px !important;
+  }
+
+  // 开始事件
+  :deep(.djs-container .djs-shape[data-element-id*="StartEvent"] .djs-visual circle) {
+    fill: hsla(var(--primary) / 0.1) !important;
+    stroke: hsl(var(--primary)) !important;
+    stroke-width: 2px !important;
+  }
+
+  // 结束事件
+  :deep(.djs-container .djs-shape[data-element-id*="EndEvent"] .djs-visual circle) {
+    fill: hsla(var(--destructive) / 0.1) !important;
+    stroke: hsl(var(--destructive)) !important;
+    stroke-width: 3px !important;
+  }
+
+  // 中间事件
+  :deep(.djs-container .djs-shape[data-element-id*="IntermediateEvent"] .djs-visual circle) {
+    fill: hsla(var(--warning) / 0.1) !important;
+    stroke: hsl(var(--warning)) !important;
+    stroke-width: 2px !important;
+  }
+
+  // 网关
+  :deep(.djs-container .djs-shape[data-element-id*="Gateway"] .djs-visual polygon) {
+    fill: hsla(var(--warning) / 0.2) !important;
+    stroke: hsl(var(--warning)) !important;
+    stroke-width: 2px !important;
+  }
+
+  // 连接线
+  :deep(.djs-container .djs-connection .djs-visual path) {
+    stroke: hsl(var(--foreground)) !important;
+    stroke-width: 1.5px !important;
+  }
+
+  // 文本注释
+  :deep(.djs-container .djs-shape[data-element-id*="TextAnnotation"] .djs-visual) {
+    path {
+      fill: transparent !important;
+      stroke: hsl(var(--muted-foreground)) !important;
+    }
+    text {
+      fill: hsl(var(--muted-foreground)) !important;
+    }
+  }
+
+  // 数据对象
+  :deep(.djs-container .djs-shape[data-element-id*="DataObject"] .djs-visual path),
+  :deep(.djs-container .djs-shape[data-element-id*="DataStore"] .djs-visual path) {
+    fill: hsla(var(--secondary) / 0.2) !important;
+    stroke: hsl(var(--secondary)) !important;
+  }
+
+  // 确保所有标签文本可见
+  :deep(.djs-container .djs-label) {
+    fill: hsl(var(--foreground)) !important;
+    stroke: none !important;
+    // 添加文本阴影以提高可读性
+    text-shadow: 0px 0px 2px hsla(var(--background) / 0.8) !important;
+  }
+
+  // 修复调色板样式
   :deep(.djs-palette) {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
-    background-color: hsl(var(--card)) !important;
+    background-color: hsl(var(--background)) !important;
+    border-color: hsl(var(--border)) !important;
   }
 
   :deep(.djs-palette-entries .entry) {
@@ -1340,231 +1536,120 @@ export default defineComponent({
 
     &:hover {
       background-color: hsl(var(--accent-hover)) !important;
+    }
+
+    // 确保图标在暗色模式下可见
+    i:before {
       color: hsl(var(--foreground)) !important;
     }
-
-    // 确保SVG图标在暗色模式下可见
-    svg,
-    path,
-    polyline,
-    circle,
-    rect,
-    polygon {
-      fill: hsl(var(--foreground)) !important;
-      stroke: hsl(var(--foreground)) !important;
-    }
   }
 
-  :deep(.djs-container svg) {
-    // 给SVG元素添加反色滤镜
-    background-color: hsl(var(--background-deep)) !important;
-  }
-
-  // 调整BPMN工具图标颜色
-  :deep(.djs-palette-toggle) {
-    fill: hsl(var(--foreground)) !important;
-  }
-
-  :deep(.djs-context-pad .entry) {
-    background-color: hsl(var(--card)) !important;
-    color: hsl(var(--foreground)) !important;
-    border-color: hsl(var(--border)) !important;
-
-    // 确保上下文菜单图标在暗色模式下可见
-    svg,
-    path,
-    polyline,
-    circle,
-    rect,
-    polygon {
-      fill: hsl(var(--foreground)) !important;
-      stroke: hsl(var(--foreground)) !important;
-    }
-  }
-
-  // 修改BPMN图形颜色 - 增强对比度
-  :deep(.djs-container .djs-shape .djs-visual > :not(.djs-label)) {
-    fill: hsl(var(--accent-dark)) !important; // 使用暗色主题的强调色作为填充
-    stroke: hsl(
-      var(--foreground)
-    ) !important; // 使用前景色（通常是白色）作为边框
-    stroke-width: 1.5px !important; // 加粗边框以增强可见性
-  }
-
-  // 修复开始事件、结束事件等圆形节点
-  :deep(
-    .djs-container .djs-shape[data-element-id*='StartEvent'] .djs-visual circle,
-    .djs-container .djs-shape[data-element-id*='EndEvent'] .djs-visual circle,
-    .djs-container
-      .djs-shape[data-element-id*='IntermediateEvent']
-      .djs-visual
-      circle
-  ) {
-    stroke: hsl(var(--foreground)) !important;
-    stroke-width: 2px !important;
-    fill: transparent !important; // 圆圈内部透明
-  }
-
-  // 特别修复开始事件
-  :deep(
-    .djs-container .djs-shape[data-element-id*='StartEvent'] .djs-visual circle
-  ) {
-    fill: transparent !important;
-    stroke: hsl(var(--primary)) !important; // 突出显示开始事件
-  }
-
-  // 特别修复结束事件
-  :deep(
-    .djs-container .djs-shape[data-element-id*='EndEvent'] .djs-visual circle
-  ) {
-    fill: transparent !important;
-    stroke: hsl(
-      var(--destructive)
-    ) !important; // 使用破坏性颜色突出显示结束事件
-    stroke-width: 3px !important;
-  }
-
-  // 修复任务节点
-  :deep(.djs-container .djs-shape[data-element-id*='Task'] .djs-visual rect) {
-    fill: hsl(var(--card)) !important;
-    stroke: hsl(var(--foreground)) !important;
-    stroke-width: 2px !important;
-  }
-
-  // 修复网关
-  :deep(
-    .djs-container .djs-shape[data-element-id*='Gateway'] .djs-visual polygon
-  ) {
-    fill: hsl(var(--card)) !important;
-    stroke: hsl(var(--foreground)) !important;
-    stroke-width: 2px !important;
-  }
-
-  // 修复所有连接线
-  :deep(.djs-container .djs-connection .djs-visual path) {
-    stroke: hsl(var(--foreground)) !important;
-    stroke-width: 1.5px !important;
-  }
-
-  // 确保所有标签文本可见
-  :deep(.djs-container .djs-label) {
-    fill: hsl(var(--foreground)) !important;
-    color: hsl(var(--foreground)) !important;
-  }
-
-  // 修复定制图标和元素内部的细节
-  :deep(.djs-container .djs-visual-content) {
-    path,
-    circle,
-    rect,
-    polygon,
-    polyline {
-      stroke: hsl(var(--foreground)) !important;
-      fill: transparent !important; // 使内部图标透明但边框可见
-    }
-  }
-
-  // 覆盖任何子元素图标以确保可见性
-  :deep(.djs-container .djs-shape .djs-visual path) {
-    stroke: hsl(var(--foreground)) !important;
-    fill: transparent !important;
-  }
-
-  // 修改选中效果
-  :deep(.djs-container .selected .djs-outline) {
-    stroke: hsl(var(--primary)) !important;
-  }
-
-  // 修改连接线箭头颜色
-  :deep(.djs-container .djs-connection .djs-visual polyline) {
-    stroke: hsl(var(--foreground)) !important;
-    fill: hsl(var(--foreground)) !important;
-  }
-
-  // 修改小工具控制点颜色
-  :deep(.djs-bendpoint, .djs-segment-dragger) {
-    fill: hsl(var(--primary)) !important;
-    stroke: hsl(var(--border)) !important;
-  }
-
-  :deep(.bpp-properties-header) {
-    background-color: hsl(var(--accent-dark)) !important;
-  }
-
-  // 修改弹出框样式，确保图标和文字可见
+  // 修复弹出窗口
   :deep(.djs-popup) {
-    background-color: hsl(var(--card)) !important;
-    border-color: hsl(var(--border)) !important;
+    background-color: hsl(var(--background)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+
+    .djs-popup-header {
+      background-color: hsl(var(--accent-dark)) !important;
+      color: hsl(var(--accent-foreground)) !important;
+    }
 
     .entry {
       color: hsl(var(--foreground)) !important;
-
-      svg,
-      path,
-      polyline,
-      circle,
-      rect,
-      polygon {
-        fill: hsl(var(--foreground)) !important;
-        stroke: hsl(var(--foreground)) !important;
-      }
 
       &:hover {
         background-color: hsl(var(--accent-hover)) !important;
       }
     }
-  }
-
-  // 修改对齐线颜色
-  :deep(.djs-snap-line) {
-    stroke: hsl(var(--primary)) !important;
-  }
-
-  // 修复双击编辑文本时的文本框样式
-  :deep(.djs-direct-editing-content) {
-    background-color: hsl(var(--card)) !important;
-    border: 2px solid hsl(var(--border)) !important;
-    color: hsl(var(--foreground)) !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
-  }
-
-  // 修复文本编辑区域的样式
-  :deep(.djs-direct-editing-parent) {
-    .djs-direct-editing-content {
-      background-color: hsl(var(--card)) !important;
+    
+    // 修复搜索框
+    .djs-popup-search input {
+      background-color: hsl(var(--input)) !important;
       color: hsl(var(--foreground)) !important;
+      border: 1px solid hsl(var(--border)) !important;
+      
+      &:focus {
+        background-color: hsla(var(--primary) / 0.1) !important;
+        border-color: hsl(var(--primary)) !important;
+        outline: none !important;
+        box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2) !important;
+      }
+    }
+    
+    // 修复搜索图标
+    .djs-popup-search-icon {
+      color: hsl(var(--muted-foreground)) !important;
+    }
+    
+    // 修复选中项
+    .entry.selected {
+      background-color: hsla(var(--primary) / 0.2) !important;
+      color: hsl(var(--primary-foreground)) !important;
+      
+      // 确保选中项中的图标也有正确颜色
+      i:before,
+      svg, path, polygon, rect, circle {
+        color: hsl(var(--primary-foreground)) !important;
+        fill: hsl(var(--primary-foreground)) !important;
+        stroke: hsl(var(--primary-foreground)) !important;
+      }
+      
+      // 确保标签文本可见
+      .djs-popup-label {
+        color: hsl(var(--primary-foreground)) !important;
+      }
+      
+      // 确保描述文本可见
+      .djs-popup-entry-description {
+        color: hsla(var(--primary-foreground) / 0.8) !important;
+      }
+    }
+    
+    // 修复类型选择器项
+    .bpmn-replace-entry {
+      background-color: transparent !important;
+      
+      &:hover {
+        background-color: hsl(var(--accent-hover)) !important;
+      }
+      
+      &.selected {
+        background-color: hsla(var(--primary) / 0.2) !important;
+        
+        // 确保选中项的图标和文字清晰可见
+        .entry-icon {
+          filter: brightness(1.2) !important;
+        }
+        
+        .entry-label {
+          color: hsl(var(--primary-foreground)) !important;
+          font-weight: 600 !important;
+        }
+      }
     }
   }
 
-  // 修复文本输入框
-  :deep(textarea.djs-direct-editing-content),
-  :deep(input.djs-direct-editing-content) {
-    background-color: hsl(var(--card)) !important;
-    color: hsl(var(--foreground)) !important;
-    border: 1px solid hsl(var(--border)) !important;
+  // 修复选择样式
+  :deep(.djs-container .selected .djs-outline) {
+    stroke: hsl(var(--primary)) !important;
+    stroke-width: 2px !important;
   }
 
-  // 显式处理所有BPMN元素类型
-  :deep(
-    .djs-container .bpmn-icon-task,
-    .djs-container .bpmn-icon-start-event,
-    .djs-container .bpmn-icon-end-event,
-    .djs-container .bpmn-icon-intermediate-event,
-    .djs-container .bpmn-icon-gateway-none,
-    .djs-container .bpmn-icon-gateway-parallel,
-    .djs-container .bpmn-icon-gateway-xor,
-    .djs-container .bpmn-icon-gateway-or,
-    .djs-container .bpmn-icon-gateway-complex,
-    .djs-container .bpmn-icon-gateway-eventbased,
-    .djs-container .bpmn-icon-subprocess-expanded,
-    .djs-container .bpmn-icon-data-object,
-    .djs-container .bpmn-icon-data-store,
-    .djs-container .bpmn-icon-participant,
-    .djs-container .bpmn-icon-group,
-    .djs-container .bpmn-icon-text-annotation
-  ) {
-    fill: hsl(var(--foreground)) !important;
-    stroke: hsl(var(--foreground)) !important;
+  // 修复控制点
+  :deep(.djs-bendpoint),
+  :deep(.djs-segment-dragger) {
+    fill: hsl(var(--primary)) !important;
+    stroke: hsl(var(--background)) !important;
+    stroke-width: 1px !important;
+  }
+
+  // 修复文本编辑
+  :deep(.djs-direct-editing-content) {
+    background-color: hsl(var(--background)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    color: hsl(var(--foreground)) !important;
+    padding: 3px !important;
   }
 }
 </style>
