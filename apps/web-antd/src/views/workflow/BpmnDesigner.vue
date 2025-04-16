@@ -3,14 +3,14 @@
 (function() {
   // 替换 console.warn 来屏蔽特定警告
   const originalWarn = console.warn;
-  console.warn = function() {
+  console.warn = function(...args) {
     // 检查是否是关于ContextPad#getPad的弃用警告
-    if (arguments.length > 0 && 
-        typeof arguments[0] === 'string' && 
-        arguments[0].includes('ContextPad#getPad is deprecated')) {
+    if (args.length > 0 && 
+        typeof args[0] === 'string' && 
+        args[0].includes('ContextPad#getPad is deprecated')) {
       return; // 忽略此警告
     }
-    return originalWarn.apply(console, arguments);
+    return originalWarn.apply(console, args);
   };
   
   // 添加全局错误处理器
@@ -122,10 +122,10 @@ export default defineComponent({
       const locale = antdLocale.value?.locale;
       if (locale === 'en_US') {
         currentLocale.value = 'en';
-      } else {
+          } else {
         currentLocale.value = 'zh';
       }
-    } catch (error) {
+        } catch (error) {
       console.error('获取初始语言失败:', error);
     }
 
@@ -256,7 +256,7 @@ export default defineComponent({
     // 监听antdLocale变化自动更新BPMN设计器语言
     watch(
       antdLocale,
-      (newLocale, oldLocale) => {
+      (newLocale) => {
         try {
           if (!newLocale) return;
           
@@ -281,27 +281,23 @@ export default defineComponent({
                   translate.changeLanguage(bpmnLocale);
                   changeSuccess = true;
                   
-                  // 强制重绘
+                  // 强制重绘 - 使用更安全的方法处理SVG刷新
                   const canvas = bpmnModeler.get('canvas');
                   if (canvas) {
                     try {
-                      // 确保SVG已完全初始化
-                      const svgContainer = canvas._container && canvas._container.querySelector('svg');
-                      if (svgContainer && typeof svgContainer.createSVGMatrix === 'function') {
-                        // 安全的缩放操作
-                        const currentZoom = canvas.zoom();
-                        canvas.zoom(currentZoom * 0.99);
-                        setTimeout(() => {
-                          canvas.zoom(currentZoom);
-                        }, 50);
-                      } else {
-                        // 使用替代方法刷新视图
-                        if (canvas._viewport) {
-                          canvas._updateViewbox();
+                      // 使用安全的方法刷新视图，避免访问createSVGMatrix
+                      if (canvas._viewport) {
+                        // 直接使用内部方法更新视图
+                        canvas._updateViewbox();
+                        
+                        // 发布重绘事件，通知UI组件刷新
+                        const eventBus = bpmnModeler.get('eventBus');
+                        if (eventBus) {
+                          eventBus.fire('canvas.viewbox.changed', { viewbox: canvas.viewbox() });
                         }
                       }
                     } catch (zoomError) {
-                      console.error('缩放操作出错:', zoomError);
+                      console.warn('视图刷新出错:', zoomError);
                     }
                   }
                 }
@@ -321,7 +317,7 @@ export default defineComponent({
                   // 显示成功消息
                   message.success(`BPMN设计器语言已切换到${bpmnLocale === 'zh' ? '中文' : '英文'}`);
                 } else {
-                  console.error('没有找到可用的语言切换方法');
+                  console.warn('没有找到可用的语言切换方法');
                   
                   // 尝试重新初始化整个modeler
                   
@@ -339,22 +335,22 @@ export default defineComponent({
                       setTimeout(() => {
                         if (bpmnModeler) {
                           bpmnModeler.importXML(xml).catch(e => {
-                            console.error('重新导入图表失败:', e);
+                            console.warn('重新导入图表失败:', e);
                           });
                         }
                       }, 100);
                     }, 100);
                   }).catch(e => {
-                    console.error('保存当前图表失败:', e);
+                    console.warn('保存当前图表失败:', e);
                   });
                 }
               } catch (e) {
-                console.error('切换语言时发生错误:', e);
+                console.warn('切换语言时发生错误:', e);
               }
             }
           }
         } catch (e) {
-          console.error('监听语言变化时出错:', e);
+          console.warn('监听语言变化时出错:', e);
         }
       },
       { immediate: true, deep: true }
@@ -363,12 +359,12 @@ export default defineComponent({
     // 在组件挂载时初始化
     onMounted(() => {
       try {
-        // 初始化BPMN建模器
-        initBpmnModeler();
-        
-        // 应用栅格样式
-        applyGridStyles();
-        
+      // 初始化BPMN建模器
+      initBpmnModeler();
+
+      // 应用栅格样式
+      applyGridStyles();
+
         // 确保正确设置初始语言
         setTimeout(() => {
           if (bpmnModeler) {
@@ -760,7 +756,7 @@ export default defineComponent({
             
             // 添加切换语言方法
             translate.changeLanguage = function(locale) {
-              console.log('%c[BPMN翻译]', 'color:blue', `切换语言: ${getCurrentLocale()} -> ${locale}`);
+              console.warn('[BPMN翻译] 切换语言:', getCurrentLocale(), '->', locale);
               // 更新外部的currentLocale
               if (currentLocale && typeof currentLocale === 'object' && 'value' in currentLocale) {
                 currentLocale.value = locale;
@@ -785,7 +781,7 @@ export default defineComponent({
               
               // 切换语言方法
               changeLanguage(lang) {
-                console.log('%c[BPMN i18n]', 'color:blue', `切换语言: ${this._language} -> ${lang}`);
+                console.warn('[BPMN i18n] 切换语言:', this._language, '->', lang);
                 this._language = lang;
                 
                 // 同步更新外部的currentLocale
@@ -926,10 +922,10 @@ export default defineComponent({
     // 组件卸载时销毁
     onUnmounted(() => {
       try {
-        // 销毁BPMN建模器
-        if (bpmnModeler) {
+      // 销毁BPMN建模器
+      if (bpmnModeler) {
           bpmnModeler.destroy();
-          bpmnModeler = null;
+        bpmnModeler = null;
         }
       } catch (error) {
         console.error('[BPMN] 销毁BPMN建模器出错:', error);
@@ -941,7 +937,7 @@ export default defineComponent({
       try {
         if (!bpmnModeler) return;
         
-        console.log('%c[BPMN导入]', 'color:blue', '开始导入BPMN图表');
+        console.warn('[BPMN导入] 开始导入BPMN图表');
 
         await bpmnModeler.importXML(xml);
         try {
@@ -952,7 +948,7 @@ export default defineComponent({
             if (svgContainer && typeof svgContainer.createSVGMatrix === 'function') {
               canvas.zoom('fit-viewport');
             } else {
-              console.log('%c[BPMN导入]', 'color:orange', 'SVG元素尚未初始化完成，延迟缩放操作');
+              console.warn('[BPMN导入] SVG元素尚未初始化完成，延迟缩放操作');
               // 延迟执行缩放
               setTimeout(() => {
                 try {
@@ -970,7 +966,7 @@ export default defineComponent({
         message.success(t('workflow.messages.importSuccess'));
         
         // 导入完成后确保应用当前语言
-        console.log('%c[BPMN导入]', 'color:blue', `导入完成，设置语言为：${currentLocale.value}`);
+        console.warn('[BPMN导入] 导入完成，设置语言为：', currentLocale.value);
         
         setTimeout(() => {
           try {
@@ -979,11 +975,11 @@ export default defineComponent({
               const i18n = bpmnModeler.get('i18n');
               if (i18n && typeof i18n.changeLanguage === 'function') {
                 i18n.changeLanguage(currentLocale.value);
-                console.log('%c[BPMN导入]', 'color:green', `通过i18n导入后语言已设置为: ${currentLocale.value}`);
+                console.warn('[BPMN导入] 通过i18n导入后语言已设置为:', currentLocale.value);
                 return; // 成功设置后直接返回
               }
             } catch (err) {
-              console.log('%c[BPMN导入]', 'color:orange', '尝试使用i18n模块时出错:', err.message);
+              console.warn('[BPMN导入] 尝试使用i18n模块时出错:', err.message);
             }
             
             // 如果i18n不可用，尝试translate模块
@@ -991,19 +987,19 @@ export default defineComponent({
               const translate = bpmnModeler.get('translate');
               if (translate && typeof translate.changeLanguage === 'function') {
                 translate.changeLanguage(currentLocale.value);
-                console.log('%c[BPMN导入]', 'color:green', `通过translate导入后语言已设置为: ${currentLocale.value}`);
+                console.warn('[BPMN导入] 通过translate导入后语言已设置为:', currentLocale.value);
               } else {
-                console.warn('%c[BPMN导入]', 'color:orange', '无法找到可用的语言切换方法');
+                console.warn('[BPMN导入] 无法找到可用的语言切换方法');
               }
             } catch (translateErr) {
-              console.warn('%c[BPMN导入]', 'color:orange', '尝试使用translate模块时出错:', translateErr.message);
+              console.warn('[BPMN导入] 尝试使用translate模块时出错:', translateErr.message);
             }
           } catch (e) {
-            console.error('%c[BPMN导入]', 'color:red', '导入后设置语言失败:', e);
+            console.error('[BPMN导入] 导入后设置语言失败:', e);
           }
         }, 200);
       } catch (error) {
-        console.error('%c[BPMN导入]', 'color:red', '导入BPMN图表失败', error);
+        console.error('[BPMN导入] 导入BPMN图表失败', error);
         message.error(t('workflow.messages.importFailed'));
       }
     };
