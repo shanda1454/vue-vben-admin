@@ -2363,42 +2363,140 @@ export default defineComponent({
   }
 
   :deep(.bio-properties-panel-header) {
-    background-color:hsla(var(--card) / 0.9) !important;
+    background-color: hsla(var(--card) / 0.9) !important;
     color: #ffffff !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.7) !important;
   }
+  
   :deep(.bio-properties-panel-group-header) {
-    background-color:hsla(var(--card) / 0.9) !important;
+    background-color: hsla(var(--card) / 0.9) !important;
     color: #ffffff !important;
-    .bio-properties-panel-dot
-    {
-      background-color: #ffffff !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.5) !important;
+    
+    .bio-properties-panel-dot {
+      background-color: hsl(var(--primary)) !important;
     }
-    .bio-properties-panel-arrow-right{fill: #ffffff !important;}
-    .bio-properties-panel-add-entry{fill: #ffffff !important;}
-    .bio-properties-panel-collapsible-entry-arrow{fill: #ffffff !important;}
+    
+    .bio-properties-panel-arrow-right,
+    .bio-properties-panel-add-entry,
+    .bio-properties-panel-collapsible-entry-arrow {
+      fill: hsl(var(--primary)) !important;
+    }
+    
+    &:hover {
+      background-color: hsla(var(--card) / 0.7) !important;
+    }
   }
-  :deep(.bio-properties-panel-group)
-  {
-    background-color:hsla(var(--card) / 0.9) !important;
+  
+  :deep(.bio-properties-panel-group) {
+    background-color: hsla(var(--card) / 0.9) !important;
     color: #ffffff !important;
-    input{
-      background-color:hsla(var(--card) / 0.9) !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.3) !important;
+    
+    /* Form elements styling */
+    input, textarea, select {
+      background-color: hsla(var(--muted) / 0.7) !important;
       color: #ffffff !important;
+      border: 1px solid hsla(var(--border) / 0.8) !important;
+      border-radius: 4px;
+      padding: 4px 8px;
+      
+      &:focus {
+        border-color: hsl(var(--primary)) !important;
+        outline: none;
+        box-shadow: 0 0 0 2px hsla(var(--primary) / 0.3) !important;
+      }
+      
+      &:hover:not(:focus) {
+        border-color: hsla(var(--border)) !important;
+      }
     }
-    textarea{background-color:hsla(var(--card) / 0.9) !important;
-      color: #ffffff !important;}
-      select{background-color:hsla(var(--card) / 0.9) !important;
-        color: #ffffff !important;}
-    .bio-properties-panel-description{color: #919191 !important;}
+    
+    /* Labels and descriptions */
+    label {
+      color: hsl(var(--foreground)) !important;
+      font-weight: 500;
+    }
+    
+    .bio-properties-panel-description {
+      color: hsla(var(--muted-foreground) / 0.9) !important;
+      font-size: 0.9em;
+      margin-top: 2px;
+    }
+    
+    /* Nested entries indentation and borders */
+    .bio-properties-panel-entry {
+      padding: 6px 8px;
+      border-bottom: 1px solid hsla(var(--border) / 0.2) !important;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    
+    /* Collapsible entries */
+    .bio-properties-panel-collapsible-entry {
+      background-color: hsla(var(--muted) / 0.3) !important;
+      border-radius: 4px;
+      margin: 4px 0;
+      
+      .bio-properties-panel-collapsible-entry-header {
+        padding: 6px 8px;
+        border-bottom: 1px solid hsla(var(--border) / 0.3) !important;
+        
+        &:hover {
+          background-color: hsla(var(--muted) / 0.5) !important;
+        }
+      }
+      
+      .bio-properties-panel-collapsible-entry-content {
+        padding: 4px 8px 4px 16px;
+      }
+    }
   }
+  
   :deep(.bio-properties-panel-header-icon) {
-    color: white !important; /* 字体图标 */
-    /* 或 */
-    fill: white !important;  /* SVG 图标 */
+    color: hsl(var(--primary)) !important;
+    fill: hsl(var(--primary)) !important;
   }
-  :deep(.bio-properties-panel-add-entry)
-  {
-    fill: #ffffff !important;
+  
+  :deep(.bio-properties-panel-add-entry) {
+    fill: hsl(var(--primary)) !important;
+    
+    &:hover {
+      fill: hsl(var(--primary-foreground)) !important;
+      background-color: hsla(var(--primary) / 0.2) !important;
+      border-radius: 50%;
+    }
+  }
+  
+  /* Add visual indication for active/selected items */
+  :deep(.bio-properties-panel-active) {
+    background-color: hsla(var(--primary) / 0.15) !important;
+    border-left: 3px solid hsl(var(--primary)) !important;
+  }
+  
+  /* Improve scrollbar visibility */
+  :deep(.bio-properties-panel) {
+    scrollbar-width: thin;
+    scrollbar-color: hsla(var(--muted-foreground) / 0.5) transparent;
+    
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: hsla(var(--muted-foreground) / 0.5);
+      border-radius: 4px;
+      
+      &:hover {
+        background-color: hsla(var(--muted-foreground) / 0.8);
+      }
+    }
   }
 }
 
