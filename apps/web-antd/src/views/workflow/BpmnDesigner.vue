@@ -34,11 +34,14 @@ import {
 import {
   BpmnPropertiesPanelModule,
   BpmnPropertiesProviderModule,
+  CamundaPlatformPropertiesProviderModule, // 新增Camunda平台属性提供器
 } from 'bpmn-js-properties-panel';
 // 导入BPMN模块化类
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 // 导入缩略图
 import minimapModule from 'diagram-js-minimap';
+// 导入Camunda模型描述符
+import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json';
 
 // 导入Ant Design国际化 - 作为唯一的语言源
 import { antdLocale } from '#/locales';
@@ -167,11 +170,14 @@ export default defineComponent({
                       xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
                       xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
                       xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
-                      xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+                      xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                      xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
                       id="Definitions_1" 
                       targetNamespace="http://bpmn.io/schema/bpmn">
-      <bpmn:process id="Process_1" isExecutable="false">
-        <bpmn:startEvent id="StartEvent_1" name="开始"/>
+      <bpmn:process id="Process_1" isExecutable="true" camunda:versionTag="1.0" camunda:candidateStarterGroups="management">
+        <bpmn:startEvent id="StartEvent_1" name="开始" camunda:initiator="starter">
+          <bpmn:documentation>流程启动事件</bpmn:documentation>
+        </bpmn:startEvent>
       </bpmn:process>
       <bpmndi:BPMNDiagram id="BPMNDiagram_1">
         <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
@@ -646,6 +652,78 @@ export default defineComponent({
             'out of bounds release': '越界释放',
             'Open minimap': '打开缩略图',
             'Close minimap': '关闭缩略图',
+            // 添加Camunda属性面板相关翻译
+            'General': '常规',
+            'Details': '详情',
+            'Documentation': '文档',
+            'Implementation': '实现',
+            'Id': '标识',
+            'Name': '名称',
+            'Version Tag': '版本标签',
+            'Executable': '可执行',
+            'Execution Listener': '执行监听器',
+            'Candidate Starter Groups': '候选启动组',
+            'Candidate Starter Users': '候选启动用户',
+            'Job Configuration': '作业配置',
+            'Task Listener': '任务监听器',
+            'Form Fields': '表单字段',
+            'Form Key': '表单键值',
+            'Form Properties': '表单属性',
+            'History Configuration': '历史配置',
+            'Initiator': '发起人',
+            'Correlation Key': '关联键',
+            'Due Date': '到期日期',
+            'Follow Up Date': '跟进日期',
+            'Priority': '优先级',
+            'Retry Time Cycle': '重试时间周期',
+            'Assignee': '受理人',
+            'Candidate Users': '候选用户',
+            'Candidate Groups': '候选组',
+            'Results Variable': '结果变量',
+            'Class': '类',
+            'Delegate Expression': '委托表达式',
+            'External Resource': '外部资源',
+            'Script Format': '脚本格式',
+            'Script Type': '脚本类型',
+            'Type': '类型',
+            'Topic': '主题',
+            'Input Output': '输入输出',
+            'Input Parameters': '输入参数',
+            'Output Parameters': '输出参数',
+            'Timer Definition Type': '定时器定义类型',
+            'Timer Definition': '定时器定义',
+            'Date': '日期',
+            'Duration': '持续时间',
+            'Cycle': '周期',
+            'Signal': '信号',
+            'Signal Name': '信号名称',
+            'Escalation': '升级',
+            'Error': '错误',
+            'Message': '消息',
+            'Message Name': '消息名称',
+            'Expression': '表达式',
+            'Field Injection': '字段注入',
+            'Fields': '字段',
+            'Condition': '条件',
+            'Variable Event': '变量事件',
+            'Variable Name': '变量名称',
+            'Variables': '变量',
+            'Multi Instance': '多实例',
+            'Loop Cardinality': '循环基数',
+            'Element Variable': '元素变量',
+            'Completion Condition': '完成条件',
+            'Properties': '属性',
+            'Property': '属性',
+            'Value': '值',
+            'Asynchronous Continuations': '异步持续',
+            'Asynchronous Before': '前置异步',
+            'Asynchronous After': '后置异步',
+            'Exclusive': '排他',
+            'Call Activity': '调用活动',
+            'Called Element': '被调用元素',
+            'Business Key': '业务键',
+            'Inherit Variables': '继承变量',
+            'Local Variables': '本地变量',
           },
           en: {
             // 英文使用默认翻译，可以根据需要添加自定义的英文翻译
@@ -1000,6 +1078,7 @@ export default defineComponent({
           additionalModules: [
             BpmnPropertiesPanelModule,
             BpmnPropertiesProviderModule,
+            CamundaPlatformPropertiesProviderModule, // 添加Camunda平台属性提供器模块
             SilentErrorModule, // 添加错误处理模块
             customTranslateModule, // 添加自定义translate模块，替代官方模块
             customI18nModule, // 添加自定义i18n模块
@@ -1008,6 +1087,10 @@ export default defineComponent({
           // 设置翻译和语言选项
           translations: bpmnTranslations,
           locale: currentLocale.value, // 设置初始语言
+          // 添加Camunda模型扩展
+          moddleExtensions: {
+            camunda: camundaModdleDescriptor
+          }
         });
 
         // 覆盖 getPad 方法防止警告
