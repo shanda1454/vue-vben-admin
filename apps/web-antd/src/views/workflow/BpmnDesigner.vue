@@ -1685,12 +1685,11 @@ export default defineComponent({
   
   .toolbar-card {
     margin-bottom: 0; // 移除工具栏下方的间距
+    border-bottom: none; // 移除底部边框
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    
-    :deep(.ant-card-body) {
-      padding: 12px 16px; // 稍微减小内边距，使工具栏更紧凑
-    }
+    z-index: 2; // 确保卡片在上层
+    box-shadow: 0 2px 5px -2px rgba(0, 0, 0, 0.08); // 添加微妙的阴影效果
   }
 
   .bpmn-content-wrapper {
@@ -1698,11 +1697,12 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 180px); // 调整高度
+    height: calc(100vh - 180px);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     border-radius: 4px;
-    border-top-left-radius: 0; // 移除顶部圆角，与工具栏对接
-    border-top-right-radius: 0; // 移除顶部圆角，与工具栏对接
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: -1px; // 微调位置，让边框重叠
   }
 
   .bpmn-content {
@@ -1714,9 +1714,8 @@ export default defineComponent({
     position: relative;
     border: 1px solid hsl(var(--border));
     border-radius: 4px;
-    border-top-left-radius: 0; // 移除顶部圆角，与工具栏对接
-    border-top-right-radius: 0; // 移除顶部圆角，与工具栏对接
-    border-top: none; // 移除顶部边框，与工具栏衔接
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 
     .bpmn-canvas {
       flex: 1;
