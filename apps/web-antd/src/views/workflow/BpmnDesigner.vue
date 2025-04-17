@@ -112,16 +112,16 @@ export default defineComponent({
     const { t: originalT } = useI18n();
 
     // 翻译函数
-    const t = (key: string, ...args: any[]): string => {
+    const t = (key: string, args: any[] = []): string => {
       try {
         // 确保正确的键名路径
         // 如果key已经包含workflow前缀，则直接使用
         const fullKey = key.startsWith('workflow.') ? key : `workflow.${key}`;
-        const result = originalT(fullKey, ...args);
+        const result = originalT(fullKey, args);
 
         // 如果返回结果是对象或undefined，尝试使用原始键
         if (typeof result !== 'string' || result === fullKey) {
-          return originalT(key, ...args) || key;
+          return originalT(key, args) || key;
         }
 
         return result;
@@ -139,7 +139,7 @@ export default defineComponent({
     try {
       const locale = antdLocale.value?.locale;
       currentLocale.value = locale === 'en_US' ? 'en' : 'zh';
-        } catch (error) {
+    } catch (error) {
       console.error('获取初始语言失败:', error);
     }
 
@@ -273,31 +273,31 @@ export default defineComponent({
       (newLocale) => {
         try {
           if (!newLocale) return;
-          
+
           const isNewLocaleEn = newLocale.locale === 'en';
-          
+
           // 映射到BPMN支持的格式
           const bpmnLocale = isNewLocaleEn ? 'en' : 'zh';
-          
+
           // 只有当语言发生变化时才更新
           if (currentLocale.value !== bpmnLocale) {
             // 更新当前语言变量
             currentLocale.value = bpmnLocale;
-            
+
             // 确保BpmnModeler已初始化
             if (bpmnModeler) {
               try {
                 // 首先尝试使用translate模块（一定存在）
                 const translate = bpmnModeler.get('translate');
                 let changeSuccess = false;
-                
+
                 if (
                   translate &&
                   typeof translate.changeLanguage === 'function'
                 ) {
                   translate.changeLanguage(bpmnLocale);
                   changeSuccess = true;
-                  
+
                   // 强制重绘 - 使用更安全的方法处理SVG刷新
                   const canvas = bpmnModeler.get('canvas');
                   if (canvas) {
@@ -307,7 +307,7 @@ export default defineComponent({
                         // 使用更安全的刷新方法 - 避免直接调用内部方法
                         // 获取当前视图状态
                         const viewbox = canvas.viewbox();
-                        
+
                         // 触发视图变化事件
                         const eventBus = bpmnModeler.get('eventBus');
                         if (eventBus) {
@@ -336,7 +336,7 @@ export default defineComponent({
                       }
                     } catch (zoomError) {
                       console.warn('视图刷新出错:', zoomError);
-                      
+
                       // 降级处理：尝试使用zoom方法，但增加安全检查
                       try {
                         // 只有在可以安全调用zoom时才调用
@@ -356,7 +356,7 @@ export default defineComponent({
                     }
                   }
                 }
-                
+
                 // 然后尝试使用i18n模块（可能不存在）
                 try {
                   const i18n = bpmnModeler.get('i18n');
@@ -367,7 +367,7 @@ export default defineComponent({
                 } catch {
                   // i18n模块不可用，忽略错误
                 }
-                
+
                 if (changeSuccess) {
                   // 显示成功消息
                   message.success(
@@ -375,34 +375,34 @@ export default defineComponent({
                   );
                 } else {
                   console.warn('没有找到可用的语言切换方法');
-                  
+
                   // 尝试重新初始化整个modeler
-                  
+
                   // 保存当前图表并重新初始化
                   bpmnModeler
                     .saveXML({ format: true })
                     .then(({ xml }) => {
-                    // 销毁当前modeler
+                      // 销毁当前modeler
                       bpmnModeler?.destroy();
-                    bpmnModeler = null;
-                    
-                    // 重新初始化
-                    setTimeout(() => {
-                      initBpmnModeler();
-                      
-                      // 导入保存的图表
+                      bpmnModeler = null;
+
+                      // 重新初始化
                       setTimeout(() => {
-                        if (bpmnModeler) {
+                        initBpmnModeler();
+
+                        // 导入保存的图表
+                        setTimeout(() => {
+                          if (bpmnModeler) {
                             bpmnModeler.importXML(xml).catch((error) => {
                               console.warn('重新导入图表失败:', error);
-                          });
-                        }
+                            });
+                          }
+                        }, 100);
                       }, 100);
-                    }, 100);
                     })
                     .catch((error) => {
                       console.warn('保存当前图表失败:', error);
-                  });
+                    });
                 }
               } catch (error) {
                 console.warn('切换语言时发生错误:', error);
@@ -419,11 +419,11 @@ export default defineComponent({
     // 在组件挂载时初始化
     onMounted(() => {
       try {
-      // 初始化BPMN建模器
-      initBpmnModeler();
+        // 初始化BPMN建模器
+        initBpmnModeler();
 
-      // 应用栅格样式
-      applyGridStyles();
+        // 应用栅格样式
+        applyGridStyles();
 
         // 确保正确设置初始语言
         setTimeout(() => {
@@ -439,7 +439,7 @@ export default defineComponent({
               } catch (error: any) {
                 console.warn('尝试使用i18n模块时出错:', error.message);
               }
-              
+
               // 如果i18n不可用，尝试translate模块
               try {
                 const translate = bpmnModeler.get('translate');
@@ -477,7 +477,7 @@ export default defineComponent({
           eventBus.on('canvas.init', () => {
             // 画布初始化完成
           });
-          
+
           // 监听导入完成事件
           eventBus.on('import.done', () => {
             // 导入完成
@@ -842,46 +842,46 @@ export default defineComponent({
               '{semantic}#{side} Ref not specified',
           },
         };
-        
+
         // 修改自定义translate模块的实现方式，确保正确引用外部变量
         const customTranslateModule = {
           translate: [
             'type',
             function () {
-            // 获取当前语言，使用闭包而不是直接引用可能未初始化的变量
-            const getCurrentLocale = () => {
-              return currentLocale.value || 'zh';
-            };
-            
-            // 创建translate函数
+              // 获取当前语言，使用闭包而不是直接引用可能未初始化的变量
+              const getCurrentLocale = () => {
+                return currentLocale.value || 'zh';
+              };
+
+              // 创建translate函数
               function translate(
                 template: string,
                 replacements?: Record<string, any>,
               ): string {
-              const locale = getCurrentLocale();
+                const locale = getCurrentLocale();
                 const translations =
                   (bpmnTranslations as BpmnTranslations)[locale] || {};
-              
-              // 直接查找完全匹配
-              if (translations[template]) {
-                return translations[template];
-              }
-              
-              // 如果有replacements，应用它们
-              if (replacements) {
+
+                // 直接查找完全匹配
+                if (translations[template]) {
+                  return translations[template];
+                }
+
+                // 如果有replacements，应用它们
+                if (replacements) {
                   return template.replaceAll(
                     /\{([^}]+)\}/g,
                     (_: string, key: string) => {
                       return replacements[key] || `{${key}}`;
                     },
                   );
+                }
+
+                // 没有找到翻译时返回原文
+                return template;
               }
-              
-              // 没有找到翻译时返回原文
-              return template;
-            }
-            
-            // 添加切换语言方法
+
+              // 添加切换语言方法
               translate.changeLanguage = function (locale: string): string {
                 console.warn(
                   '[BPMN翻译] 切换语言:',
@@ -889,37 +889,37 @@ export default defineComponent({
                   '->',
                   locale,
                 );
-              // 更新外部的currentLocale
+                // 更新外部的currentLocale
                 if (
                   currentLocale.value !== null &&
                   currentLocale.value !== undefined &&
                   typeof currentLocale.value === 'object' &&
                   'value' in currentLocale.value
                 ) {
-                currentLocale.value = locale;
-              }
-              return locale;
-            };
-            
-            return translate;
+                  currentLocale.value = locale;
+                }
+                return locale;
+              };
+
+              return translate;
             },
           ],
         };
-        
+
         // 添加自定义i18n模块，解决"No provider for i18n"错误
         const customI18nModule = {
           i18n: [
             'type',
             function () {
-            return {
-              _language: currentLocale.value || 'zh',
-              
-              // 获取当前语言
-              getLanguage() {
-                return this._language;
-              },
-              
-              // 切换语言方法
+              return {
+                _language: currentLocale.value || 'zh',
+
+                // 获取当前语言
+                getLanguage() {
+                  return this._language;
+                },
+
+                // 切换语言方法
                 changeLanguage(lang: string) {
                   console.warn(
                     '[BPMN i18n] 切换语言:',
@@ -927,22 +927,22 @@ export default defineComponent({
                     '->',
                     lang,
                   );
-                this._language = lang;
-                
-                // 同步更新外部的currentLocale
+                  this._language = lang;
+
+                  // 同步更新外部的currentLocale
                   if (
                     currentLocale.value !== null &&
                     currentLocale.value !== undefined &&
                     typeof currentLocale.value === 'object' &&
                     'value' in currentLocale.value
                   ) {
-                  currentLocale.value = lang;
-                }
-                
-                // 返回当前语言
-                return lang;
+                    currentLocale.value = lang;
+                  }
+
+                  // 返回当前语言
+                  return lang;
                 },
-            };
+              };
             },
           ],
         };
@@ -953,40 +953,40 @@ export default defineComponent({
           silentError: [
             'type',
             function () {
-            return {
-              silent: true,
-              
+              return {
+                silent: true,
+
                 init() {
-                // 修复ContextPad#getPad方法
-                try {
-                  setTimeout(() => {
+                  // 修复ContextPad#getPad方法
+                  try {
+                    setTimeout(() => {
                       const contextPad = bpmnModeler?.get('contextPad');
-                    if (contextPad && contextPad.getPad) {
-                      // 保存原始方法
-                      const originalGetPad = contextPad.getPad;
-                      
-                      // 替换为不产生警告的版本
+                      if (contextPad && contextPad.getPad) {
+                        // 保存原始方法
+                        const originalGetPad = contextPad.getPad;
+
+                        // 替换为不产生警告的版本
                         contextPad.getPad = function (element: any) {
-                        const originalWarn = console.warn;
-                          console.warn = function () {}; // 临时禁用警告
-                        
-                        try {
-                          const result = originalGetPad.call(this, element);
-                          console.warn = originalWarn; // 恢复警告功能
-                          return result;
+                          const originalWarn = console.warn;
+                          console.warn = function () { }; // 临时禁用警告
+
+                          try {
+                            const result = originalGetPad.call(this, element);
+                            console.warn = originalWarn; // 恢复警告功能
+                            return result;
                           } catch {
-                          console.warn = originalWarn; // 确保恢复警告功能
-                          // 返回一个有效的替代品
-                          return { html: document.createElement('div') };
-                        }
-                      };
-                    }
-                  }, 200);
+                            console.warn = originalWarn; // 确保恢复警告功能
+                            // 返回一个有效的替代品
+                            return { html: document.createElement('div') };
+                          }
+                        };
+                      }
+                    }, 200);
                   } catch {
-                  // 忽略错误
-                }
+                    // 忽略错误
+                  }
                 },
-            };
+              };
             },
           ],
         };
@@ -1019,8 +1019,8 @@ export default defineComponent({
               contextPad.getPad = function (element: any) {
                 // 暂时禁用console.warn
                 const originalWarn = console.warn;
-                console.warn = function () {};
-                
+                console.warn = function () { };
+
                 try {
                   // 调用原始方法
                   const result = originalGetPad.call(this, element);
@@ -1076,10 +1076,10 @@ export default defineComponent({
     // 组件卸载时销毁
     onUnmounted(() => {
       try {
-      // 销毁BPMN建模器
-      if (bpmnModeler) {
+        // 销毁BPMN建模器
+        if (bpmnModeler) {
           bpmnModeler.destroy();
-        bpmnModeler = null;
+          bpmnModeler = null;
         }
       } catch (error) {
         console.error('[BPMN] 销毁BPMN建模器出错:', error);
@@ -1090,7 +1090,7 @@ export default defineComponent({
     const importBpmnDiagram = async (xml: string) => {
       try {
         if (!bpmnModeler) return;
-        
+
         console.warn('[BPMN导入] 开始导入BPMN图表');
 
         await bpmnModeler.importXML(xml);
@@ -1120,12 +1120,12 @@ export default defineComponent({
         } catch (zoomError) {
           console.error('缩放操作出错:', zoomError);
         }
-        
+
         message.success(t('workflow.messages.importSuccess'));
-        
+
         // 导入完成后确保应用当前语言
         console.warn('[BPMN导入] 导入完成，设置语言为：', currentLocale.value);
-        
+
         setTimeout(() => {
           try {
             // 尝试使用i18n模块切换语言
@@ -1142,7 +1142,7 @@ export default defineComponent({
             } catch (error: any) {
               console.warn('尝试使用i18n模块时出错:', error.message);
             }
-            
+
             // 如果i18n不可用，尝试translate模块
             try {
               const translate = bpmnModeler?.get('translate');
@@ -1282,52 +1282,47 @@ export default defineComponent({
     <ACard :bordered="false" class="mb-4">
       <ASpace>
         <AButton type="primary" @click="saveProcess">
-          <template #icon><SaveOutlined /></template>
+          <template #icon>
+            <SaveOutlined />
+          </template>
           {{ t('workflow.actions.save') }}
         </AButton>
         <AButton @click="downloadXml">
-          <template #icon><DownloadOutlined /></template>
+          <template #icon>
+            <DownloadOutlined />
+          </template>
           {{ t('workflow.actions.download') }}
         </AButton>
         <AButton @click="importXml">
-          <template #icon><UploadOutlined /></template>
+          <template #icon>
+            <UploadOutlined />
+          </template>
           {{ t('workflow.actions.import') }}
         </AButton>
-        <AUpload
-          ref="uploadRef"
-          :show-upload-list="false"
-          accept=".bpmn, .xml"
-          :before-upload="handleBeforeUpload"
-          :multiple="false"
-        >
+        <AUpload ref="uploadRef" :show-upload-list="false" accept=".bpmn, .xml" :before-upload="handleBeforeUpload"
+          :multiple="false">
           <AButton>
-            <template #icon><FolderOutlined /></template>
+            <template #icon>
+              <FolderOutlined />
+            </template>
             {{ t('workflow.actions.openFile') }}
           </AButton>
         </AUpload>
         <ADivider type="vertical" />
-        <AButton
-          :type="gridConfig.enabled ? 'primary' : 'default'"
-          @click="toggleGrid"
-        >
+        <AButton :type="gridConfig.enabled ? 'primary' : 'default'" @click="toggleGrid">
           {{
             gridConfig.enabled
               ? t('workflow.actions.hideGrid')
               : t('workflow.actions.showGrid')
           }}
         </AButton>
-        <ASelect
-          v-if="gridConfig.enabled"
-          v-model:value="gridConfig.size"
-          style="width: 120px"
-          :options="[
-            { value: 10, label: '10px' },
-            { value: 20, label: '20px' },
-            { value: 30, label: '30px' },
-            { value: 40, label: '40px' },
-            { value: 50, label: '50px' },
-          ]"
-        />
+        <ASelect v-if="gridConfig.enabled" v-model:value="gridConfig.size" style="width: 120px" :options="[
+          { value: 10, label: '10px' },
+          { value: 20, label: '20px' },
+          { value: 30, label: '30px' },
+          { value: 40, label: '40px' },
+          { value: 50, label: '50px' },
+        ]" />
         <ADivider type="vertical" />
       </ASpace>
     </ACard>
@@ -1355,9 +1350,10 @@ export default defineComponent({
       flex: 1;
       height: 100%;
       background-color: hsl(var(--card));
-      position: relative; /* 确保子绝对定位元素相对于此元素定位 */
+      position: relative;
+      /* 确保子绝对定位元素相对于此元素定位 */
       border-right: 1px solid hsl(var(--border));
-      
+
       // 移除选中和点击时的边框
       &:focus,
       &:focus-visible,
@@ -1413,23 +1409,23 @@ export default defineComponent({
 :deep(.djs-context-pad) {
   background-color: transparent !important;
   box-shadow: none !important;
-  
+
   .entry {
-    background-color: hsla(var(--card) / 0.9) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-    
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
     &:hover {
-      background-color: hsl(var(--accent-hover)) !important;
+      background-color: transparent !important;
     }
-    
+
     // 修复图标
     i {
       &:before {
         color: hsl(var(--foreground)) !important;
       }
     }
-    
+
     svg,
     path,
     circle,
@@ -1438,9 +1434,10 @@ export default defineComponent({
       fill: hsl(var(--foreground)) !important;
       stroke: none !important; // 去掉边框
     }
-    
+
     // 针对特定图标类型的覆盖
     &[class*='bpmn-icon'] {
+
       &:before,
       &:after {
         border: none !important;
@@ -1448,9 +1445,10 @@ export default defineComponent({
         stroke: none !important;
       }
     }
-    
+
     // 连接器图标特殊处理
     &[data-action='connect'] {
+
       svg,
       path,
       circle,
@@ -1459,17 +1457,18 @@ export default defineComponent({
         stroke-width: 0 !important;
       }
     }
-    
+
     // 删除图标特殊处理
     &[data-action='delete'] {
+
       svg,
       path {
         fill: hsl(var(--destructive)) !important;
         stroke: none !important;
       }
-      
+
       &:hover {
-        background-color: hsla(var(--destructive) / 0.1) !important;
+        background-color: transparent !important;
       }
     }
   }
@@ -1519,11 +1518,9 @@ export default defineComponent({
   border-color: hsl(var(--border)) !important;
 }
 
-:deep(
-  .bpp-properties-entry input,
+:deep(.bpp-properties-entry input,
   .bpp-properties-entry select,
-  .bpp-properties-entry textarea
-) {
+  .bpp-properties-entry textarea) {
   background-color: hsl(var(--input-background)) !important;
   border-color: hsl(var(--input)) !important;
   color: hsl(var(--foreground)) !important;
@@ -1531,6 +1528,7 @@ export default defineComponent({
 
 // 移除所有元素的焦点边框
 :deep(.djs-container *) {
+
   &:focus,
   &:focus-visible {
     outline: none !important;
@@ -1540,6 +1538,7 @@ export default defineComponent({
 
 // 移除画布的焦点边框
 :deep(.djs-container svg) {
+
   &:focus,
   &:focus-visible {
     outline: none !important;
@@ -1556,6 +1555,7 @@ export default defineComponent({
   :deep(.djs-container),
   :deep(.djs-container svg),
   :deep(.djs-element) {
+
     &:focus,
     &:focus-visible,
     &:focus-within {
@@ -1563,7 +1563,7 @@ export default defineComponent({
       box-shadow: none !important;
     }
   }
-  
+
   // 防止选中时出现浏览器默认的蓝色边框
   ::selection {
     background-color: hsla(var(--primary) / 0.2) !important;
@@ -1584,6 +1584,7 @@ export default defineComponent({
 
     // 强制所有图标元素具有较高的对比度
     .djs-visual {
+
       path,
       polyline,
       rect,
@@ -1618,6 +1619,7 @@ export default defineComponent({
   :deep(.bpmn-icon-global-connect-tool),
   :deep(.bpmn-icon-text-annotation) {
     color: hsl(var(--foreground)) !important;
+
     path,
     polyline,
     rect,
@@ -1631,6 +1633,7 @@ export default defineComponent({
 
   // 修复元素基本样式
   :deep(.djs-element .djs-visual) {
+
     // 基本形状
     rect,
     circle,
@@ -1665,48 +1668,35 @@ export default defineComponent({
   }
 
   // 子流程
-  :deep(
-    .djs-container .djs-shape[data-element-id*='SubProcess'] .djs-visual rect
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='SubProcess'] .djs-visual rect) {
     fill: hsla(var(--accent) / 0.1) !important;
     stroke: hsl(var(--accent)) !important;
     stroke-width: 2px !important;
   }
 
   // 开始事件
-  :deep(
-    .djs-container .djs-shape[data-element-id*='StartEvent'] .djs-visual circle
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='StartEvent'] .djs-visual circle) {
     fill: hsla(var(--primary) / 0.1) !important;
     stroke: hsl(var(--primary)) !important;
     stroke-width: 2px !important;
   }
 
   // 结束事件
-  :deep(
-    .djs-container .djs-shape[data-element-id*='EndEvent'] .djs-visual circle
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='EndEvent'] .djs-visual circle) {
     fill: hsla(var(--destructive) / 0.1) !important;
     stroke: hsl(var(--destructive)) !important;
     stroke-width: 3px !important;
   }
 
   // 中间事件
-  :deep(
-    .djs-container
-      .djs-shape[data-element-id*='IntermediateEvent']
-      .djs-visual
-      circle
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='IntermediateEvent'] .djs-visual circle) {
     fill: hsla(var(--warning) / 0.1) !important;
     stroke: hsl(var(--warning)) !important;
     stroke-width: 2px !important;
   }
 
   // 网关
-  :deep(
-    .djs-container .djs-shape[data-element-id*='Gateway'] .djs-visual polygon
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='Gateway'] .djs-visual polygon) {
     fill: hsla(var(--warning) / 0.2) !important;
     stroke: hsl(var(--warning)) !important;
     stroke-width: 2px !important;
@@ -1719,25 +1709,20 @@ export default defineComponent({
   }
 
   // 文本注释
-  :deep(
-    .djs-container .djs-shape[data-element-id*='TextAnnotation'] .djs-visual
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='TextAnnotation'] .djs-visual) {
     path {
       fill: transparent !important;
       stroke: hsl(var(--muted-foreground)) !important;
     }
+
     text {
       fill: hsl(var(--muted-foreground)) !important;
     }
   }
 
   // 数据对象
-  :deep(
-    .djs-container .djs-shape[data-element-id*='DataObject'] .djs-visual path
-  ),
-  :deep(
-    .djs-container .djs-shape[data-element-id*='DataStore'] .djs-visual path
-  ) {
+  :deep(.djs-container .djs-shape[data-element-id*='DataObject'] .djs-visual path),
+  :deep(.djs-container .djs-shape[data-element-id*='DataStore'] .djs-visual path) {
     fill: hsla(var(--secondary) / 0.2) !important;
     stroke: hsl(var(--secondary)) !important;
   }
@@ -1789,13 +1774,13 @@ export default defineComponent({
         background-color: hsl(var(--accent-hover)) !important;
       }
     }
-    
+
     // 修复搜索框
     .djs-popup-search input {
       background-color: hsl(var(--input)) !important;
       color: hsl(var(--foreground)) !important;
       border: 1px solid hsl(var(--border)) !important;
-      
+
       &:focus {
         background-color: hsla(var(--primary) / 0.1) !important;
         border-color: hsl(var(--primary)) !important;
@@ -1803,17 +1788,17 @@ export default defineComponent({
         box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2) !important;
       }
     }
-    
+
     // 修复搜索图标
     .djs-popup-search-icon {
       color: hsl(var(--muted-foreground)) !important;
     }
-    
+
     // 修复选中项
     .entry.selected {
       background-color: hsla(var(--primary) / 0.2) !important;
       color: hsl(var(--primary-foreground)) !important;
-      
+
       // 确保选中项中的图标也有正确颜色
       i:before,
       svg,
@@ -1825,34 +1810,34 @@ export default defineComponent({
         fill: hsl(var(--primary-foreground)) !important;
         stroke: hsl(var(--primary-foreground)) !important;
       }
-      
+
       // 确保标签文本可见
       .djs-popup-label {
         color: hsl(var(--primary-foreground)) !important;
       }
-      
+
       // 确保描述文本可见
       .djs-popup-entry-description {
         color: hsla(var(--primary-foreground) / 0.8) !important;
       }
     }
-    
+
     // 修复类型选择器项
     .bpmn-replace-entry {
       background-color: transparent !important;
-      
+
       &:hover {
         background-color: hsl(var(--accent-hover)) !important;
       }
-      
+
       &.selected {
         background-color: hsla(var(--primary) / 0.2) !important;
-        
+
         // 确保选中项的图标和文字清晰可见
         .entry-icon {
           filter: brightness(1.2) !important;
         }
-        
+
         .entry-label {
           color: hsl(var(--primary-foreground)) !important;
           font-weight: 600 !important;
@@ -1888,24 +1873,24 @@ export default defineComponent({
     background-color: hsla(var(--card) / 0.9) !important;
     border: 1px solid hsl(var(--border)) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
-    
+
     // 修复缩略图标题和图标
     .djs-minimap-header {
       background-color: hsl(var(--accent-dark)) !important;
       border-bottom: 1px solid hsl(var(--border)) !important;
       color: hsl(var(--accent-foreground)) !important;
       padding: 4px 8px !important;
-      
+
       // 修复关闭按钮
       .djs-minimap-close {
         background-color: transparent !important;
         border: none !important;
         color: hsl(var(--accent-foreground)) !important;
-        
+
         &:hover {
           color: hsl(var(--destructive)) !important;
         }
-        
+
         // 修复X图标
         &:before {
           color: hsl(var(--accent-foreground)) !important;
@@ -1914,33 +1899,76 @@ export default defineComponent({
           font-weight: bold !important;
         }
       }
-      
+
       // 修复标题文本
       .djs-minimap-title {
         color: hsl(var(--accent-foreground)) !important;
         font-weight: bold !important;
       }
     }
-    
+
     // 修复缩略图内容
     .djs-minimap-viewport {
       border: 2px solid hsl(var(--primary)) !important;
     }
-    
+
     // 修复打开/关闭的图标
     .djs-minimap-toggle {
       background-color: hsla(var(--card) / 0.9) !important;
       border: 1px solid hsl(var(--border)) !important;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
       color: hsl(var(--foreground)) !important;
-      
+
       &:hover {
         background-color: hsl(var(--accent-hover)) !important;
       }
-      
+
       // 修复图标
       &:before {
         color: hsl(var(--foreground)) !important;
+      }
+    }
+  }
+
+  // 新增工具栏样式
+  :deep(.djs-context-pad) {
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    .entry {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+
+      &:hover {
+        background-color: transparent !important;
+      }
+
+      // 确保图标在暗色模式下可见
+      i:before {
+        color: hsl(var(--foreground)) !important;
+      }
+      
+      svg,
+      path,
+      circle,
+      rect,
+      polygon {
+        fill: hsl(var(--foreground)) !important;
+        stroke: none !important;
+      }
+      
+      // 删除图标特殊处理
+      &[data-action='delete'] {
+        svg,
+        path {
+          fill: hsl(var(--destructive)) !important;
+          stroke: none !important;
+        }
+        
+        &:hover {
+          background-color: transparent !important;
+        }
       }
     }
   }
