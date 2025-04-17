@@ -429,13 +429,16 @@ export default defineComponent({
     // 在组件挂载时初始化
     onMounted(() => {
       try {
-
+        let xh = 1;
         // 去掉bpmn.io的logo
         const timer = setInterval(() => {
-          console.log('1');
+          xh = xh + 1;
+          if(xh >= 100)
+          {
+            clearInterval(timer);
+          }
           const logo = document.querySelector('.bjs-powered-by');
           if (logo) {
-            console.log('2');
             logo.remove();
             clearInterval(timer);
           }
@@ -2356,26 +2359,48 @@ export default defineComponent({
         fill: hsl(var(--foreground)) !important;
         stroke: none !important;
       }
-      
-      // 删除图标特殊处理
-      &[data-action='delete'] {
-        svg,
-        path {
-          fill: hsl(var(--destructive)) !important;
-          stroke: none !important;
-        }
-        
-        &:hover {
-          background-color: transparent !important;
-        }
-      }
     }
   }
-  :deep(.bjs-powered-by) {
-    display: none !important;
+
+  :deep(.bio-properties-panel-header) {
+    background-color:hsla(var(--card) / 0.9) !important;
+    color: #ffffff !important;
   }
-  .bjs-powered-by, [title="Powered by bpmn.io"] {
-  display: none !important;
+  :deep(.bio-properties-panel-group-header) {
+    background-color:hsla(var(--card) / 0.9) !important;
+    color: #ffffff !important;
+    .bio-properties-panel-dot
+    {
+      background-color: #ffffff !important;
+    }
+    .bio-properties-panel-arrow-right{fill: #ffffff !important;}
+    .bio-properties-panel-add-entry{fill: #ffffff !important;}
+    .bio-properties-panel-collapsible-entry-arrow{fill: #ffffff !important;}
+  }
+  :deep(.bio-properties-panel-group)
+  {
+    background-color:hsla(var(--card) / 0.9) !important;
+    color: #ffffff !important;
+    input{
+      background-color:hsla(var(--card) / 0.9) !important;
+      color: #ffffff !important;
+    }
+    textarea{background-color:hsla(var(--card) / 0.9) !important;
+      color: #ffffff !important;}
+      select{background-color:hsla(var(--card) / 0.9) !important;
+        color: #ffffff !important;}
+    .bio-properties-panel-description{color: #919191 !important;}
+  }
+  :deep(.bio-properties-panel-header-icon) {
+    color: white !important; /* 字体图标 */
+    /* 或 */
+    fill: white !important;  /* SVG 图标 */
+  }
+  :deep(.bio-properties-panel-add-entry)
+  {
+    fill: #ffffff !important;
+  }
 }
-}
+
+
 </style>
