@@ -112,6 +112,9 @@ export default defineComponent({
     ASelect: Select,
   },
   setup() {
+
+    
+
     // 国际化
     const { t: originalT } = useI18n();
 
@@ -426,6 +429,18 @@ export default defineComponent({
     // 在组件挂载时初始化
     onMounted(() => {
       try {
+
+        // 去掉bpmn.io的logo
+        const timer = setInterval(() => {
+          console.log('1');
+          const logo = document.querySelector('.bjs-powered-by');
+          if (logo) {
+            console.log('2');
+            logo.remove();
+            clearInterval(timer);
+          }
+        }, 100);
+        
         // 初始化BPMN建模器
         initBpmnModeler();
 
@@ -1601,8 +1616,8 @@ export default defineComponent({
 
 <template>
   <div class="bpmn-designer-container" ref="containerRef">
-    <ACard :bordered="false" class="mb-4">
-      <ASpace>
+    <ACard :bordered="false" title="" class="toolbar-card">
+      <ASpace wrap>
         <AButton type="primary" @click="saveProcess">
           <template #icon>
             <SaveOutlined />
@@ -1645,12 +1660,16 @@ export default defineComponent({
           { value: 40, label: '40px' },
           { value: 50, label: '50px' },
         ]" />
-        <ADivider type="vertical" />
       </ASpace>
     </ACard>
-    <div class="bpmn-content">
-      <div ref="canvasRef" class="bpmn-canvas"></div>
-      <div ref="panelRef" class="bpmn-panel"></div>
+
+    <div class="bpmn-content-wrapper">
+      <div class="bpmn-content">
+        <div ref="canvasRef" class="bpmn-canvas"></div>
+        <div class="bpmn-panel-container">
+          <div ref="panelRef" class="bpmn-panel"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -1659,14 +1678,38 @@ export default defineComponent({
 .bpmn-designer-container {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100%;
+  position: relative;
+  padding: 16px;
+  
+  .toolbar-card {
+    margin-bottom: 16px;
+    
+    :deep(.ant-card-body) {
+      padding: 16px;
+    }
+  }
+
+  .bpmn-content-wrapper {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px); // 预留顶部空间
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
 
   .bpmn-content {
     display: flex;
     flex: 1;
+    height: 100%;
     overflow: hidden;
-    border-radius: var(--radius);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    background-color: hsl(var(--background));
+    position: relative;
+    border: 1px solid hsl(var(--border));
+    border-radius: 4px;
 
     .bpmn-canvas {
       flex: 1;
@@ -1697,22 +1740,83 @@ export default defineComponent({
       }
     }
 
-    .bpmn-panel {
-      width: 300px;
+    .bpmn-panel-container {
+      width: 320px;
       height: 100%;
-      overflow: auto;
+      overflow: hidden;
+      position: relative;
       background-color: hsl(var(--card));
       border-left: 1px solid hsl(var(--border));
+      display: flex;
+      flex-direction: column;
+
+      .bpmn-panel {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
     }
   }
 }
 
+// 修复属性面板可滚动区域
+:deep(.bpp-properties-panel) {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+:deep(.bpp-properties-header) {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+:deep(.bpp-properties-tab-bar) {
+  background-color: hsl(var(--accent)) !important;
+  border-color: hsl(var(--border)) !important;
+  position: sticky;
+  top: 35px;
+  z-index: 9;
+}
+
+:deep(.bpp-properties-tabs-links li.bpp-active a) {
+  border-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary)) !important;
+}
+
+:deep(.bpp-properties-group) {
+  border-color: hsl(var(--border)) !important;
+}
+
+:deep(.bpp-properties-entry input,
+  .bpp-properties-entry select,
+  .bpp-properties-entry textarea) {
+  background-color: hsl(var(--input-background)) !important;
+  border-color: hsl(var(--input)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+// 调色板样式优化
 :deep(.djs-palette) {
   background-color: hsl(var(--card)) !important;
   border-color: hsl(var(--border)) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
   border-radius: 6px !important;
   overflow: hidden !important;
+  top: 10px !important;
+  left: 10px !important;
 }
 
 :deep(.djs-palette-entries) {
@@ -1728,6 +1832,7 @@ export default defineComponent({
   }
 }
 
+// 右键菜单样式优化
 :deep(.djs-context-pad) {
   background-color: transparent !important;
   box-shadow: none !important;
@@ -1812,40 +1917,6 @@ export default defineComponent({
 
 :deep(.djs-popup-body .entry:hover) {
   background-color: hsl(var(--accent-hover)) !important;
-}
-
-:deep(.bpp-properties-panel) {
-  background-color: hsl(var(--card)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-:deep(.bpp-properties-header) {
-  background-color: hsl(var(--secondary)) !important;
-  color: hsl(var(--secondary-foreground)) !important;
-  border-color: hsl(var(--border)) !important;
-}
-
-:deep(.bpp-properties-tab-bar) {
-  background-color: hsl(var(--accent)) !important;
-  border-color: hsl(var(--border)) !important;
-}
-
-:deep(.bpp-properties-tabs-links li.bpp-active a) {
-  border-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary)) !important;
-}
-
-:deep(.bpp-properties-group) {
-  border-color: hsl(var(--border)) !important;
-}
-
-:deep(.bpp-properties-entry input,
-  .bpp-properties-entry select,
-  .bpp-properties-entry textarea) {
-  background-color: hsl(var(--input-background)) !important;
-  border-color: hsl(var(--input)) !important;
-  color: hsl(var(--foreground)) !important;
 }
 
 // 移除所有元素的焦点边框
@@ -2294,5 +2365,11 @@ export default defineComponent({
       }
     }
   }
+  :deep(.bjs-powered-by) {
+    display: none !important;
+  }
+  .bjs-powered-by, [title="Powered by bpmn.io"] {
+  display: none !important;
+}
 }
 </style>
