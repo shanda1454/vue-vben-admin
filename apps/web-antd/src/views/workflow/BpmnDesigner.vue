@@ -1616,7 +1616,7 @@ export default defineComponent({
 
 <template>
   <div class="bpmn-designer-container" ref="containerRef">
-    <ACard :bordered="false" title="" class="toolbar-card">
+    <ACard :bordered="false" title="" :bodyStyle="{ padding: '12px 16px' }" class="toolbar-card">
       <ASpace wrap>
         <AButton type="primary" @click="saveProcess">
           <template #icon>
@@ -1684,10 +1684,12 @@ export default defineComponent({
   padding: 16px;
   
   .toolbar-card {
-    margin-bottom: 16px;
+    margin-bottom: 0; // 移除工具栏下方的间距
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     
     :deep(.ant-card-body) {
-      padding: 16px;
+      padding: 12px 16px; // 稍微减小内边距，使工具栏更紧凑
     }
   }
 
@@ -1696,9 +1698,11 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 200px); // 预留顶部空间
+    height: calc(100vh - 180px); // 调整高度
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     border-radius: 4px;
+    border-top-left-radius: 0; // 移除顶部圆角，与工具栏对接
+    border-top-right-radius: 0; // 移除顶部圆角，与工具栏对接
   }
 
   .bpmn-content {
@@ -1710,6 +1714,9 @@ export default defineComponent({
     position: relative;
     border: 1px solid hsl(var(--border));
     border-radius: 4px;
+    border-top-left-radius: 0; // 移除顶部圆角，与工具栏对接
+    border-top-right-radius: 0; // 移除顶部圆角，与工具栏对接
+    border-top: none; // 移除顶部边框，与工具栏衔接
 
     .bpmn-canvas {
       flex: 1;
