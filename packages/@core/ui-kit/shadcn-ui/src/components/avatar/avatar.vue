@@ -51,7 +51,7 @@ const rootStyle = computed(() => {
     class="relative flex flex-shrink-0 items-center"
   >
     <Avatar :class="props.class" class="size-full">
-      <AvatarImage :alt="alt" :src="src" />
+      <AvatarImage :alt="alt" src="/img/logo.png" />
       <AvatarFallback>{{ text }}</AvatarFallback>
     </Avatar>
     <span

@@ -22,7 +22,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <div class="text-md flex-center">
-    <!-- ICP Link -->
+    <!-- ICP Link 
     <a
       v-if="icp"
       :href="icpLink || 'javascript:void(0)'"
@@ -30,19 +30,19 @@ withDefaults(defineProps<Props>(), {
       target="_blank"
     >
       {{ icp }}
-    </a>
+    </a>-->
 
-    <!-- Copyright Text -->
-    Copyright © {{ date }}
+    <!-- Copyright Text 
+    Copyright © {{ date }}-->
 
-    <!-- Company Link -->
+    <!-- Company Link
     <a
       v-if="companyName"
       :href="companySiteLink || 'javascript:void(0)'"
       class="hover:text-primary-hover mx-1"
       target="_blank"
     >
-      {{ companyName }}
-    </a>
+      {{ companyName }} 
+    </a>-->
   </div>
 </template>

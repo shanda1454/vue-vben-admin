@@ -166,7 +166,7 @@ defineExpose({
       </VbenButton>
     </div>
 
-    <!-- 第三方登录 -->
+    <!-- 第三方登录 
     <slot name="third-party-login">
       <ThirdPartyLogin v-if="showThirdPartyLogin" />
     </slot>
@@ -181,6 +181,6 @@ defineExpose({
           {{ $t('authentication.createAccount') }}
         </span>
       </div>
-    </slot>
+    </slot>-->
   </div>
 </template>
