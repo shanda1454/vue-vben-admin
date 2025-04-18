@@ -11,14 +11,14 @@ export const MOCK_USERS: UserInfo[] = [
   {
     id: 0,
     password: '123456',
-    realName: 'Vben',
+    realName: '姜鹏程',
     roles: ['super'],
     username: 'vben',
   },
   {
     id: 1,
     password: '123456',
-    realName: 'Admin',
+    realName: '系统管理员',
     roles: ['admin'],
     username: 'admin',
     homePath: '/workspace',
