@@ -22,6 +22,9 @@ import CustomThemePropertiesProvider from './CustomPropertiesProvider';
 import VbenThemeAdapterModule from './VbenThemeAdapter';
 import ThemeModule from './ThemeModule';
 
+// 导入创建追加任何元素模块
+import { CreateAppendAnythingModule } from 'bpmn-js-create-append-anything';
+
 import {
   DownloadOutlined,
   FolderOutlined,
@@ -48,6 +51,9 @@ import {
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 // 导入缩略图
 import minimapModule from 'diagram-js-minimap';
+
+// 导入Camunda行为模块
+import camundaPlatformBehaviors from 'camunda-bpmn-js-behaviors/lib/camunda-platform';
 
 // 导入Camunda模型描述符
 import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json';
@@ -695,6 +701,8 @@ export default defineComponent({
             },
             VbenThemeAdapterModule, // 添加Vben主题适配器模块
             ThemeModule, // 添加DOM主题变化检测模块
+            camundaPlatformBehaviors, // 添加Camunda行为模块
+            CreateAppendAnythingModule, // 添加创建追加任何元素模块
           ],
           // 设置翻译和语言选项
           translations: bpmnTranslations,

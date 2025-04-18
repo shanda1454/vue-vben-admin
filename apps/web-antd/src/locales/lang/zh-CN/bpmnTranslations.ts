@@ -558,6 +558,11 @@ export const bpmnTranslations = {
     'Conditional Boundary Event (Non-Interrupting)': '条件边界事件 (非中断)',
     'Terminate End Event': '终止结束事件',
     'Process': '审批流程',
+    'Form reference': '表单引用',
+    'Binding': '绑定',
+    'latest': '最新',
+    'deployment': '部署',
+    'version': '版本',
   }
 };
 

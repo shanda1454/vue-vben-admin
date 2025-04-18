@@ -720,9 +720,15 @@ importers:
       bpmn-js:
         specifier: 18.5.0
         version: 18.5.0
+      bpmn-js-create-append-anything:
+        specifier: ^0.6.0
+        version: 0.6.0(bpmn-js@18.5.0)(diagram-js@15.2.4)
       bpmn-js-properties-panel:
         specifier: 6.0.0-2
         version: 6.0.0-2(bpmn-js@18.5.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4)
+      camunda-bpmn-js-behaviors:
+        specifier: ^1.9.1
+        version: 1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0)
       camunda-bpmn-moddle:
         specifier: ^7.0.1
         version: 7.0.1
@@ -2643,6 +2649,12 @@ packages:
 
   '@bpmn-io/diagram-js-ui@0.2.3':
     resolution: {integrity: sha512-OGyjZKvGK8tHSZ0l7RfeKhilGoOGtFDcoqSGYkX0uhFlo99OVZ9Jn1K7TJGzcE9BdKwvA5Y5kGqHEhdTxHvFfw==}
+
+  '@bpmn-io/element-template-chooser@1.0.0':
+    resolution: {integrity: sha512-jSzvoWwYiTpsR7X/+nhao8e8jfveTPLeT3cUUJYhcztLysJaJo+5VXX+QbzH4eFOCnqaoIz6ehbd8px4EjVYnA==}
+    peerDependencies:
+      bpmn-js: '>= 11'
+      diagram-js: '>= 11.3.0'
 
   '@bpmn-io/extract-process-variables@0.8.0':
     resolution: {integrity: sha512-yAS7ZYX+D56K+luC36u96eRMLb4VHcPUwTUqMZ/Z/Je2gou2DJLRbuBTHAB4jjKt4wFCHSG4B8Y+TrBciEYf4w==}
@@ -5144,6 +5156,9 @@ packages:
   boxen@8.0.1:
     resolution: {integrity: sha512-F3PH5k5juxom4xktynS7MoFY+NUWH5LC4CnH11YB8NPew+HLpmBLCybSAEyb2F+4pRXhuhWqFesoQd6DAyc2hw==}
     engines: {node: '>=18'}
+
+  bpmn-js-create-append-anything@0.6.0:
+    resolution: {integrity: sha512-qSWJ1hUkxiXi+gApCBfm7ixcxQ9LdmcLFIC68rTL/AZxP/Z+7bRmYNw5z1KF61xvdGUV07p4Oia/rpIWyGExqw==}
 
   bpmn-js-properties-panel@6.0.0-2:
     resolution: {integrity: sha512-WwL1hknv6wdBD5ux3VjE+oKYlZunO+kAkAT90Z2w4/1jHoVetPr7hlE9nqcHebvldAhfV39LmUY/ZGJYG2d2vA==}
@@ -11590,6 +11605,11 @@ snapshots:
       htm: 3.1.1
       preact: 10.26.5
 
+  '@bpmn-io/element-template-chooser@1.0.0(bpmn-js@18.5.0)(diagram-js@15.2.4)':
+    dependencies:
+      bpmn-js: 18.5.0
+      diagram-js: 15.2.4
+
   '@bpmn-io/extract-process-variables@0.8.0':
     dependencies:
       min-dash: 4.2.3
@@ -14429,6 +14449,13 @@ snapshots:
       type-fest: 4.39.1
       widest-line: 5.0.0
       wrap-ansi: 9.0.0
+
+  bpmn-js-create-append-anything@0.6.0(bpmn-js@18.5.0)(diagram-js@15.2.4):
+    dependencies:
+      '@bpmn-io/element-template-chooser': 1.0.0(bpmn-js@18.5.0)(diagram-js@15.2.4)
+    transitivePeerDependencies:
+      - bpmn-js
+      - diagram-js
 
   bpmn-js-properties-panel@6.0.0-2(bpmn-js@18.5.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4):
     dependencies:
