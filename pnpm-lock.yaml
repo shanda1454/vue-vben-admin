@@ -536,11 +536,11 @@ importers:
         specifier: ^3.26.4
         version: 3.26.4
       bpmn-js:
-        specifier: ^18.4.0
-        version: 18.4.0
+        specifier: ^18.5.0
+        version: 18.5.0
       bpmn-js-properties-panel:
-        specifier: ^5.35.0
-        version: 5.35.0(@bpmn-io/properties-panel@3.26.4)(bpmn-js@18.4.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.4.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4)
+        specifier: ^6.0.0-2
+        version: 6.0.0-2(bpmn-js@18.5.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4)
       diagram-js:
         specifier: ^15.2.4
         version: 15.2.4
@@ -717,6 +717,12 @@ importers:
       ant-design-vue:
         specifier: 'catalog:'
         version: 4.2.6(vue@3.5.13(typescript@5.8.3))
+      bpmn-js:
+        specifier: 18.5.0
+        version: 18.5.0
+      bpmn-js-properties-panel:
+        specifier: 6.0.0-2
+        version: 6.0.0-2(bpmn-js@18.5.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4)
       camunda-bpmn-moddle:
         specifier: ^7.0.1
         version: 7.0.1
@@ -2638,8 +2644,12 @@ packages:
   '@bpmn-io/diagram-js-ui@0.2.3':
     resolution: {integrity: sha512-OGyjZKvGK8tHSZ0l7RfeKhilGoOGtFDcoqSGYkX0uhFlo99OVZ9Jn1K7TJGzcE9BdKwvA5Y5kGqHEhdTxHvFfw==}
 
-  '@bpmn-io/extract-process-variables@1.0.1':
-    resolution: {integrity: sha512-bisd1kL38HIjB+nmvtw3mpktH0Il3y55eiH/F7kKJs00jf+eksRBoUdr8q4Ge7w5uWxEKVszrasZCee5LTcYEw==}
+  '@bpmn-io/extract-process-variables@0.8.0':
+    resolution: {integrity: sha512-yAS7ZYX+D56K+luC36u96eRMLb4VHcPUwTUqMZ/Z/Je2gou2DJLRbuBTHAB4jjKt4wFCHSG4B8Y+TrBciEYf4w==}
+
+  '@bpmn-io/feel-editor@0.9.1':
+    resolution: {integrity: sha512-6nJJy7kckIzidX9cHGtvTr9180XgFBS5uCYfspaxEeYPjIj08eim2zXdLNPkedLO1obPL2jcMziZJyBFknI9Dw==}
+    engines: {node: '>= 16'}
 
   '@bpmn-io/feel-editor@1.10.0':
     resolution: {integrity: sha512-Unc4CSyMgDg5c2C3E3ehEbJZfyo5W9Zrq74C8cp7mjFbb3if6rTBaw3ZCZeiC06zsm881sI5P8zWHFdIhKo/vA==}
@@ -2650,6 +2660,9 @@ packages:
 
   '@bpmn-io/properties-panel@3.26.4':
     resolution: {integrity: sha512-nx4uAI9xSQJmfkuGhlMRFrS198sCegj8uwZs6O1KFFjOPrQgTM/m11YNY1rSGyD7hfZtSGO3nny7ODrN3KjNzg==}
+
+  '@bpmn-io/properties-panel@4.0.0-2':
+    resolution: {integrity: sha512-X782Yon/AwR01IBFXtbcJzMIB8EOa5IReEF0SEH3BB+3f5hpP/Uh42+iaHiJvXoLCj9UA6hUK1oZhWiAC2l4uQ==}
 
   '@changesets/apply-release-plan@7.0.10':
     resolution: {integrity: sha512-wNyeIJ3yDsVspYvHnEz1xQDq18D9ifed3lI+wxRQRK4pArUcuHgCTrHv0QRnnwjhVCQACxZ+CBih3wgOct6UXw==}
@@ -5006,9 +5019,9 @@ packages:
   array-ify@1.0.0:
     resolution: {integrity: sha512-c5AMf34bKdvPhQ7tBGhqkgKNUzMr4WUs+WDtC2ZUGOUncbxKMTvqxYctiseW3+L4bA8ec+GcZ6/A/FW4m8ukng==}
 
-  array-move@4.0.0:
-    resolution: {integrity: sha512-+RY54S8OuVvg94THpneQvFRmqWdAHeqtMzgMW6JNurHxe8rsS07cHQdfGkXnTUXiBcyZ0j3SiDIxxj0RPiqCkQ==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+  array-move@3.0.1:
+    resolution: {integrity: sha512-H3Of6NIn2nNU1gsVDqDnYKY/LCdWvCMMOWifNGhKcVQgiZ6nOek39aESOvro6zmueP07exSl93YLvkN4fZOkSg==}
+    engines: {node: '>=10'}
 
   array-timsort@1.0.3:
     resolution: {integrity: sha512-/+3GRL7dDAGEfM6TseQk/U+mi18TU2Ms9I3UlLdUMhz2hbvGNTKdj9xniwXfUqgYhHxRx0+8UnKkvlNwVU+cWQ==}
@@ -5132,16 +5145,15 @@ packages:
     resolution: {integrity: sha512-F3PH5k5juxom4xktynS7MoFY+NUWH5LC4CnH11YB8NPew+HLpmBLCybSAEyb2F+4pRXhuhWqFesoQd6DAyc2hw==}
     engines: {node: '>=18'}
 
-  bpmn-js-properties-panel@5.35.0:
-    resolution: {integrity: sha512-Oigs0Yik/rYZhIwUSaNSINpidSWXXuuKxQaRTt804Nbpz6s/mIwEb6poxk/XDeK5iXwIkB7sZkh1VvOLBOAwPw==}
+  bpmn-js-properties-panel@6.0.0-2:
+    resolution: {integrity: sha512-WwL1hknv6wdBD5ux3VjE+oKYlZunO+kAkAT90Z2w4/1jHoVetPr7hlE9nqcHebvldAhfV39LmUY/ZGJYG2d2vA==}
     peerDependencies:
-      '@bpmn-io/properties-panel': '>= 3.7'
       bpmn-js: '>= 11.5'
       camunda-bpmn-js-behaviors: '>= 0.4'
       diagram-js: '>= 11.9'
 
-  bpmn-js@18.4.0:
-    resolution: {integrity: sha512-Dx9f6+P9fdARKCxKy/sekXGlsR5Gx8G7GIuj0ELhXqK+h2cK7VT0TpUMkpYVEPVX7zMAxN/0RKs2D7wruS5YWg==}
+  bpmn-js@18.5.0:
+    resolution: {integrity: sha512-TT8FDmeYNdNLm9PnPRTG8RpN/iZADa7xMrQ8gDshkPseBa9tTUNdeLIKwao4Vo3xPRxW2ou8bZJ1U4dwr+fX0A==}
 
   bpmn-moddle@9.0.1:
     resolution: {integrity: sha512-jO2P5RBx0cZCCd+imqhpNE5anttaYuGd71u76NEA/qMZwJSW1t5ETAtw9/E2InfiPU2w0TR8oxPyopJXRc9VQg==}
@@ -7428,6 +7440,9 @@ packages:
     resolution: {integrity: sha512-7Bp3TpsE+L+TARSnnDpk3xg8Idi8RwSLdj6CMbNWoOARIrGrbuLGusV0dYwbZOm4bB3jHNxSw8Wk/ByDqJEnDw==}
     engines: {node: '>=18'}
 
+  lang-feel@1.1.0:
+    resolution: {integrity: sha512-UxQoWm8G8ne9D+xrVJ4wgVM2nIiggpdCQxX8SAw+ISNFUsehm7xtwohELgXGN8dCZ6C69fsMreAjI+jPURFKdQ==}
+
   lang-feel@2.3.0:
     resolution: {integrity: sha512-cotBfyBP710udy3Tm7s4NyNZPSSLXkVV/rrfmM4NVbuzB9WGL7CbMWUzfSn6GZ+qFnh8/xbkeDHfAvPM90oENA==}
 
@@ -8766,6 +8781,11 @@ packages:
   postcss@8.5.3:
     resolution: {integrity: sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==}
     engines: {node: ^10 || ^12 || >=14}
+
+  preact-markup@2.1.1:
+    resolution: {integrity: sha512-8JL2p36mzK8XkspOyhBxUSPjYwMxDM0L5BWBZWxsZMVW8WsGQrYQDgVuDKkRspt2hwrle+Cxr/053hpc9BJwfw==}
+    peerDependencies:
+      preact: '>=10'
 
   preact@10.26.5:
     resolution: {integrity: sha512-fmpDkgfGU6JYux9teDWLhj9mKN55tyepwYbxHgQuIxbWQzgFg5vk7Mrrtfx7xRxq798ynkY4DDDxZr235Kk+4w==}
@@ -10138,6 +10158,10 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
 
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
@@ -11566,9 +11590,22 @@ snapshots:
       htm: 3.1.1
       preact: 10.26.5
 
-  '@bpmn-io/extract-process-variables@1.0.1':
+  '@bpmn-io/extract-process-variables@0.8.0':
     dependencies:
       min-dash: 4.2.3
+
+  '@bpmn-io/feel-editor@0.9.1':
+    dependencies:
+      '@bpmn-io/feel-lint': 1.4.0
+      '@codemirror/autocomplete': 6.18.6
+      '@codemirror/commands': 6.8.1
+      '@codemirror/language': 6.11.0
+      '@codemirror/lint': 6.8.5
+      '@codemirror/state': 6.5.2
+      '@codemirror/view': 6.36.5
+      '@lezer/highlight': 1.2.1
+      lang-feel: 1.1.0
+      min-dom: 4.2.1
 
   '@bpmn-io/feel-editor@1.10.0':
     dependencies:
@@ -11597,6 +11634,17 @@ snapshots:
       focus-trap: 7.6.4
       min-dash: 4.2.3
       min-dom: 4.2.1
+
+  '@bpmn-io/properties-panel@4.0.0-2':
+    dependencies:
+      '@bpmn-io/feel-editor': 0.9.1
+      '@codemirror/view': 6.36.5
+      classnames: 2.5.1
+      feelers: 1.4.0
+      focus-trap: 7.6.4
+      min-dash: 4.2.3
+      min-dom: 4.2.1
+      preact: 10.26.5
 
   '@changesets/apply-release-plan@7.0.10':
     dependencies:
@@ -14251,7 +14299,7 @@ snapshots:
 
   array-ify@1.0.0: {}
 
-  array-move@4.0.0: {}
+  array-move@3.0.1: {}
 
   array-timsort@1.0.3: {}
 
@@ -14382,19 +14430,24 @@ snapshots:
       widest-line: 5.0.0
       wrap-ansi: 9.0.0
 
-  bpmn-js-properties-panel@5.35.0(@bpmn-io/properties-panel@3.26.4)(bpmn-js@18.4.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.4.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4):
+  bpmn-js-properties-panel@6.0.0-2(bpmn-js@18.5.0)(camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0))(diagram-js@15.2.4):
     dependencies:
-      '@bpmn-io/extract-process-variables': 1.0.1
-      '@bpmn-io/properties-panel': 3.26.4
-      array-move: 4.0.0
-      bpmn-js: 18.4.0
-      camunda-bpmn-js-behaviors: 1.9.1(bpmn-js@18.4.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0)
+      '@bpmn-io/extract-process-variables': 0.8.0
+      '@bpmn-io/properties-panel': 4.0.0-2
+      array-move: 3.0.1
+      bpmn-js: 18.5.0
+      camunda-bpmn-js-behaviors: 1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0)
+      classnames: 2.5.1
       diagram-js: 15.2.4
       ids: 1.0.5
       min-dash: 4.2.3
       min-dom: 4.2.1
+      preact: 10.26.5
+      preact-markup: 2.1.1(preact@10.26.5)
+      semver-compare: 1.0.0
+      uuid: 9.0.1
 
-  bpmn-js@18.4.0:
+  bpmn-js@18.5.0:
     dependencies:
       bpmn-moddle: 9.0.1
       diagram-js: 15.2.4
@@ -14529,9 +14582,9 @@ snapshots:
 
   camelcase@8.0.0: {}
 
-  camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.4.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0):
+  camunda-bpmn-js-behaviors@1.9.1(bpmn-js@18.5.0)(camunda-bpmn-moddle@7.0.1)(zeebe-bpmn-moddle@1.9.0):
     dependencies:
-      bpmn-js: 18.4.0
+      bpmn-js: 18.5.0
       camunda-bpmn-moddle: 7.0.1
       ids: 1.0.5
       min-dash: 4.2.3
@@ -16940,6 +16993,15 @@ snapshots:
 
   ky@1.8.1: {}
 
+  lang-feel@1.1.0:
+    dependencies:
+      '@codemirror/autocomplete': 6.18.6
+      '@codemirror/language': 6.11.0
+      '@codemirror/state': 6.5.2
+      '@codemirror/view': 6.36.5
+      '@lezer/common': 1.2.3
+      lezer-feel: 1.7.0
+
   lang-feel@2.3.0:
     dependencies:
       '@codemirror/autocomplete': 6.18.6
@@ -18416,6 +18478,10 @@ snapshots:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  preact-markup@2.1.1(preact@10.26.5):
+    dependencies:
+      preact: 10.26.5
 
   preact@10.26.5: {}
 
@@ -19896,6 +19962,8 @@ snapshots:
       punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
+
+  uuid@9.0.1: {}
 
   validate-npm-package-license@3.0.4:
     dependencies:

@@ -122,8 +122,8 @@
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@bpmn-io/properties-panel": "^3.26.4",
-    "bpmn-js": "^18.4.0",
-    "bpmn-js-properties-panel": "^5.35.0",
+    "bpmn-js": "^18.5.0",
+    "bpmn-js-properties-panel": "^6.0.0-2",
     "diagram-js": "^15.2.4",
     "diagram-js-minimap": "^5.2.0"
   }

@@ -17,6 +17,11 @@ import { useI18n } from '@vben/locales';
 // 导入主题相关
 import { usePreferences } from '@vben/preferences';
 
+// 导入自定义模块
+import CustomThemePropertiesProvider from './CustomPropertiesProvider';
+import VbenThemeAdapterModule from './VbenThemeAdapter';
+import ThemeModule from './ThemeModule';
+
 import {
   DownloadOutlined,
   FolderOutlined,
@@ -43,6 +48,7 @@ import {
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 // 导入缩略图
 import minimapModule from 'diagram-js-minimap';
+
 // 导入Camunda模型描述符
 import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json';
 
@@ -54,6 +60,7 @@ import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 import '@bpmn-io/properties-panel/dist/assets/properties-panel.css';
 import 'diagram-js-minimap/assets/diagram-js-minimap.css';
+import './bpmn-theme.less'; // 导入BPMN主题样式
 
 // 基础类型声明
 interface BpmnTranslations {
@@ -682,6 +689,12 @@ export default defineComponent({
             customTranslateModule, // 添加自定义translate模块，替代官方模块
             customI18nModule, // 添加自定义i18n模块
             minimapModule,
+            // 自定义主题相关模块
+            {
+              themePropertiesProvider: ['type', CustomThemePropertiesProvider] // 添加主题属性面板提供器
+            },
+            VbenThemeAdapterModule, // 添加Vben主题适配器模块
+            ThemeModule, // 添加DOM主题变化检测模块
           ],
           // 设置翻译和语言选项
           translations: bpmnTranslations,
@@ -739,18 +752,33 @@ export default defineComponent({
     // 监听主题变化
     watch(
       () => isDark.value,
-      () => {
+      (newIsDark) => {
         // 直接使用当前值应用主题样式
         if (containerRef.value) {
           const container = containerRef.value;
-          if (isDark.value) {
+          if (newIsDark) {
             container.classList.add('bpmn-dark-theme');
           } else {
             container.classList.remove('bpmn-dark-theme');
           }
         }
+        
         // 主题变化后直接应用栅格样式
         applyGridStyles();
+        
+        // 如果BPMN模块已初始化，则触发主题变更事件
+        if (bpmnModeler) {
+          try {
+            const eventBus = bpmnModeler.get('eventBus');
+            if (eventBus) {
+              eventBus.fire('theme.changed', { 
+                isDark: newIsDark 
+              });
+            }
+          } catch (error) {
+            console.error('触发BPMN主题变更事件失败:', error);
+          }
+        }
       },
       { immediate: true },
     );
