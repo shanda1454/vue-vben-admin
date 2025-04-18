@@ -1704,7 +1704,7 @@ export default defineComponent({
   }
 
   :deep(.bio-properties-panel-header) {
-    background-color: hsla(var(--card) / 0.9) !important;
+    background-color: #141414 !important;
     color: #ffffff !important;
     border-bottom: 1px solid hsla(var(--border) / 0.7) !important;
   }
