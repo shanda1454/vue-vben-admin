@@ -563,6 +563,15 @@ export const bpmnTranslations = {
     'latest': '最新',
     'deployment': '部署',
     'version': '版本',
+    'Create element': '创建元素',
+    'Gateways': '网关',
+    'Tasks': '任务',
+    'Sub-processes': '子流程',
+    'Events': '事件',
+    'Boundary events': '边界事件',
+    'Data':'数据',
+    'Participants':'参与者',
+    'Expanded pool/participant':'展开池/参与者',
   }
 };
 

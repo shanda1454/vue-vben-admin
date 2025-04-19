@@ -1,1 +1,272 @@
- 
+/* BPMN主题样式 - 适配明亮模式和暗黑模式 */
+/* 定义明亮模式下的变量 */
+:root {
+  /* 面板相关 */
+  --bpmn-panel-bg: #ffffff;
+  --bpmn-panel-text: #333333;
+  --bpmn-panel-border: #e0e0e0;
+  
+  /* 头部相关 */
+  --bpmn-header-bg: #f8f9fa;
+  --bpmn-header-text: #333333;
+  
+  /* 标签页相关 */
+  --bpmn-tab-bg: #f0f0f0;
+  --bpmn-tab-active-bg: #ffffff;
+  --bpmn-tab-active-border: #1976d2;
+  --bpmn-tab-text: #333333;
+  
+  /* 分组相关 */
+  --bpmn-group-header-bg: #f5f5f5;
+  --bpmn-group-header-text: #333333;
+  
+  /* 输入框相关 */
+  --bpmn-input-bg: #ffffff;
+  --bpmn-input-border: #cccccc;
+  --bpmn-input-text: #333333;
+  
+  /* 表格相关 */
+  --bpmn-table-header-bg: #f5f5f5;
+  --bpmn-table-border: #e0e0e0;
+  --bpmn-table-cell-bg: #ffffff;
+  --bpmn-table-cell-alt-bg: #f9f9f9;
+  
+  /* 按钮相关 */
+  --bpmn-button-primary-bg: #1976d2;
+  --bpmn-button-primary-text: #ffffff;
+  --bpmn-button-secondary-bg: #f5f5f5;
+  --bpmn-button-secondary-text: #333333;
+  --bpmn-button-danger-bg: #f44336;
+  --bpmn-button-danger-text: #ffffff;
+  
+  /* 只读字段 */
+  --bpmn-readonly-bg: #f5f5f5;
+  --bpmn-readonly-text: #666666;
+  
+  /* 下拉菜单相关 */
+  --bpmn-dropdown-bg: #ffffff;
+  --bpmn-dropdown-border: #e0e0e0;
+  --bpmn-dropdown-item-hover: #f5f5f5;
+  --bpmn-dropdown-text: #333333;
+  --bpmn-dropdown-shadow: rgba(0, 0, 0, 0.1);
+  
+  /* 搜索菜单相关 */
+  --bpmn-popup-menu-bg: #ffffff;
+  --bpmn-popup-menu-border: #e0e0e0;
+  --bpmn-popup-menu-text: #333333;
+  --bpmn-popup-menu-shadow: rgba(0, 0, 0, 0.2);
+  --bpmn-popup-menu-hover: #f5f5f5;
+  --bpmn-popup-menu-selected: #e3f2fd;
+  --bpmn-popup-menu-divider: #eeeeee;
+  --bpmn-popup-menu-header-bg: #f8f9fa;
+  --bpmn-popup-menu-description: #757575;
+  
+  /* 创建追加菜单相关 */
+  --bpmn-create-append-bg: #ffffff;
+  --bpmn-create-append-text: #333333;
+  --bpmn-create-append-border: #e0e0e0;
+  --bpmn-create-append-hover: #f5f5f5;
+  --bpmn-create-append-selected: #e3f2fd;
+  --bpmn-create-append-shadow: rgba(0, 0, 0, 0.2);
+  --bpmn-create-append-header-bg: #f8f9fa;
+  --bpmn-create-append-header-text: #333333;
+  --bpmn-create-append-search-bg: #ffffff;
+  --bpmn-create-append-search-border: #cccccc;
+  --bpmn-create-append-search-text: #333333;
+}
+
+/* 定义暗黑模式下的变量 */
+.bpmn-dark-theme {
+  /* 面板相关 */
+  --bpmn-panel-bg: #1e1e1e;
+  --bpmn-panel-text: #e0e0e0;
+  --bpmn-panel-border: #444444;
+  
+  /* 头部相关 */
+  --bpmn-header-bg: #2d2d2d;
+  --bpmn-header-text: #e0e0e0;
+  
+  /* 标签页相关 */
+  --bpmn-tab-bg: #333333;
+  --bpmn-tab-active-bg: #1e1e1e;
+  --bpmn-tab-active-border: #3f88e2;
+  --bpmn-tab-text: #e0e0e0;
+  
+  /* 分组相关 */
+  --bpmn-group-header-bg: #2d2d2d;
+  --bpmn-group-header-text: #e0e0e0;
+  
+  /* 输入框相关 */
+  --bpmn-input-bg: #2d2d2d;
+  --bpmn-input-border: #555555;
+  --bpmn-input-text: #e0e0e0;
+  
+  /* 表格相关 */
+  --bpmn-table-header-bg: #2d2d2d;
+  --bpmn-table-border: #444444;
+  --bpmn-table-cell-bg: #1e1e1e;
+  --bpmn-table-cell-alt-bg: #252525;
+  
+  /* 按钮相关 */
+  --bpmn-button-primary-bg: #3f88e2;
+  --bpmn-button-primary-text: #ffffff;
+  --bpmn-button-secondary-bg: #3d3d3d;
+  --bpmn-button-secondary-text: #e0e0e0;
+  --bpmn-button-danger-bg: #d32f2f;
+  --bpmn-button-danger-text: #ffffff;
+  
+  /* 只读字段 */
+  --bpmn-readonly-bg: #2a2a2a;
+  --bpmn-readonly-text: #aaaaaa;
+  
+  /* 下拉菜单相关 */
+  --bpmn-dropdown-bg: #2d2d2d;
+  --bpmn-dropdown-border: #444444;
+  --bpmn-dropdown-item-hover: #3d3d3d;
+  --bpmn-dropdown-text: #e0e0e0;
+  --bpmn-dropdown-shadow: rgba(0, 0, 0, 0.5);
+  
+  /* 搜索菜单相关 */
+  --bpmn-popup-menu-bg: #2d2d2d;
+  --bpmn-popup-menu-border: #444444;
+  --bpmn-popup-menu-text: #e0e0e0;
+  --bpmn-popup-menu-shadow: rgba(0, 0, 0, 0.5);
+  --bpmn-popup-menu-hover: #3d3d3d;
+  --bpmn-popup-menu-selected: #1e3d5c;
+  --bpmn-popup-menu-divider: #444444;
+  --bpmn-popup-menu-header-bg: #383838;
+  --bpmn-popup-menu-description: #b0b0b0;
+  
+  /* 创建追加菜单相关 */
+  --bpmn-create-append-bg: #2d2d2d;
+  --bpmn-create-append-text: #e0e0e0;
+  --bpmn-create-append-border: #444444;
+  --bpmn-create-append-hover: #3d3d3d;
+  --bpmn-create-append-selected: #1e3d5c;
+  --bpmn-create-append-shadow: rgba(0, 0, 0, 0.5);
+  --bpmn-create-append-header-bg: #383838;
+  --bpmn-create-append-header-text: #e0e0e0;
+  --bpmn-create-append-search-bg: #2d2d2d;
+  --bpmn-create-append-search-border: #555555;
+  --bpmn-create-append-search-text: #e0e0e0;
+}
+
+/* ====== 创建追加菜单样式 ====== */
+.djs-popup .djs-popup-body {
+  background-color: var(--bpmn-create-append-bg) !important;
+  color: var(--bpmn-create-append-text) !important;
+  border-color: var(--bpmn-create-append-border) !important;
+  box-shadow: 0 1px 4px var(--bpmn-create-append-shadow) !important;
+}
+
+.djs-popup .djs-popup-header {
+  background-color: var(--bpmn-create-append-header-bg) !important;
+  color: var(--bpmn-create-append-header-text) !important;
+  border-color: var(--bpmn-create-append-border) !important;
+}
+
+.djs-popup .djs-popup-search {
+  background-color: var(--bpmn-create-append-search-bg) !important;
+  border-color: var(--bpmn-create-append-search-border) !important;
+}
+
+.djs-popup .djs-popup-search-input {
+  background-color: var(--bpmn-create-append-search-bg) !important;
+  color: var(--bpmn-create-append-search-text) !important;
+  border-color: var(--bpmn-create-append-search-border) !important;
+}
+
+.djs-popup .entry {
+  color: var(--bpmn-create-append-text) !important;
+  border-color: var(--bpmn-create-append-border) !important;
+}
+
+.djs-popup .entry:hover {
+  background-color: var(--bpmn-create-append-hover) !important;
+}
+
+.djs-popup .entry.selected {
+  background-color: var(--bpmn-create-append-selected) !important;
+}
+
+.djs-popup .entry-header {
+  background-color: var(--bpmn-create-append-header-bg) !important;
+  color: var(--bpmn-create-append-header-text) !important;
+  border-color: var(--bpmn-create-append-border) !important;
+}
+
+.djs-popup .entry-content .description {
+  color: var(--bpmn-popup-menu-description) !important;
+}
+
+/* 创建追加菜单中的图标颜色 */
+.djs-popup .entry svg,
+.djs-popup .entry path,
+.djs-popup .entry circle,
+.djs-popup .entry rect,
+.djs-popup .entry polygon {
+  fill: var(--bpmn-create-append-text) !important;
+  stroke: var(--bpmn-create-append-text) !important;
+}
+
+/* 调色板样式适配 */
+.bjs-create-anything {
+  background-color: var(--bpmn-create-append-bg) !important;
+  color: var(--bpmn-create-append-text) !important;
+  border-color: var(--bpmn-create-append-border) !important;
+}
+
+.bjs-create-anything:hover {
+  background-color: var(--bpmn-create-append-hover) !important;
+}
+
+/* 上下文菜单样式适配 */
+.bjs-append-anything {
+  background-color: var(--bpmn-create-append-bg) !important;
+  color: var(--bpmn-create-append-text) !important;
+  border-color: var(--bpmn-create-append-border) !important;
+}
+
+.bjs-append-anything:hover {
+  background-color: var(--bpmn-create-append-hover) !important;
+}
+
+/* 修复已知的暗色模式下图标问题 */
+.djs-context-pad .entry,
+.djs-palette .entry {
+  background-size: 22px !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.bpmn-dark-theme .djs-context-pad .entry,
+.bpmn-dark-theme .djs-palette .entry {
+  filter: brightness(1.5) !important;
+}
+
+/* 暗色模式下图标过滤器 */
+.bpmn-dark-theme .djs-popup-body img,
+.bpmn-dark-theme .djs-popup-body svg {
+  filter: brightness(1.3) !important;
+}
+
+/* 搜索框样式 */
+.djs-popup-search {
+  padding: 8px !important;
+  border-bottom: 1px solid var(--bpmn-create-append-border) !important;
+}
+
+.djs-popup-search-input {
+  padding: 6px 10px !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 空结果样式 */
+.djs-popup-no-results {
+  padding: 10px !important;
+  text-align: center !important;
+  color: var(--bpmn-create-append-text) !important;
+  font-style: italic !important;
+} 
