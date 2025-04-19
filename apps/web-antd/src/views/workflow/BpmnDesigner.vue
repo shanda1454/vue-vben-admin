@@ -1644,7 +1644,6 @@ export default defineComponent({
     background-color: hsl(var(--background)) !important;
     border: 1px solid hsl(var(--border)) !important;
     color: hsl(var(--foreground)) !important;
-    padding: 3px !important;
   }
 
   // 修复缩略图样式
@@ -1658,7 +1657,6 @@ export default defineComponent({
       background-color: hsl(var(--accent-dark)) !important;
       border-bottom: 1px solid hsl(var(--border)) !important;
       color: hsl(var(--accent-foreground)) !important;
-      padding: 4px 8px !important;
 
       // 修复关闭按钮
       .djs-minimap-close {
@@ -1776,7 +1774,6 @@ export default defineComponent({
       color: #ffffff !important;
       border: 1px solid hsla(var(--border) / 0.8) !important;
       border-radius: 4px;
-      padding: 4px 8px;
       
       &:focus {
         border-color: hsl(var(--primary)) !important;
@@ -1803,7 +1800,7 @@ export default defineComponent({
     
     /* Nested entries indentation and borders */
     .bio-properties-panel-entry {
-      padding: 6px 8px;
+
       border-bottom: 1px solid hsla(var(--border) / 0.2) !important;
       
       &:last-child {
