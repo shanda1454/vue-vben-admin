@@ -299,7 +299,7 @@ export default defineComponent({
         try {
           if (!newLocale) return;
 
-          const isNewLocaleEn = newLocale.locale === 'en';
+          const isNewLocaleEn = newLocale.value?.locale === 'en';
 
           // 映射到BPMN支持的格式
           const bpmnLocale = isNewLocaleEn ? 'en' : 'zh';

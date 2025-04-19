@@ -40,8 +40,7 @@ import DmnModeler from 'dmn-js/lib/Modeler';
 // 导入属性面板
 import {
   DmnPropertiesPanelModule,
-  DmnPropertiesProviderModule,
-  CamundaPropertiesProviderModule
+  DmnPropertiesProviderModule
 } from 'dmn-js-properties-panel';
 
 // 导入Ant Design国际化 - 作为唯一的语言源
@@ -57,6 +56,7 @@ import 'dmn-js/dist/assets/dmn-js-drd.css';
 import 'dmn-js/dist/assets/dmn-js-decision-table.css';
 import 'dmn-js/dist/assets/dmn-js-literal-expression.css';
 import 'dmn-js/dist/assets/dmn-font/css/dmn.css';
+import '@bpmn-io/properties-panel/dist/assets/properties-panel.css';
 
 // 添加全局错误处理以消除特定警告
 (function () {
@@ -266,9 +266,9 @@ export default defineComponent({
       antdLocale,
       (newLocale) => {
         try {
-          if (!newLocale) return;
+          if (!newLocale?.value) return;
 
-          const isNewLocaleEn = newLocale.locale === 'en';
+          const isNewLocaleEn = newLocale.value.locale === 'en';
 
           // 映射到DMN支持的格式
           const dmnLocale = isNewLocaleEn ? 'en' : 'zh';
@@ -283,12 +283,11 @@ export default defineComponent({
               try {
                 // DMN编辑器的视图数组
                 const views = dmnModeler.getViews();
-                const activeView = dmnModeler.getActiveView();
+                const activeView = dmnModeler.getActiveViewer();
 
                 // 刷新当前视图，应用新语言
                 if (activeView && activeView.element) {
                   // 获取当前激活的视图
-                  const currentViewType = activeView.type;
                   const currentElement = activeView.element;
 
                   // 查找视图索引
@@ -302,11 +301,11 @@ export default defineComponent({
 
                   if (viewIdx !== -1) {
                     // 关闭当前视图
-                    dmnModeler.closeView(viewIdx);
+                    dmnModeler?.getViews()[viewIdx]?.close();
 
                     // 重新打开视图以应用新语言
                     setTimeout(() => {
-                      dmnModeler.open(viewIdx);
+                      dmnModeler?.getViews()[viewIdx]?.open();
                       message.success(
                         `DMN设计器语言已切换到${dmnLocale === 'zh' ? '中文' : '英文'}`,
                       );
@@ -515,7 +514,6 @@ export default defineComponent({
             additionalModules: [
               DmnPropertiesPanelModule,
               DmnPropertiesProviderModule,
-              CamundaPropertiesProviderModule,
               SilentErrorModule,
               customTranslateModule, 
               customI18nModule
@@ -541,9 +539,9 @@ export default defineComponent({
         });
 
         // 注册视图切换事件，更新活动视图索引
-        dmnModeler.on('views.changed', (event) => {
+        dmnModeler.on('views.changed', (event: any) => {
           const { activeView } = event;
-          if (activeView) {
+          if (activeView && dmnModeler) {
             const views = dmnModeler.getViews();
             for (let i = 0; i < views.length; i++) {
               if (views[i].id === activeView.id) {
@@ -572,7 +570,7 @@ export default defineComponent({
         // 如果DMN模块已初始化，则触发主题变更事件
         if (dmnModeler) {
           try {
-            const eventBus = dmnModeler._getGlobalEventBus && dmnModeler._getGlobalEventBus();
+            const eventBus = dmnModeler.getActiveViewer()?.get('eventBus');
             if (eventBus) {
               eventBus.fire('theme.changed', { 
                 isDark: newIsDark 
@@ -773,7 +771,7 @@ export default defineComponent({
           <div ref="canvasRef" class="dmn-js-container"></div>
         </div>
         <div class="dmn-properties-panel-container" :class="{ 'dmn-dark-theme': isDark }">
-          <div class="dmn-properties-panel-header">{{ t('dmn.properties.title') }}</div>
+          
           <div ref="panelRef" class="dmn-properties-panel"></div>
         </div>
       </div>
@@ -875,11 +873,60 @@ export default defineComponent({
   }
 }
 
+:deep(.djs-context-pad) {
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    .entry {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+
+      &:hover {
+        background-color: transparent !important;
+      }
+
+      // 确保图标在暗色模式下可见
+      i:before {
+        color: hsl(var(--foreground)) !important;
+      }
+      
+      svg,
+      path,
+      circle,
+      rect,
+      polygon {
+        fill: hsl(var(--foreground)) !important;
+        stroke: none !important;
+      }
+    }
+  }
+
 // 去掉DMN的自带logo
 :deep(.djs-minimap) {
   .bjs-powered-by {
     display: none !important;
   }
+}
+
+// 移除所有元素的焦点边框
+:deep(.djs-container *) {
+
+&:focus,
+&:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+}
+
+// 移除画布的焦点边框
+:deep(.djs-container svg) {
+
+&:focus,
+&:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 }
 
 // 常用覆盖样式
@@ -983,5 +1030,7 @@ export default defineComponent({
       }
     }
   }
+
+  
 }
 </style> 
