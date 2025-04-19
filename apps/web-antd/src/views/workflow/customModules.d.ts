@@ -31,7 +31,9 @@ declare module '@vben/preferences' {
 }
 
 declare module '#/locales' {
-  export const antdLocale: { value?: { locale: string } };
+  export const antdLocale: {
+    locale: string; value?: { locale: string } 
+};
 }
 
 declare module '#/locales/lang/zh-CN/dmnTranslations' {

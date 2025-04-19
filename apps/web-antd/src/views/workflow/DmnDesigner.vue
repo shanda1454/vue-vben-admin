@@ -127,8 +127,23 @@ export default defineComponent({
 
     // 初始化时确定当前语言
     try {
-      const locale = antdLocale.value?.locale;
-      currentLocale.value = locale === 'en_US' ? 'en' : 'zh';
+      // 安全获取locale值
+      let localeValue = null;
+      
+      // @ts-ignore - 访问动态属性，类型可能不一致
+      if (antdLocale?.value?.locale) {
+        // @ts-ignore - 访问动态属性
+        localeValue = antdLocale.value.locale;
+      }
+      
+      // 打印初始语言值用于调试  
+      console.warn('[DMN语言] 初始化语言检测:', localeValue);
+      
+      // 安全地判断是否为英文
+      const isLocaleEn = localeValue === 'en' || localeValue === 'en_US' || localeValue === 'en-US';
+      currentLocale.value = isLocaleEn ? 'en' : 'zh';
+      
+      console.warn('[DMN语言] 初始语言设置为:', currentLocale.value);
     } catch (error) {
       console.error('获取初始语言失败:', error);
     }
@@ -266,88 +281,82 @@ export default defineComponent({
       antdLocale,
       (newLocale) => {
         try {
-          if (!newLocale?.value) return;
-
-          const isNewLocaleEn = newLocale.value.locale === 'en';
+          if (!newLocale) return;
+          
+          // 打印完整的newLocale对象用于调试
+          console.warn('[DMN语言] antdLocale变化');
+          
+          // 安全获取locale值
+          let localeValue = null;
+          
+          // @ts-ignore - 访问动态属性，类型可能不一致
+          if (newLocale?.locale) {
+            // @ts-ignore - 访问动态属性
+            localeValue = newLocale.locale;
+          } else if (newLocale?.value?.locale) {
+            // @ts-ignore - 访问动态属性
+            localeValue = newLocale.value.locale;
+          }
+            
+          console.warn('[DMN语言] 提取到的locale值:', localeValue);
+          
+          // 安全地获取语言值
+          const isNewLocaleEn = localeValue === 'en' || localeValue === 'en_US' || localeValue === 'en-US';
 
           // 映射到DMN支持的格式
           const dmnLocale = isNewLocaleEn ? 'en' : 'zh';
+          
+          console.warn('[DMN语言] 映射到DMN语言:', dmnLocale);
 
-          // 只有当语言发生变化时才更新
-          if (currentLocale.value !== dmnLocale) {
-            // 更新当前语言变量
+          // 如果语言确实发生变化，才执行更新
+          if (dmnLocale !== currentLocale.value) {
             currentLocale.value = dmnLocale;
-
-            // 确保DmnModeler已初始化
-            if (dmnModeler) {
+            console.warn('[DMN语言] 切换DMN语言为:', currentLocale.value);
+            
+            // 获取当前活动的视图
+            const activeView = dmnModeler?.getActiveViewer();
+            
+            // 修复: 使用getActiveViewer()获取i18n服务而不是直接从modeler获取
+            if (activeView) {
               try {
-                // DMN编辑器的视图数组
-                const views = dmnModeler.getViews();
-                const activeView = dmnModeler.getActiveViewer();
-
-                // 刷新当前视图，应用新语言
-                if (activeView && activeView.element) {
-                  // 获取当前激活的视图
-                  const currentElement = activeView.element;
-
-                  // 查找视图索引
-                  let viewIdx = -1;
-                  for (let i = 0; i < views.length; i++) {
-                    if (views[i].element === currentElement) {
-                      viewIdx = i;
-                      break;
-                    }
-                  }
-
-                  if (viewIdx !== -1) {
-                    // 关闭当前视图
-                    dmnModeler?.getViews()[viewIdx]?.close();
-
-                    // 重新打开视图以应用新语言
-                    setTimeout(() => {
-                      dmnModeler?.getViews()[viewIdx]?.open();
-                      message.success(
-                        `DMN设计器语言已切换到${dmnLocale === 'zh' ? '中文' : '英文'}`,
-                      );
-                    }, 50);
+                // 正确获取i18n服务的方式是从活动视图中获取
+                const i18n = activeView.get('i18n');
+                if (i18n && typeof i18n.changeLanguage === 'function') {
+                  i18n.changeLanguage(currentLocale.value);
+                  
+                  // 刷新视图
+                  if (activeView.type && dmnModeler) {
+                    dmnModeler.open(activeView.type);
                   }
                 }
               } catch (error) {
-                console.warn('切换语言时发生错误:', error);
-                
-                // 尝试重新初始化整个modeler
-                dmnModeler
-                  .saveXML({ format: true })
-                  .then(({ xml }) => {
-                    // 销毁当前modeler
-                    dmnModeler?.destroy();
-                    dmnModeler = null;
-
-                    // 重新初始化
-                    setTimeout(() => {
-                      initDmnModeler();
-
-                      // 导入保存的图表
-                      setTimeout(() => {
-                        if (dmnModeler) {
-                          dmnModeler.importXML(xml).catch((error) => {
-                            console.warn('重新导入图表失败:', error);
-                          });
-                        }
-                      }, 100);
-                    }, 100);
-                  })
-                  .catch((error) => {
-                    console.warn('保存当前图表失败:', error);
-                  });
+                console.error('访问i18n服务失败:', error);
               }
             }
           }
         } catch (error) {
-          console.warn('监听语言变化时出错:', error);
+          console.error(`语言切换出错: ${error}`);
+          
+          // 尝试重新初始化
+          try {
+            if (dmnModeler) {
+              dmnModeler.saveXML({ format: true }).then(({ xml }) => {
+                dmnModeler!.destroy();
+                dmnModeler = null;
+                setTimeout(() => {
+                  initDmnModeler();
+                  importDmnDiagram(xml);
+                }, 100);
+              });
+            }
+          } catch (e) {
+            console.error('重新初始化失败:', e);
+          }
         }
       },
-      { immediate: true, deep: true },
+      {
+        immediate: true,
+      },
     );
 
     // 在组件挂载时初始化
@@ -432,11 +441,11 @@ export default defineComponent({
                 // 更新外部的currentLocale
                 if (
                   currentLocale.value !== null &&
-                  currentLocale.value !== undefined &&
-                  typeof currentLocale.value === 'object' &&
-                  'value' in currentLocale.value
+                  currentLocale.value !== undefined
                 ) {
+                  // 简化判断，直接更新语言值
                   currentLocale.value = locale;
+                  console.warn('[DMN翻译] currentLocale已更新:', currentLocale.value);
                 }
                 return locale;
               };
@@ -472,9 +481,7 @@ export default defineComponent({
                   // 同步更新外部的currentLocale
                   if (
                     currentLocale.value !== null &&
-                    currentLocale.value !== undefined &&
-                    typeof currentLocale.value === 'object' &&
-                    'value' in currentLocale.value
+                    currentLocale.value !== undefined
                   ) {
                     currentLocale.value = lang;
                   }
@@ -568,18 +575,19 @@ export default defineComponent({
         applyThemeStyles();
         
         // 如果DMN模块已初始化，则触发主题变更事件
-        if (dmnModeler) {
-          try {
-            const eventBus = dmnModeler.getActiveViewer()?.get('eventBus');
-            if (eventBus) {
-              eventBus.fire('theme.changed', { 
-                isDark: newIsDark 
-              });
+          if (dmnModeler) {
+            try {
+              const eventBus = dmnModeler.getActiveViewer()?.get('eventBus');
+              if (eventBus) {
+                eventBus.fire('theme.changed', { 
+                  isDark: newIsDark 
+                });
+              }
+            } catch (error) {
+              console.error('触发DMN主题变更事件失败:', error);
             }
-          } catch (error) {
-            console.error('触发DMN主题变更事件失败:', error);
           }
-        }
+        
       },
       { immediate: true },
     );
@@ -771,7 +779,6 @@ export default defineComponent({
           <div ref="canvasRef" class="dmn-js-container"></div>
         </div>
         <div class="dmn-properties-panel-container" :class="{ 'dmn-dark-theme': isDark }">
-          
           <div ref="panelRef" class="dmn-properties-panel"></div>
         </div>
       </div>
@@ -838,13 +845,27 @@ export default defineComponent({
     .dmn-properties-panel-container {
       width: 320px;
       height: 100%;
-      overflow: auto;
+      overflow: hidden;
       border-left: 1px solid hsl(var(--border));
+      background-color: hsl(var(--card));
+      display: flex;
+      flex-direction: column;
       
       .dmn-properties-panel {
         width: 100%;
-        height: calc(100% - 45px);
+        height: calc(100%);
         overflow: auto;
+        padding: 0;
+        margin: 0;
+        position: relative;
+        
+        /* 确保滚动行为平滑 */
+        scroll-behavior: smooth;
+        
+        /* 提高与面板的对比度 */
+        &:focus {
+          outline: none;
+        }
       }
     }
   }
@@ -921,42 +942,206 @@ export default defineComponent({
 
 // 移除画布的焦点边框
 :deep(.djs-container svg) {
-
-&:focus,
-&:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
-}
 
-// 常用覆盖样式
+// 常用样式覆盖 - 亮色主题下的属性面板
 :deep(.bio-properties-panel) {
-  background-color: transparent !important;
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
+  
+  // 改善滚动条
+  scrollbar-width: thin;
+  scrollbar-color: hsla(var(--muted-foreground) / 0.3) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: hsla(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: hsla(var(--muted-foreground) / 0.5);
+    }
+  }
 }
 
 :deep(.bio-properties-panel-header) {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
   padding: 8px 15px !important;
   font-size: 14px !important;
   font-weight: 600 !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 :deep(.bio-properties-panel-group-header) {
-  padding: 6px 10px !important;
+  padding: 8px 12px !important;
   font-size: 13px !important;
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  
+  .bio-properties-panel-dot {
+    background-color: hsl(var(--primary)) !important;
+    margin-right: 6px;
+  }
+  
+  .bio-properties-panel-arrow-right,
+  .bio-properties-panel-add-entry,
+  .bio-properties-panel-collapsible-entry-arrow {
+    fill: hsl(var(--primary)) !important;
+  }
+  
+  &:hover {
+    background-color: hsl(var(--accent-hover)) !important;
+  }
 }
 
-:deep(.bio-properties-panel-entry) {
-  margin: 4px 0 !important;
-  font-size: 13px !important;
+:deep(.bio-properties-panel-group) {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  
+  /* 增强分组层次感 */
+  padding-left: 0 !important;  
+  padding-right: 0 !important;
+  
+  /* 表单元素样式 */
+  input, textarea, select {
+    background-color: hsl(var(--input-background)) !important;
+    color: hsl(var(--input-foreground)) !important;
+    border: 1px solid hsl(var(--input)) !important;
+    border-radius: 4px;
+    font-size: 13px !important;
+    width: 100%;
+    padding: 6px 8px;
+    
+    &:focus {
+      border-color: hsl(var(--primary)) !important;
+      outline: none;
+      box-shadow: 0 0 0 2px hsla(var(--primary) / 0.3) !important;
+    }
+    
+    &:hover:not(:focus) {
+      border-color: hsl(var(--input-hover)) !important;
+    }
+  }
+  
+  /* 按钮样式 */
+  button {
+    background-color: hsl(var(--secondary)) !important;
+    color: hsl(var(--secondary-foreground)) !important;
+    border: 1px solid transparent !important;
+    border-radius: 4px;
+    padding: 4px 8px;
+    
+    &:hover {
+      background-color: hsl(var(--secondary-hover)) !important;
+    }
+    
+    &:active {
+      background-color: hsl(var(--secondary-active)) !important;
+    }
+  }
+  
+  .bio-properties-panel-entry {
+    margin: 8px 0 !important;
+    font-size: 13px !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.2) !important;
+    padding: 6px 12px !important;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+  
+  /* 可折叠项 */
+  .bio-properties-panel-collapsible-entry {
+    background-color: hsla(var(--muted) / 0.1) !important;
+    border-radius: 4px;
+    margin: 8px 12px !important;
+    border: 1px solid hsla(var(--border) / 0.3) !important;
+    
+    .bio-properties-panel-collapsible-entry-header {
+      padding: 8px 10px;
+      border-bottom: 1px solid hsla(var(--border) / 0.2) !important;
+      font-weight: 500;
+      
+      &:hover {
+        background-color: hsla(var(--muted) / 0.2) !important;
+      }
+    }
+    
+    .bio-properties-panel-collapsible-entry-content {
+      padding: 8px 12px 8px 20px;
+      background-color: hsla(var(--background) / 0.4) !important;
+      
+      /* 嵌套内容增加缩进 */
+      .bio-properties-panel-entry {
+        padding-left: 8px !important;
+        border-left: 2px solid hsla(var(--border) / 0.3) !important;
+        margin-left: 4px !important;
+      }
+    }
+  }
+  
+  /* 标签和描述 */
+  label {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+  }
+  
+  .bio-properties-panel-description {
+    color: hsla(var(--muted-foreground) / 0.9) !important;
+    font-size: 0.9em;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
 }
 
-:deep(input), :deep(select), :deep(textarea) {
-  font-size: 13px !important;
-  font-family: inherit !important;
+:deep(.bio-properties-panel-header-icon) {
+  color: hsl(var(--primary)) !important;
+  fill: hsl(var(--primary)) !important;
 }
 
-// DMN决策表自定义样式
+:deep(.bio-properties-panel-add-entry) {
+  fill: hsl(var(--primary)) !important;
+  
+  &:hover {
+    fill: hsl(var(--primary-foreground)) !important;
+    background-color: hsla(var(--primary) / 0.2) !important;
+    border-radius: 50%;
+  }
+}
+
+/* 活动/选中项视觉指示 */
+:deep(.bio-properties-panel-active) {
+  background-color: hsla(var(--primary) / 0.1) !important;
+  border-left: 3px solid hsl(var(--primary)) !important;
+}
+
+/* DMN决策表自定义样式 */
 :deep(.dmn-decision-table-container) {
   table.dmn-decision-table {
     th, td {
@@ -965,39 +1150,150 @@ export default defineComponent({
   }
 }
 
-// 暗色主题支持
+/* 暗色主题属性面板样式 */
 .dmn-dark-theme {
+  /* 属性面板暗色主题样式 */
   :deep(.bio-properties-panel) {
-    background-color: hsl(var(--background)) !important;
+    background-color: hsl(var(--background-deep)) !important;
     color: hsl(var(--foreground)) !important;
-  }
-  
-  :deep(.bio-properties-panel-header) {
-    background-color: hsla(var(--primary) / 0.2) !important;
-    color: hsl(var(--foreground)) !important;
-    border-color: hsl(var(--border)) !important;
-  }
-  
-  :deep(.bio-properties-panel-group) {
-    border-color: hsl(var(--border)) !important;
     
-    .bio-properties-panel-group-header {
-      background-color: hsla(var(--muted) / 0.3) !important;
-      color: hsl(var(--foreground)) !important;
-    }
+    // 改善滚动条
+    scrollbar-color: hsla(var(--muted-foreground) / 0.5) transparent;
     
-    .bio-properties-panel-entry {
-      border-color: hsla(var(--border) / 0.5) !important;
+    &::-webkit-scrollbar-thumb {
+      background-color: hsla(var(--muted-foreground) / 0.5);
       
-      input, select, textarea {
-        background-color: hsla(var(--input) / 0.8) !important;
-        color: hsl(var(--foreground)) !important;
-        border-color: hsl(var(--input)) !important;
+      &:hover {
+        background-color: hsla(var(--muted-foreground) / 0.8);
       }
     }
   }
   
-  // DMN决策表暗色主题
+  :deep(.bio-properties-panel-header) {
+    background-color: #141414 !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.7) !important;
+  }
+  
+  :deep(.bio-properties-panel-group-header) {
+    background-color: hsla(var(--card) / 0.9) !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.5) !important;
+    
+    .bio-properties-panel-dot {
+      background-color: hsl(var(--primary)) !important;
+    }
+    
+    .bio-properties-panel-arrow-right,
+    .bio-properties-panel-add-entry,
+    .bio-properties-panel-collapsible-entry-arrow {
+      fill: hsl(var(--primary)) !important;
+    }
+    
+    &:hover {
+      background-color: hsla(var(--card) / 0.7) !important;
+    }
+  }
+  
+  :deep(.bio-properties-panel-group) {
+    background-color: hsla(var(--card) / 0.9) !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid hsla(var(--border) / 0.3) !important;
+    
+    /* 表单元素样式 */
+    input, textarea, select {
+      background-color: hsla(var(--muted) / 0.7) !important;
+      color: #ffffff !important;
+      border: 1px solid hsla(var(--border) / 0.8) !important;
+      
+      &:focus {
+        border-color: hsl(var(--primary)) !important;
+        box-shadow: 0 0 0 2px hsla(var(--primary) / 0.3) !important;
+      }
+      
+      &:hover:not(:focus) {
+        border-color: hsla(var(--border)) !important;
+      }
+    }
+    
+    /* 按钮样式 */
+    button {
+      background-color: hsla(var(--secondary) / 0.8) !important;
+      color: #ffffff !important;
+      
+      &:hover {
+        background-color: hsl(var(--secondary)) !important;
+      }
+    }
+    
+    /* 标签和描述 */
+    label {
+      color: hsl(var(--foreground)) !important;
+    }
+    
+    .bio-properties-panel-description {
+      color: hsla(var(--muted-foreground) / 0.9) !important;
+    }
+    
+    /* 增强条目样式 */
+    .bio-properties-panel-entry {
+      border-bottom: 1px solid hsla(var(--border) / 0.15) !important;
+      
+      &:hover {
+        background-color: hsla(var(--muted) / 0.15) !important;
+      }
+    }
+    
+    /* 可折叠项样式增强 */
+    .bio-properties-panel-collapsible-entry {
+      background-color: hsla(var(--muted) / 0.25) !important;
+      border: 1px solid hsla(var(--border) / 0.4) !important;
+      
+      .bio-properties-panel-collapsible-entry-header {
+        background-color: hsla(var(--card) / 0.7) !important;
+        
+        &:hover {
+          background-color: hsla(var(--muted) / 0.5) !important;
+        }
+      }
+      
+      .bio-properties-panel-collapsible-entry-content {
+        background-color: hsla(var(--background) / 0.2) !important;
+        
+        /* 嵌套内容暗色样式 */
+        .bio-properties-panel-entry {
+          border-left: 2px solid hsla(var(--primary) / 0.3) !important;
+          
+          &:hover {
+            background-color: hsla(var(--muted) / 0.2) !important;
+            border-left-color: hsl(var(--primary)) !important;
+          }
+        }
+      }
+    }
+  }
+  
+  :deep(.bio-properties-panel-header-icon) {
+    color: hsl(var(--primary)) !important;
+    fill: hsl(var(--primary)) !important;
+  }
+  
+  :deep(.bio-properties-panel-add-entry) {
+    fill: hsl(var(--primary)) !important;
+    
+    &:hover {
+      fill: hsl(var(--primary-foreground)) !important;
+      background-color: hsla(var(--primary) / 0.2) !important;
+    }
+  }
+  
+  /* 活动/选中项视觉指示 */
+  :deep(.bio-properties-panel-active) {
+    background-color: hsla(var(--primary) / 0.15) !important;
+    border-left: 3px solid hsl(var(--primary)) !important;
+  }
+
+  /* DMN决策表暗色主题 */
   :deep(.dmn-decision-table-container) {
     background-color: hsl(var(--background-deep)) !important;
     color: hsl(var(--foreground)) !important;
@@ -1030,7 +1326,129 @@ export default defineComponent({
       }
     }
   }
-
   
+  /* 决策表属性面板暗色主题 */
+  :deep(.dmn-js-properties-panel) {
+    .dpp-properties-panel {
+      background-color: #141414 !important;
+      color: #ffffff !important;
+    }
+    
+    .dpp-properties-header {
+      background-color: #1f1f1f !important;
+      color: #ffffff !important;
+      border-bottom: 1px solid hsla(var(--border) / 0.7) !important;
+    }
+    
+    .dpp-properties-group {
+      border-color: hsla(var(--border) / 0.3) !important;
+    }
+    
+    .dpp-properties-entry input,
+    .dpp-properties-entry select,
+    .dpp-properties-entry textarea {
+      background-color: hsla(var(--muted) / 0.7) !important;
+      color: #ffffff !important;
+      border: 1px solid hsla(var(--border) / 0.8) !important;
+    }
+  }
+}
+
+/* 属性面板元素间距调整 */
+:deep(.bio-properties-panel) {
+  /* 通用样式 */
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* 分组内条目的分隔线和间距优化 */
+  .bio-properties-panel-group {
+    & > .bio-properties-panel-entry {
+      position: relative;
+      
+      /* 分隔线采用渐变效果 */
+      &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 8px;
+        right: 8px;
+        height: 1px;
+        background: linear-gradient(to right, 
+                                   hsla(var(--border) / 0.1), 
+                                   hsla(var(--border) / 0.5), 
+                                   hsla(var(--border) / 0.1));
+      }
+      
+      /* 内边距优化 */
+      padding-top: 8px !important;
+      padding-bottom: 8px !important;
+    }
+  }
+  
+  /* 可折叠容器内的属性设置更紧凑 */
+  .bio-properties-panel-collapsible-entry-content {
+    .bio-properties-panel-entry {
+      padding-top: 6px !important;
+      padding-bottom: 6px !important;
+      margin: 4px 0 !important;
+    }
+  }
+  
+  /* 改进表单布局 */
+  .bio-properties-panel-input,
+  .bio-properties-panel-select {
+    width: 100%;
+    margin-top: 4px;
+  }
+  
+  /* 改进开关和复选框样式 */
+  .bio-properties-panel-checkbox,
+  .bio-properties-panel-switch {
+    display: flex;
+    align-items: center;
+    
+    label {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 0;
+      cursor: pointer;
+      
+      input {
+        margin-right: 6px;
+        width: auto;
+      }
+    }
+  }
+}
+
+/* 添加属性面板微动画 */
+:deep(.bio-properties-panel-group-header) {
+  transition: background-color 0.2s ease;
+}
+
+:deep(.bio-properties-panel-collapsible-entry-header) {
+  transition: background-color 0.2s ease;
+}
+
+:deep(.bio-properties-panel-entry) {
+  transition: background-color 0.15s ease, border-left-color 0.2s ease;
+}
+
+/* 暗色主题下的微调 */
+.dmn-dark-theme {
+  :deep(.bio-properties-panel) {
+    .bio-properties-panel-group {
+      & > .bio-properties-panel-entry {
+        /* 暗色主题下分隔线使用较暗的颜色 */
+        &:not(:last-child)::after {
+          background: linear-gradient(to right, 
+                                     hsla(var(--border) / 0.05), 
+                                     hsla(var(--border) / 0.3), 
+                                     hsla(var(--border) / 0.05));
+        }
+      }
+    }
+  }
 }
 </style> 

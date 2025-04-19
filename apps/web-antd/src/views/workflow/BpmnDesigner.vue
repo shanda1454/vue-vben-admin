@@ -299,7 +299,7 @@ export default defineComponent({
         try {
           if (!newLocale) return;
 
-          const isNewLocaleEn = newLocale.value?.locale === 'en';
+          const isNewLocaleEn = newLocale.locale === 'en';
 
           // 映射到BPMN支持的格式
           const bpmnLocale = isNewLocaleEn ? 'en' : 'zh';
@@ -464,41 +464,6 @@ export default defineComponent({
 
         // 应用栅格样式
         applyGridStyles();
-
-        // 确保正确设置初始语言
-        setTimeout(() => {
-          if (bpmnModeler) {
-            try {
-              // 优先尝试i18n模块
-              try {
-                const i18n = bpmnModeler.get('i18n');
-                if (i18n && typeof i18n.changeLanguage === 'function') {
-                  i18n.changeLanguage(currentLocale.value);
-                  return; // 成功设置后直接返回
-                }
-              } catch (error: any) {
-                console.warn('尝试使用i18n模块时出错:', error.message);
-              }
-
-              // 如果i18n不可用，尝试translate模块
-              try {
-                const translate = bpmnModeler.get('translate');
-                if (
-                  translate &&
-                  typeof translate.changeLanguage === 'function'
-                ) {
-                  translate.changeLanguage(currentLocale.value);
-                } else {
-                  console.warn('无法找到可用的语言切换方法');
-                }
-              } catch (error: any) {
-                console.warn('尝试使用translate模块时出错:', error);
-              }
-            } catch (error) {
-              console.error('组件挂载后设置语言失败:', error);
-            }
-          }
-        }, 200);
       } catch (error) {
         console.error('组件挂载过程中出错:', error);
       }
