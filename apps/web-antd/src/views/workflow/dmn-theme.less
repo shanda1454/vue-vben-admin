@@ -1,0 +1,697 @@
+/* DMN Designer 主题样式 */
+
+/* 通用样式 */
+.dmn-designer-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  /* DRD 视图样式 */
+  .dmn-drd-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    
+    /* 暗色主题 */
+    &.dmn-dark-theme {
+      .dmn-js-container {
+        background-color: hsl(var(--background-deep));
+        color: hsl(var(--foreground));
+
+        /* 元素样式 */
+        .djs-element {
+          color: hsl(var(--foreground));
+          
+          .djs-visual {
+            /* 决策节点 */
+            &[data-element-id*="Decision"] rect {
+              fill: hsla(var(--primary) / 0.1);
+              stroke: hsl(var(--primary));
+              stroke-width: 2px;
+            }
+            
+            /* 输入数据节点 */
+            &[data-element-id*="InputData"] path {
+              fill: hsla(var(--warning) / 0.1);
+              stroke: hsl(var(--warning));
+              stroke-width: 2px;
+            }
+            
+            /* 知识源节点 */
+            &[data-element-id*="KnowledgeSource"] path {
+              fill: hsla(var(--secondary) / 0.1);
+              stroke: hsl(var(--secondary));
+              stroke-width: 2px;
+            }
+            
+            /* 业务知识模型节点 */
+            &[data-element-id*="BusinessKnowledgeModel"] path {
+              fill: hsla(var(--accent) / 0.1);
+              stroke: hsl(var(--accent));
+              stroke-width: 2px;
+            }
+            
+            /* 连接线样式 */
+            &[data-element-id*="Requirement"] path,
+            &[data-element-id*="Association"] path {
+              stroke: hsl(var(--foreground));
+              stroke-width: 1.5px;
+            }
+
+            /* 文本样式 */
+            text, tspan {
+              fill: hsl(var(--foreground));
+              stroke: none;
+              font-weight: 500;
+            }
+          }
+          
+          /* 选中样式 */
+          &.selected .djs-outline {
+            stroke: hsl(var(--primary));
+            stroke-width: 2px;
+          }
+          
+          /* 悬停/选中状态增强 */
+          &:hover .djs-outline {
+            stroke: hsla(var(--primary) / 0.7);
+            stroke-width: 1.5px;
+            stroke-dasharray: none;
+          }
+          
+          &.selected:hover .djs-outline {
+            stroke: hsl(var(--primary));
+            stroke-width: 2.5px;
+          }
+        }
+        
+        /* 调色板样式 */
+        .djs-palette {
+          background-color: hsl(var(--background));
+          border-color: hsl(var(--border));
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+          
+          .djs-palette-entries {
+            border-color: hsl(var(--border));
+            background-color: rgba(58, 58, 58, 0.5);
+          }
+          
+          .entry {
+            color: hsl(var(--foreground));
+            border-bottom: 1px solid hsla(var(--border) / 0.5);
+            
+            &:hover {
+              background-color: hsla(var(--primary) / 0.2);
+            }
+            
+            i:before {
+              color: hsl(var(--foreground)) !important;
+            }
+            
+            svg, path, circle, rect, polygon {
+              fill: hsl(var(--foreground));
+              stroke: none;
+            }
+          }
+        }
+        
+        /* 右键菜单样式 */
+        .djs-context-pad {
+          background-color: transparent;
+          box-shadow: none;
+          
+          .entry {
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            
+            &:hover {
+              background-color: transparent;
+            }
+            
+            i:before {
+              color: hsl(var(--foreground));
+            }
+            
+            svg, path, circle, rect, polygon {
+              fill: hsl(var(--foreground));
+              stroke: none;
+            }
+            
+            /* 删除图标特殊处理 */
+            &[data-action='delete'] {
+              svg, path {
+                fill: hsl(var(--destructive));
+                stroke: none;
+              }
+              
+              &:hover {
+                background-color: transparent;
+              }
+            }
+          }
+        }
+        
+        /* 弹出窗口样式 */
+        .djs-popup {
+          background-color: hsl(var(--background));
+          border: 1px solid hsl(var(--border));
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+          
+          .djs-popup-header {
+            background-color: hsl(var(--accent-dark));
+            color: hsl(var(--accent-foreground));
+          }
+          
+          .entry {
+            color: hsl(var(--foreground));
+            
+            &:hover {
+              background-color: hsl(var(--accent-hover));
+            }
+            
+            /* 确保图标颜色正确 */
+            i:before, svg, path, polygon, rect, circle {
+              color: hsl(var(--foreground));
+              fill: hsl(var(--foreground));
+            }
+            
+            /* 确保标签文本可见 */
+            .djs-popup-label {
+              color: hsl(var(--foreground));
+            }
+          }
+          
+          /* 修复选中项 */
+          .entry.selected {
+            background-color: hsla(var(--primary) / 0.2);
+            
+            i:before, svg, path, polygon, rect, circle {
+              color: hsl(var(--primary-foreground));
+              fill: hsl(var(--primary-foreground));
+            }
+          }
+        }
+        
+        /* 控制点样式 */
+        .djs-bendpoint, .djs-segment-dragger {
+          fill: hsl(var(--primary));
+          stroke: hsl(var(--background));
+          stroke-width: 1px;
+        }
+        
+        /* 连接线样式 */
+        .djs-connection {
+          .djs-visual path {
+            stroke: hsl(var(--foreground));
+            stroke-width: 1.5px;
+          }
+          
+          &.selected .djs-visual path {
+            stroke: hsl(var(--primary));
+            stroke-width: 2px;
+          }
+          
+          &:hover .djs-visual path {
+            stroke: hsla(var(--primary) / 0.7);
+            stroke-width: 1.8px;
+          }
+        }
+
+        /* 栅格层 */
+        .dmn-grid-layer {
+          pointer-events: none;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 0;
+        }
+      }
+    }
+    
+    /* 亮色主题 - 默认 */
+    .dmn-js-container {
+      width: 100%;
+      height: 100%;
+      
+      /* 元素样式 */
+      .djs-element {
+        .djs-visual {
+          /* 决策节点 */
+          &[data-element-id*="Decision"] rect {
+            fill: rgba(225, 245, 254, 0.95);
+            stroke: #0288d1;
+            stroke-width: 1.5px;
+          }
+          
+          /* 输入数据节点 */
+          &[data-element-id*="InputData"] path {
+            fill: rgba(226, 247, 225, 0.95);
+            stroke: #4caf50;
+            stroke-width: 1.5px;
+          }
+          
+          /* 知识源节点 */
+          &[data-element-id*="KnowledgeSource"] path {
+            fill: rgba(252, 232, 222, 0.95);
+            stroke: #ff5722;
+            stroke-width: 1.5px;
+          }
+          
+          /* 业务知识模型节点 */
+          &[data-element-id*="BusinessKnowledgeModel"] path {
+            fill: rgba(255, 241, 186, 0.95);
+            stroke: #ffc107;
+            stroke-width: 1.5px;
+          }
+        }
+        
+        /* 选中样式 */
+        &.selected .djs-outline {
+          stroke: #1890ff;
+          stroke-width: 2px;
+        }
+        
+        /* 悬停效果 */
+        &:hover .djs-outline {
+          stroke: rgba(24, 144, 255, 0.7);
+          stroke-width: 1.5px;
+        }
+        
+        &.selected:hover .djs-outline {
+          stroke: #1890ff;
+          stroke-width: 2.5px;
+        }
+      }
+      
+      /* 调色板样式 - 亮色主题 */
+      .djs-palette {
+        background-color: #ffffff;
+        border: 1px solid #d9d9d9;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 6px;
+        overflow: hidden;
+        top: 10px;
+        left: 10px;
+        
+        .djs-palette-entries {
+          border-color: #e8e8e8;
+          background-color: rgba(238, 238, 238, 0.5);
+        }
+        
+        .entry {
+          border-bottom: 1px solid rgba(217, 217, 217, 0.3);
+          
+          &:hover {
+            background-color: #e6f7ff;
+          }
+        }
+      }
+      
+      /* 右键菜单样式 - 亮色主题 */
+      .djs-context-pad {
+        background-color: transparent;
+        
+        .entry {
+          background-color: #ffffff;
+          border: 1px solid #d9d9d9;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          border-radius: 4px;
+          
+          &:hover {
+            background-color: #e6f7ff;
+          }
+          
+          /* 删除图标特殊处理 */
+          &[data-action='delete'] {
+            svg, path {
+              fill: #f5222d;
+            }
+            
+            &:hover {
+              background-color: #fff1f0;
+            }
+          }
+        }
+      }
+      
+      /* 控制点样式 - 亮色主题 */
+      .djs-bendpoint, .djs-segment-dragger {
+        fill: #1890ff;
+        stroke: #ffffff;
+        stroke-width: 1px;
+      }
+      
+      /* 连接线样式 - 亮色主题 */
+      .djs-connection {
+        .djs-visual path {
+          stroke: #666666;
+          stroke-width: 1.5px;
+        }
+        
+        &.selected .djs-visual path {
+          stroke: #1890ff;
+          stroke-width: 2px;
+        }
+        
+        &:hover .djs-visual path {
+          stroke: rgba(24, 144, 255, 0.7);
+          stroke-width: 1.8px;
+        }
+      }
+      
+      /* 栅格层 */
+      .dmn-grid-layer {
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 0;
+      }
+    }
+  }
+  
+  /* 决策表样式 */
+  .dmn-table-container {
+    flex: 1;
+    overflow: auto;
+    
+    /* 暗色主题 */
+    &.dmn-dark-theme {
+      .dmn-decision-table-container {
+        background-color: hsl(var(--background-deep));
+        color: hsl(var(--foreground));
+        
+        table.dmn-decision-table {
+          border-color: hsl(var(--border));
+          
+          thead {
+            background-color: hsla(var(--primary) / 0.2);
+            
+            th {
+              color: hsl(var(--foreground));
+              border-color: hsl(var(--border));
+            }
+          }
+          
+          tbody {
+            tr {
+              &:nth-child(odd) {
+                background-color: hsla(var(--muted) / 0.1);
+              }
+              
+              &:hover {
+                background-color: hsla(var(--primary) / 0.1);
+              }
+              
+              td {
+                color: hsl(var(--foreground));
+                border-color: hsl(var(--border));
+                
+                input, select, textarea {
+                  background-color: hsla(var(--card) / 0.5);
+                  color: hsl(var(--foreground));
+                  border-color: hsl(var(--input));
+                  
+                  &:focus {
+                    border-color: hsl(var(--primary));
+                    box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2);
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        /* 决策表工具栏 - 暗色主题 */
+        .tjs-table-container-primary {
+          background-color: hsl(var(--card));
+          border-color: hsl(var(--border));
+          
+          .tjs-table-container-secondary {
+            background-color: hsl(var(--background));
+            
+            button, .tjs-table-column-move-up, .tjs-table-column-move-down {
+              color: hsl(var(--foreground));
+              border-color: hsl(var(--border));
+              background-color: hsl(var(--card));
+              
+              &:hover {
+                background-color: hsla(var(--primary) / 0.1);
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    /* 亮色主题 - 默认 */
+    .dmn-decision-table-container {
+      width: 100%;
+      height: 100%;
+      
+      table.dmn-decision-table {
+        width: 100%;
+        border-collapse: collapse;
+        
+        thead {
+          background-color: #f0f7ff;
+          
+          th {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            font-weight: 600;
+          }
+        }
+        
+        tbody {
+          tr {
+            &:nth-child(odd) {
+              background-color: #fafafa;
+            }
+            
+            &:hover {
+              background-color: #e6f7ff;
+            }
+            
+            td {
+              padding: 6px 10px;
+              border: 1px solid #d9d9d9;
+              
+              input, select, textarea {
+                width: 100%;
+                padding: 4px 8px;
+                border: 1px solid #d9d9d9;
+                border-radius: 2px;
+                
+                &:focus {
+                  border-color: #1890ff;
+                  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+                  outline: none;
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      /* 决策表工具栏 - 亮色主题 */
+      .tjs-table-container-primary {
+        background-color: #ffffff;
+        border-bottom: 1px solid #d9d9d9;
+        
+        .tjs-table-container-secondary {
+          background-color: #fafafa;
+          
+          button, .tjs-table-column-move-up, .tjs-table-column-move-down {
+            color: rgba(0, 0, 0, 0.65);
+            border: 1px solid #d9d9d9;
+            background-color: #ffffff;
+            
+            &:hover {
+              background-color: #e6f7ff;
+              color: #1890ff;
+              border-color: #1890ff;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /* 属性面板样式 */
+  .dmn-properties-panel-container {
+    width: 320px;
+    border-left: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    
+    /* 暗色主题 */
+    &.dmn-dark-theme {
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+      
+      .dmn-properties-panel-header {
+        background-color: hsla(var(--primary) / 0.2);
+        color: hsl(var(--foreground));
+        border-color: hsl(var(--border));
+      }
+      
+      .dmn-properties-panel-group {
+        border-color: hsl(var(--border));
+        
+        .dmn-properties-panel-group-header {
+          background-color: hsla(var(--muted) / 0.3);
+          color: hsl(var(--foreground));
+        }
+        
+        .dmn-properties-panel-entry {
+          border-color: hsla(var(--border) / 0.5);
+          
+          label {
+            color: hsl(var(--foreground));
+          }
+          
+          input, select, textarea {
+            background-color: hsla(var(--input) / 0.8);
+            color: hsl(var(--foreground));
+            border-color: hsl(var(--input));
+            
+            &:focus {
+              border-color: hsl(var(--primary));
+              box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2);
+            }
+          }
+        }
+      }
+      
+      /* bio-properties-panel 样式增强 */
+      :deep(.bio-properties-panel) {
+        background-color: hsl(var(--background)) !important;
+        color: hsl(var(--foreground)) !important;
+      }
+      
+      :deep(.bio-properties-panel-header) {
+        background-color: hsla(var(--primary) / 0.2) !important;
+        color: hsl(var(--foreground)) !important;
+        border-color: hsl(var(--border)) !important;
+      }
+      
+      :deep(.bio-properties-panel-group) {
+        border-color: hsl(var(--border)) !important;
+        
+        .bio-properties-panel-group-header {
+          background-color: hsla(var(--muted) / 0.3) !important;
+          color: hsl(var(--foreground)) !important;
+        }
+        
+        .bio-properties-panel-entry {
+          border-color: hsla(var(--border) / 0.5) !important;
+          
+          input, select, textarea {
+            background-color: hsla(var(--input) / 0.8) !important;
+            color: hsl(var(--foreground)) !important;
+            border-color: hsl(var(--input)) !important;
+          }
+        }
+      }
+    }
+    
+    /* 亮色主题 - 默认 */
+    .dmn-properties-panel-header {
+      padding: 10px 15px;
+      font-weight: 600;
+      border-bottom: 1px solid #e8e8e8;
+      background-color: #fafafa;
+    }
+    
+    .dmn-properties-panel-group {
+      margin: 8px 0;
+      border-bottom: 1px solid #e8e8e8;
+      
+      .dmn-properties-panel-group-header {
+        padding: 8px 12px;
+        font-weight: 600;
+        background-color: #f5f5f5;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: #f0f0f0;
+        }
+      }
+      
+      .dmn-properties-panel-entry {
+        padding: 8px 12px;
+        border-top: 1px solid #f0f0f0;
+        
+        label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+        }
+        
+        input, select, textarea {
+          width: 100%;
+          padding: 6px 8px;
+          border: 1px solid #d9d9d9;
+          border-radius: 2px;
+          
+          &:focus {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+  
+  /* 工具栏样式 */
+  .dmn-toolbar {
+    padding: 8px 12px;
+    background-color: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
+    display: flex;
+    align-items: center;
+    
+    .dmn-toolbar-group {
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      
+      .dmn-toolbar-label {
+        margin-right: 8px;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  /* 标签页样式 */
+  .dmn-tabs {
+    background-color: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
+    
+    .dmn-tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      display: inline-block;
+      font-weight: 500;
+      
+      &.active {
+        color: hsl(var(--primary));
+        border-bottom: 2px solid hsl(var(--primary));
+      }
+      
+      &:hover:not(.active) {
+        color: hsla(var(--primary) / 0.8);
+      }
+    }
+  }
+} 

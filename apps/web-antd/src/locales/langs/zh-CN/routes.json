@@ -2,6 +2,7 @@
   "workflow": {
     "workflow": "工作流管理",
     "designer": "流程设计器",
+    "decisionDesigner": "决策设计器",
     "approvalTask": "我的审批",
     "formManager": "表单管理",
     "processHistory": "流程历史"

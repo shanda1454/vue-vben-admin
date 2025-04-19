@@ -103,5 +103,52 @@
     "taskType": "任务类型",
     "gatewayType": "网关类型",
     "eventType": "事件类型"
+  },
+  "dmn": {
+    "title": "决策设计器",
+    "messages": {
+      "saveSuccess": "决策表保存成功",
+      "saveFailed": "保存决策表失败",
+      "importSuccess": "决策表导入成功",
+      "importFailed": "导入决策表失败",
+      "exportSuccess": "决策表导出成功",
+      "exportFailed": "导出决策表失败"
+    },
+    "actions": {
+      "save": "保存",
+      "download": "下载",
+      "import": "导入",
+      "openFile": "打开文件",
+      "showGrid": "显示网格",
+      "hideGrid": "隐藏网格"
+    },
+    "properties": {
+      "title": "属性",
+      "general": "常规",
+      "details": "详情",
+      "documentation": "文档",
+      "advanced": "高级",
+      "name": "名称",
+      "id": "标识",
+      "description": "描述",
+      "variable": "变量",
+      "hitPolicy": "命中策略",
+      "aggregation": "聚合"
+    },
+    "elements": {
+      "decision": "决策",
+      "inputData": "输入数据",
+      "knowledgeSource": "知识源",
+      "businessKnowledgeModel": "业务知识模型",
+      "decisionTable": "决策表",
+      "literalExpression": "字面表达式",
+      "decisionService": "决策服务",
+      "annotation": "注释"
+    },
+    "editor": {
+      "drd": "决策需求图",
+      "decisionTable": "决策表",
+      "literalExpression": "字面表达式"
+    }
   }
 }

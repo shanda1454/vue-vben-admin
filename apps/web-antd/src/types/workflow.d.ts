@@ -4,6 +4,12 @@ declare module '#/views/workflow/BpmnDesigner.vue' {
   export default component;
 }
 
+declare module '#/views/workflow/DmnDesigner.vue' {
+  import { DefineComponent } from 'vue';
+  const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, any>;
+  export default component;
+}
+
 declare module '#/views/workflow/ApprovalTaskList.vue' {
   import { DefineComponent } from 'vue';
   const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, any>;

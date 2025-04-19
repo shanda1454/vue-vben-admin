@@ -20,6 +20,14 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: 'decision-designer',
+        name: 'DmnDesigner',
+        component: () => import('#/views/workflow/DmnDesigner.vue'),
+        meta: {
+          title: $t('routes.workflow.decisionDesigner'),
+        },
+      },
+      {
         path: 'approval-task',
         name: 'ApprovalTaskList',
         component: () => import('#/views/workflow/ApprovalTaskList.vue'),

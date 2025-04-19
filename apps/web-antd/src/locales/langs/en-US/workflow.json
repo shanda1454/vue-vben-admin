@@ -103,5 +103,52 @@
     "taskType": "Task Type",
     "gatewayType": "Gateway Type",
     "eventType": "Event Type"
+  },
+  "dmn": {
+    "title": "Decision Designer",
+    "messages": {
+      "saveSuccess": "Decision table saved successfully",
+      "saveFailed": "Failed to save decision table",
+      "importSuccess": "Decision table imported successfully",
+      "importFailed": "Failed to import decision table",
+      "exportSuccess": "Decision table exported successfully",
+      "exportFailed": "Failed to export decision table"
+    },
+    "actions": {
+      "save": "Save",
+      "download": "Download",
+      "import": "Import",
+      "openFile": "Open File",
+      "showGrid": "Show Grid",
+      "hideGrid": "Hide Grid"
+    },
+    "properties": {
+      "title": "Properties",
+      "general": "General",
+      "details": "Details",
+      "documentation": "Documentation",
+      "advanced": "Advanced",
+      "name": "Name",
+      "id": "ID",
+      "description": "Description",
+      "variable": "Variable",
+      "hitPolicy": "Hit Policy",
+      "aggregation": "Aggregation"
+    },
+    "elements": {
+      "decision": "Decision",
+      "inputData": "Input Data",
+      "knowledgeSource": "Knowledge Source",
+      "businessKnowledgeModel": "Business Knowledge Model",
+      "decisionTable": "Decision Table",
+      "literalExpression": "Literal Expression",
+      "decisionService": "Decision Service",
+      "annotation": "Annotation"
+    },
+    "editor": {
+      "drd": "Decision Requirements Diagram",
+      "decisionTable": "Decision Table",
+      "literalExpression": "Literal Expression"
+    }
   }
 }
