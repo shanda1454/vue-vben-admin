@@ -572,6 +572,9 @@ export const bpmnTranslations = {
     'Data':'数据',
     'Participants':'参与者',
     'Expanded pool/participant':'展开池/参与者',
+    'Decision reference':'决策引用',
+    'Tenant ID':'租户ID',
+    'Result variable':'结果变量',
   }
 };
 

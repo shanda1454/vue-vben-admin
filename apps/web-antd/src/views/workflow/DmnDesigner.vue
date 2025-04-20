@@ -761,7 +761,7 @@ export default defineComponent({
 
     <div class="dmn-tabs">
       <div 
-        v-for="(view, idx) in dmnModeler?.getViews() || []" 
+        v-for="(view, idx) in (dmnModeler as any)?.getViews() || []" 
         :key="idx"
         class="dmn-tab" 
         :class="{ active: activeViewIndex === idx }"
