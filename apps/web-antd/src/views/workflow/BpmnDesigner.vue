@@ -1390,6 +1390,18 @@ export default defineComponent({
   }
 }
 
+:deep(.djs-popup-search-icon) {
+      background-color: hsla(var(--primary) / 0) !important;
+      left: 16px !important;
+      top: 16px !important;
+      font-size: 14px !important;
+      
+      &:before {
+        content: "🔍" !important;
+        opacity: 0.7 !important;
+      }
+    }
+
 .bpmn-dark-theme {
   :deep(.bpmn-canvas) {
     background-color: hsl(var(--background-deep)) !important;
@@ -1625,22 +1637,40 @@ export default defineComponent({
     }
 
     // 修复搜索框
-    .djs-popup-search input {
-      background-color: hsl(var(--input)) !important;
-      color: hsl(var(--foreground)) !important;
-      border: 1px solid hsl(var(--border)) !important;
+    .djs-popup-search {
+      background-color: hsl(var(--background)) !important;
+      padding: 8px !important;
+      border-bottom: 1px solid hsl(var(--border)) !important;
+      
+      input {
+        background-color: hsl(var(--input)) !important;
+        color: hsl(var(--foreground)) !important;
+        border: 1px solid hsl(var(--border)) !important;
+        border-radius: 4px !important;
+        padding: 6px 12px 6px 30px !important;
+        width: 100% !important;
 
-      &:focus {
-        background-color: hsla(var(--primary) / 0.1) !important;
-        border-color: hsl(var(--primary)) !important;
-        outline: none !important;
-        box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2) !important;
+        &:focus {
+          background-color: hsla(var(--primary) / 0.1) !important;
+          border-color: hsl(var(--primary)) !important;
+          outline: none !important;
+          box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2) !important;
+        }
       }
     }
 
     // 修复搜索图标
     .djs-popup-search-icon {
+      background-color: hsla(var(--primary) / 0) !important;
       color: hsl(var(--muted-foreground)) !important;
+      left: 18px !important;
+      top: 18px !important;
+      font-size: 14px !important;
+      
+      &:before {
+        content: "🔍" !important;
+        opacity: 0.7 !important;
+      }
     }
 
     // 修复选中项
