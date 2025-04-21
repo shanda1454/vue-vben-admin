@@ -575,6 +575,14 @@ export const bpmnTranslations = {
     'Decision reference':'决策引用',
     'Tenant ID':'租户ID',
     'Result variable':'结果变量',
+    // 单据属性翻译
+    'documentProperties': '单据属性',
+    'Document Number': '单据编号',
+    'Map decision result': '映射决策结果',
+    'collectEntries (List<Object>)': '收集条目 (List<Object>)',
+    'resultList (List<Map<String, Object>>)': '结果列表 (List<Map<String, Object>>)',
+    'singleEntry (TypedValue)': '单个条目 (TypedValue)',
+    'singleResult (Map<String, Object>)': '单个结果 (Map<String, Object>)',
   }
 };
 

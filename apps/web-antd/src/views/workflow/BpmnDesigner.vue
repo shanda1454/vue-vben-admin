@@ -19,6 +19,7 @@ import { usePreferences } from '@vben/preferences';
 
 // 导入自定义模块
 import CustomThemePropertiesProvider from './CustomPropertiesProvider';
+import CustomDocumentProvider from './CustomDocumentProvider';
 import VbenThemeAdapterModule from './VbenThemeAdapter';
 import ThemeModule from './ThemeModule';
 
@@ -189,7 +190,7 @@ export default defineComponent({
   <bpmn:process id="Process_19ivoda" name="付款审批" isExecutable="true" camunda:historyTimeToLive="30">
     <bpmn:startEvent id="StartEvent_1" name="开始&#10;">
       <bpmn:outgoing>Flow_0qcvi02</bpmn:outgoing>
-    </bpmn:startEvent>
+        </bpmn:startEvent>
     <bpmn:endEvent id="Event_1grxn71" name="结束">
       <bpmn:incoming>Flow_1v4dtkv</bpmn:incoming>
     </bpmn:endEvent>
@@ -197,7 +198,7 @@ export default defineComponent({
       <bpmn:incoming>Flow_1wlgq9o</bpmn:incoming>
       <bpmn:incoming>Flow_0pgamj0</bpmn:incoming>
       <bpmn:outgoing>Flow_1v4dtkv</bpmn:outgoing>
-    </bpmn:serviceTask>
+        </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1v4dtkv" sourceRef="Activity_0y1rk9g" targetRef="Event_1grxn71" />
     <bpmn:userTask id="Activity_1ven1ed" name="付款审批" camunda:formRef="payment-form" camunda:formRefBinding="latest" camunda:assignee="demo">
       <bpmn:extensionElements />
@@ -227,19 +228,19 @@ export default defineComponent({
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="Event_1tnp8dk" name="结束">
       <bpmn:incoming>Flow_1h6uora</bpmn:incoming>
-    </bpmn:endEvent>
+        </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1h6uora" name="审批不通过" sourceRef="Gateway_0nbwlun" targetRef="Event_1tnp8dk">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">\${!approved}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-  </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+      </bpmn:process>
+      <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_19ivoda">
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="182" y="102" width="36" height="36" />
-        <bpmndi:BPMNLabel>
+            <bpmndi:BPMNLabel>
           <dc:Bounds x="189" y="145" width="22" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
+            </bpmndi:BPMNLabel>
+          </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1khp7yp_di" bpmnElement="Gateway_1khp7yp" isMarkerVisible="true">
         <dc:Bounds x="335" y="95" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -253,19 +254,19 @@ export default defineComponent({
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1grxn71_di" bpmnElement="Event_1grxn71">
         <dc:Bounds x="892" y="102" width="36" height="36" />
-        <bpmndi:BPMNLabel>
+            <bpmndi:BPMNLabel>
           <dc:Bounds x="899" y="145" width="22" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
+            </bpmndi:BPMNLabel>
+          </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0nbwlun_di" bpmnElement="Gateway_0nbwlun" isMarkerVisible="true">
         <dc:Bounds x="615" y="305" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1tnp8dk_di" bpmnElement="Event_1tnp8dk">
         <dc:Bounds x="892" y="312" width="36" height="36" />
-        <bpmndi:BPMNLabel>
+            <bpmndi:BPMNLabel>
           <dc:Bounds x="899" y="355" width="22" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
+            </bpmndi:BPMNLabel>
+          </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0qcvi02_di" bpmnElement="Flow_0qcvi02">
         <di:waypoint x="218" y="120" />
         <di:waypoint x="335" y="120" />
@@ -277,14 +278,14 @@ export default defineComponent({
       <bpmndi:BPMNEdge id="Flow_1wlgq9o_di" bpmnElement="Flow_1wlgq9o">
         <di:waypoint x="385" y="120" />
         <di:waypoint x="590" y="120" />
-        <bpmndi:BPMNLabel>
+            <bpmndi:BPMNLabel>
           <dc:Bounds x="472" y="102" width="31" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
+            </bpmndi:BPMNLabel>
+          </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bbjqku_di" bpmnElement="Flow_1bbjqku">
         <di:waypoint x="410" y="330" />
         <di:waypoint x="615" y="330" />
-      </bpmndi:BPMNEdge>
+          </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0pgamj0_di" bpmnElement="Flow_0pgamj0">
         <di:waypoint x="640" y="305" />
         <di:waypoint x="640" y="160" />
@@ -305,10 +306,10 @@ export default defineComponent({
         <bpmndi:BPMNLabel>
           <dc:Bounds x="751" y="312" width="55" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-    </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
-</bpmn:definitions>`;
+          </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+      </bpmndi:BPMNDiagram>
+    </bpmn:definitions>`;
 
     // 监听栅格配置变化
     watch(
@@ -765,7 +766,8 @@ export default defineComponent({
             minimapModule,
             // 自定义主题相关模块
             {
-              themePropertiesProvider: ['type', CustomThemePropertiesProvider] // 添加主题属性面板提供器
+              themePropertiesProvider: ['type', CustomThemePropertiesProvider], // 添加主题属性面板提供器
+              documentPropertiesProvider: ['type', CustomDocumentProvider] // 添加单据属性提供器
             },
             VbenThemeAdapterModule, // 添加Vben主题适配器模块
             ThemeModule, // 添加DOM主题变化检测模块
@@ -1097,20 +1099,20 @@ export default defineComponent({
           }}
         </AButton>
         <ASelect v-if="gridConfig.enabled" v-model:value="gridConfig.size" style="width: 120px" :options="[
-          { value: 10, label: '10px' },
-          { value: 20, label: '20px' },
-          { value: 30, label: '30px' },
-          { value: 40, label: '40px' },
-          { value: 50, label: '50px' },
+            { value: 10, label: '10px' },
+            { value: 20, label: '20px' },
+            { value: 30, label: '30px' },
+            { value: 40, label: '40px' },
+            { value: 50, label: '50px' },
         ]" />
       </ASpace>
     </ACard>
 
     <div class="bpmn-content-wrapper">
-      <div class="bpmn-content">
-        <div ref="canvasRef" class="bpmn-canvas"></div>
+    <div class="bpmn-content">
+      <div ref="canvasRef" class="bpmn-canvas"></div>
         <div class="bpmn-panel-container">
-          <div ref="panelRef" class="bpmn-panel"></div>
+      <div ref="panelRef" class="bpmn-panel"></div>
         </div>
       </div>
     </div>
@@ -1791,9 +1793,9 @@ export default defineComponent({
 
       // 确保图标在暗色模式下可见
       i:before {
-        color: hsl(var(--foreground)) !important;
-      }
-      
+    color: hsl(var(--foreground)) !important;
+  }
+
       svg,
       path,
       circle,
@@ -1825,7 +1827,7 @@ export default defineComponent({
     .bio-properties-panel-collapsible-entry-arrow {
       fill: hsl(var(--primary)) !important;
     }
-    
+
     &:hover {
       background-color: hsla(var(--card) / 0.7) !important;
     }
@@ -1856,7 +1858,7 @@ export default defineComponent({
     
     /* Labels and descriptions */
     label {
-      color: hsl(var(--foreground)) !important;
+    color: hsl(var(--foreground)) !important;
       font-weight: 500;
     }
     
@@ -1885,8 +1887,8 @@ export default defineComponent({
       .bio-properties-panel-collapsible-entry-header {
         padding: 6px 8px;
         border-bottom: 1px solid hsla(var(--border) / 0.3) !important;
-        
-        &:hover {
+
+    &:hover {
           background-color: hsla(var(--muted) / 0.5) !important;
         }
       }
