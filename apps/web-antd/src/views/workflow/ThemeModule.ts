@@ -35,6 +35,8 @@ class ThemeModuleClass {
    * 通过设置DOM观察者来初始化主题模块
    */
   init(): void {
+    console.log('[ThemeModule] 初始化主题变化检测模块');
+
     // Watch for html[data-theme] attribute changes
     // 监视html[data-theme]属性的变化
     this.observer = new MutationObserver((mutations) => {
@@ -59,19 +61,17 @@ class ThemeModuleClass {
     // Enable external components to listen for theme changes
     // 允许外部组件监听主题变化
     this.themeChangeCallback = (event: any) => {
-      const propertiesPanel = document.querySelector('.bpmn-properties-panel');
-      if (propertiesPanel) {
-        if (event.isDark) {
-          propertiesPanel.classList.add('theme-dark');
-          propertiesPanel.classList.remove('theme-light');
-        } else {
-          propertiesPanel.classList.add('theme-light');
-          propertiesPanel.classList.remove('theme-dark');
-        }
-      }
+      const isDark = event.isDark;
+      console.log('[ThemeModule] 接收到主题变化:', isDark ? '暗色' : '亮色');
+      
+      // 应用自定义CSS变量到属性面板
+      this.applyCustomCssToPropertiesPanel(isDark);
     };
 
     this.eventBus.on('theme.changed', this.themeChangeCallback);
+
+    // 尝试初始化属性面板样式
+    this.applyInitialPanelStyles();
   }
 
   /**
@@ -87,6 +87,70 @@ class ThemeModuleClass {
     if (this.themeChangeCallback) {
       this.eventBus.off('theme.changed', this.themeChangeCallback);
       this.themeChangeCallback = null;
+    }
+  }
+
+  // 应用初始面板样式
+  private applyInitialPanelStyles(): void {
+    // 延迟执行以确保面板已渲染
+    setTimeout(() => {
+      try {
+        // 获取当前主题状态
+        const isDark = document.body.classList.contains('dark') || 
+                      document.documentElement.classList.contains('dark');
+                      
+        // 应用到属性面板
+        this.applyCustomCssToPropertiesPanel(isDark);
+      } catch (error) {
+        console.warn('[ThemeModule] 应用初始面板样式失败:', error);
+      }
+    }, 500);
+  }
+
+  // 应用自定义CSS到属性面板
+  private applyCustomCssToPropertiesPanel(isDark: boolean): void {
+    try {
+      // 尝试获取属性面板元素
+      const panels = document.querySelectorAll('.bio-properties-panel');
+      if (!panels || panels.length === 0) return;
+      
+      console.log('[ThemeModule] 应用主题样式到', panels.length, '个属性面板');
+      
+      // 针对每个面板应用样式
+      panels.forEach(panel => {
+        // 修复图标颜色
+        const icons = panel.querySelectorAll('.bio-properties-panel-header-icon, .bio-properties-panel-add-entry, .bio-properties-panel-arrow-right, .bio-properties-panel-collapsible-entry-arrow');
+        
+        icons.forEach(icon => {
+          // 获取根CSS变量中的主色调
+          const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+          const primaryForeground = getComputedStyle(document.documentElement).getPropertyValue('--primary-foreground').trim();
+          
+          if (icon) {
+            // 直接设置颜色
+            icon.style.color = `hsl(${primaryColor})`;
+            icon.style.fill = `hsl(${primaryColor})`;
+            
+            // 修复SVG内部元素
+            const svgElements = icon.querySelectorAll('svg, path, circle, rect, polygon');
+            svgElements.forEach(el => {
+              el.style.fill = `hsl(${primaryColor})`;
+              el.style.color = `hsl(${primaryColor})`;
+            });
+          }
+        });
+        
+        // 修复点标记颜色
+        const dots = panel.querySelectorAll('.bio-properties-panel-dot');
+        dots.forEach(dot => {
+          const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+          if (dot) {
+            dot.style.backgroundColor = `hsl(${primaryColor})`;
+          }
+        });
+      });
+    } catch (error) {
+      console.warn('[ThemeModule] 应用自定义CSS到属性面板失败:', error);
     }
   }
 }

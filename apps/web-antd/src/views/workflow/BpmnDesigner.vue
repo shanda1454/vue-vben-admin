@@ -1215,6 +1215,13 @@ export default defineComponent({
   }
 }
 
+:deep(.bio-properties-panel-header-icon) {
+    color: hsl(var(--primary)) !important;
+    fill: hsl(var(--primary)) !important;
+  }
+
+
+
 // 修复属性面板可滚动区域
 :deep(.bpp-properties-panel) {
   background-color: hsl(var(--card)) !important;
@@ -1282,6 +1289,37 @@ export default defineComponent({
     background-color: hsl(var(--accent-hover)) !important;
   }
 }
+
+.bio-properties-panel-arrow-right,
+.bio-properties-panel-add-entry,
+.bio-properties-panel-collapsible-entry-arrow {
+  fill: hsl(var(--primary)) !important;
+}
+
+:deep(.bio-properties-panel-arrow-right),
+  :deep(.bio-properties-panel-collapsible-entry-arrow) {
+    fill: hsl(var(--primary)) !important;
+  }
+
+  :deep(.bio-properties-panel-add-entry) {
+    fill: hsl(var(--primary)) !important;
+    
+    &:hover {
+      fill: hsl(var(--foreground)) !important;
+      background-color: hsla(var(--primary) / 0.2) !important;
+      border-radius: 50%;
+    }
+    
+    /* 确保SVG内部元素也应用正确的颜色 */
+    svg, path, circle, rect, polygon {
+      fill: hsl(var(--primary)) !important;
+      stroke: none !important;
+      
+      &:hover {
+        fill: hsl(var(--foreground)) !important;
+      }
+    }
+  }
 
 // 右键菜单样式优化
 :deep(.djs-context-pad) {
@@ -1351,6 +1389,10 @@ export default defineComponent({
     }
   }
 }
+
+:deep(.bio-properties-panel-dot) {
+    background-color: hsl(var(--primary)) !important;
+  }
 
 :deep(.djs-popup-header) {
   background-color: hsl(var(--card)) !important;
@@ -1932,6 +1974,52 @@ export default defineComponent({
   :deep(.bio-properties-panel-header-icon) {
     color: hsl(var(--primary)) !important;
     fill: hsl(var(--primary)) !important;
+
+    /* 确保SVG内部元素也应用正确的颜色 */
+    svg, path, circle, rect, polygon {
+      color: hsl(var(--primary)) !important;
+      fill: hsl(var(--primary)) !important;
+      stroke: none !important;
+    }
+  }
+  
+  :deep(.bio-properties-panel-add-entry) {
+    fill: hsl(var(--primary)) !important;
+    
+    &:hover {
+      fill: hsl(var(--foreground)) !important;
+      background-color: hsla(var(--primary) / 0.2) !important;
+      border-radius: 50%;
+    }
+    
+    /* 确保SVG内部元素也应用正确的颜色 */
+    svg, path, circle, rect, polygon {
+      fill: hsl(var(--primary)) !important;
+      stroke: none !important;
+      
+      &:hover {
+        fill: hsl(var(--foreground)) !important;
+      }
+    }
+  }
+  
+  /* Add visual indication for active/selected items */
+  :deep(.bio-properties-panel-active) {
+    background-color: hsla(var(--primary) / 0.15) !important;
+    border-left: 3px solid hsl(var(--primary)) !important;
+  }
+  
+  /* 属性面板SVG图标颜色修复 - 确保响应主题变化 */
+  :deep(.bio-properties-panel-header-icon) {
+    color: hsl(var(--primary)) !important;
+    fill: hsl(var(--primary)) !important;
+    
+    /* 确保SVG内部元素也应用正确的颜色 */
+    svg, path, circle, rect, polygon {
+      color: hsl(var(--primary)) !important;
+      fill: hsl(var(--primary)) !important;
+      stroke: none !important;
+    }
   }
   
   :deep(.bio-properties-panel-add-entry) {
@@ -1942,12 +2030,31 @@ export default defineComponent({
       background-color: hsla(var(--primary) / 0.2) !important;
       border-radius: 50%;
     }
+    
+    /* 确保SVG内部元素也应用正确的颜色 */
+    svg, path, circle, rect, polygon {
+      fill: hsl(var(--primary)) !important;
+      stroke: none !important;
+    }
   }
   
-  /* Add visual indication for active/selected items */
-  :deep(.bio-properties-panel-active) {
-    background-color: hsla(var(--primary) / 0.15) !important;
-    border-left: 3px solid hsl(var(--primary)) !important;
+  :deep(.bio-properties-panel-group-header-icon) {
+    color: hsl(var(--primary)) !important;
+    fill: hsl(var(--primary)) !important;
+    
+    svg, path, circle, rect, polygon {
+      color: hsl(var(--primary)) !important;
+      fill: hsl(var(--primary)) !important;
+    }
+  }
+  
+  :deep(.bio-properties-panel-arrow-right),
+  :deep(.bio-properties-panel-collapsible-entry-arrow) {
+    fill: hsl(var(--primary)) !important;
+  }
+  
+  :deep(.bio-properties-panel-dot) {
+    background-color: hsl(var(--primary)) !important;
   }
   
   /* Improve scrollbar visibility */
