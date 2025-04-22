@@ -1391,16 +1391,16 @@ export default defineComponent({
 }
 
 :deep(.djs-popup-search-icon) {
-      background-color: hsla(var(--primary) / 0) !important;
-      left: 16px !important;
-      top: 16px !important;
-      font-size: 14px !important;
-      
-      &:before {
-        content: "🔍" !important;
-        opacity: 0.7 !important;
-      }
-    }
+  background-color: hsla(var(--primary) / 0) !important;
+  left: 16px !important;
+  top: 16px !important;
+  font-size: 14px !important;
+  
+  &:before {
+    content: "🔍" !important;
+    opacity: 0.7 !important;
+  }
+}
 
 .bpmn-dark-theme {
   :deep(.bpmn-canvas) {
