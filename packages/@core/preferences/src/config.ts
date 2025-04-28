@@ -2,9 +2,13 @@ import type { Preferences } from './types';
 
 const defaultPreferences: Preferences = {
   app: {
+    /** 权限模式 */
     accessMode: 'frontend',
+     /** 登录注册页面布局 */
     authPageLayout: 'panel-right',
+    /** 检查更新轮询时间 */
     checkUpdatesInterval: 1,
+    /** 是否开启灰色模式 */
     colorGrayMode: false,
     colorWeakMode: false,
     compact: false,
@@ -14,12 +18,12 @@ const defaultPreferences: Preferences = {
     dynamicTitle: true,
     enableCheckUpdates: true,
     enablePreferences: true,
-    enableRefreshToken: false,
+    enableRefreshToken: true,
     isMobile: false,
     layout: 'sidebar-nav',
     locale: 'zh-CN',
     loginExpiredMode: 'page',
-    name: 'Vben Admin',
+    name: 'Matrix Smart OS',
     preferencesButtonPosition: 'auto',
     watermark: false,
   },

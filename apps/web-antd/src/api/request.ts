@@ -100,6 +100,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       const errorMessage = responseData?.error ?? responseData?.message ?? '';
       // 如果没有错误信息，则会根据状态码进行提示
       message.error(errorMessage || msg);
+      console.log('1');
     }),
   );
 

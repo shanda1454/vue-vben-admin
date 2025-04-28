@@ -20,25 +20,31 @@ export const defaultResponseInterceptor = ({
 }): ResponseInterceptorConfig => {
   return {
     fulfilled: (response) => {
+      console.log(response);
       const { config, data: responseData, status } = response;
-
+      
       if (config.responseReturn === 'raw') {
+        console.log('responseReturn == raw');
         return response;
       }
-
+      console.log(responseData[codeField]);
+      
       if (status >= 200 && status < 400) {
         if (config.responseReturn === 'body') {
+          console.log('responseReturn == body');
           return responseData;
         } else if (
           isFunction(successCode)
             ? successCode(responseData[codeField])
             : responseData[codeField] === successCode
         ) {
+          console.log('responseReturn == responseData');
           return isFunction(dataField)
             ? dataField(responseData)
             : responseData[dataField];
         }
       }
+      console.log('通用拦截器');
       throw Object.assign({}, response, { response });
     },
   };
@@ -60,12 +66,14 @@ export const authenticateResponseInterceptor = ({
   return {
     rejected: async (error) => {
       const { config, response } = error;
+      console.log(response);
       // 如果不是 401 错误，直接抛出异常
       if (response?.status !== 401) {
         throw error;
       }
       // 判断是否启用了 refreshToken 功能
       // 如果没有启用或者已经是重试请求了，直接跳转到重新登录
+      console.log(enableRefreshToken);
       if (!enableRefreshToken || config.__isRetryRequest) {
         await doReAuthenticate();
         throw error;
