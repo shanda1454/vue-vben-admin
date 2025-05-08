@@ -60,7 +60,7 @@ const columns = [
     title: '状态',
     dataIndex: 'status',
     key: 'status',
-    customRender: ({ text }) => {
+    customRender: ({ text }: { text: string }) => {
       switch (text) {
         case 'approved': {
           return h(Badge, { status: 'success', text: '已同意' });

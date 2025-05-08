@@ -1,0 +1,43 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# 项目框架
+
+- 我当前使用的是Vue Vben Admin 5.5.5版本
+- Vben Admin 是一个基于 Vue3.0、Vite、 TypeScript 的中后台解决方案，目标是为开发中大型项目提供开箱即用的解决方案。包括二次封装组件、utils、hooks、动态菜单、权限校验、多主题配置、按钮级别权限控制等功能。
+
+
+# 特点
+
+- 最新技术栈：使用 Vue3、Vite、TypeScript 等前端前沿技术开发。
+- 国际化：内置完善的国际化方案，支持多语言切换。
+- 权限验证：完善的权限验证方案，按钮级别权限控制。
+- 多主题：内置多种主题配置和黑暗模式，满足个性化需求。
+- 动态菜单：支持动态菜单，可以根据权限配置显示菜单。
+- Mock 数据：基于 Nitro 的本地高性能 Mock 数据方案。
+- 组件丰富：提供了丰富的组件，可以满足大部分的业务需求。
+- 规范：代码规范，使用 ESLint、Prettier、Stylelint、Publint、CSpell 等工具保证代码质量。
+- 工程化：使用 Pnpm Monorepo、TurboRepo、Changeset 等工具，提高开发效率。
+- 多UI库支持：支持 Ant Design Vue、Element Plus、Naive 等主流 UI 库，不再限制于特定框架。
+
+# 目标
+
+- 协助我完成制造业ERP和审批流程的开发,我的后端使用的是.net core 8,ORM使用的是sqlsuger。
+- 每次提供的回复需要结合项目中的代码情况提供真实的修改意见,或者直接说明需要增加新的方法.
+
+# 界面UI设计规范
+
+- 页面设计需要满足Vue Vben Admin antd的样式规则,适配前端框架内的主题配置切换和国际化。
+
+# 组件引用方式参考
+
+- import { Button } from 'ant-design-vue';
+- import { IconifyIcon } from '@vben/icons';
+- import { $t } from '#/locales';
+- import MenuDrawer from './MenuDrawer.vue';
+- import { columns } from './data';
+- import { getMenuList, deleteMenu, createMenu, updateMenu } from '#/api/core/menu';
+- import { ref } from 'vue';

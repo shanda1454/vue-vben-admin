@@ -1,0 +1,25 @@
+{
+  "system": "系统管理",
+  "menu": "菜单管理",
+  "index": "序号",
+  "edit": "编辑",
+  "delete": "删除",
+  "create": "新增",
+  "enable": "启用",
+  "disable": "停用",
+  "menuColumn": {
+    "menuName": "菜单名称",
+    "path": "路由地址",
+    "component": "组件路径",
+    "title": "标题",
+    "icon": "图标",
+    "orderNum": "排序",
+    "parentId": "父级",
+    "type": "类型",
+    "status": "状态",
+    "affixTab": "固定标签",
+    "createTime": "创建时间",
+    "updateTime": "更新时间",
+    "action": "操作"
+  }
+}

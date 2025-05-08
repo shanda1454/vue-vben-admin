@@ -66,14 +66,14 @@ const columns = [
     title: '表单类型',
     dataIndex: 'type',
     key: 'type',
-    customRender: ({ text }) => {
+    customRender: ({ text }: { text: string }) => {
       const typeMap = {
         leave: '请假申请',
         expense: '报销申请',
         purchase: '采购申请',
         custom: '自定义',
       };
-      return typeMap[text] || text;
+      return typeMap[text as keyof typeof typeMap] || text;
     },
   },
   {

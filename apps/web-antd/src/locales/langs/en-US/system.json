@@ -1,0 +1,25 @@
+{
+  "system": "System",
+  "menu": "Menu",
+  "index": "No.",
+  "edit": "Edit",
+  "delete": "Delete",
+  "create": "Create",
+  "enable": "Enable",
+  "disable": "Disable",
+  "menuColumn": {
+    "menuName": "Menu Name",
+    "path": "Path",
+    "component": "Component",
+    "title": "Title",
+    "icon": "Icon",
+    "orderNum": "Order",
+    "parentId": "Parent ID",
+    "type": "Type",
+    "status": "Status",
+    "affixTab": "Affix Tab",
+    "createTime": "Create Time",
+    "updateTime": "Update Time",
+    "action": "Action"
+  }
+}

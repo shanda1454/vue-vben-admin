@@ -9,6 +9,7 @@ import {
 } from '@vben/constants';
 
 import { IFrameView } from '#/layouts';
+// @ts-ignore
 import { $t } from '#/locales';
 
 const routes: RouteRecordRaw[] = [

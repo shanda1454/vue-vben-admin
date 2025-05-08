@@ -3,7 +3,7 @@ import type { Preferences } from './types';
 const defaultPreferences: Preferences = {
   app: {
     /** 权限模式 */
-    accessMode: 'frontend',
+    accessMode: 'backend',
      /** 登录注册页面布局 */
     authPageLayout: 'panel-right',
     /** 检查更新轮询时间 */
