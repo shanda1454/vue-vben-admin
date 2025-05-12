@@ -7,6 +7,8 @@
   "create": "新增",
   "enable": "启用",
   "disable": "停用",
+  "add": "新增",
+  "deleteConfirm": "您确定要删除 {name} 吗？",
   "menuColumn": {
     "menuName": "菜单名称",
     "path": "路由地址",
@@ -20,6 +22,8 @@
     "affixTab": "固定标签",
     "createTime": "创建时间",
     "updateTime": "更新时间",
-    "action": "操作"
+    "action": "操作",
+    "parentMenu": "父级菜单",
+    "noParentMenu": "无父级菜单"
   }
 }

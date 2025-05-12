@@ -4,7 +4,7 @@ import { requestClient } from '#/api/request';
 
 
 // 菜单接口
-interface MenuItem {
+export interface MenuItem {
   id: number;
   name: string;
   path: string;
@@ -32,15 +32,15 @@ export async function getMenuList() {
 }
 
 export function deleteMenu(id: number) {
-  return requestClient.delete(`/Menu/DeleteMenuById?id=${id}`);
+  return requestClient.delete(`/Menu/DeleteMenu/${id}`);
 }
 
 /**
  * 创建菜单
  * @param data 菜单数据
  */
-export async function createMenu(data: Omit<MenuItem, 'children' | 'id'>) {
-  return requestClient.post('/system/menu', data);
+export async function createMenu(data: Omit<MenuItem,'id' | 'createTime' | 'updateTime'>) {
+  return requestClient.post('/Menu/CreateMenu', data);
 }
 
 /**
@@ -48,6 +48,6 @@ export async function createMenu(data: Omit<MenuItem, 'children' | 'id'>) {
  * @param id 菜单ID
  * @param data 菜单数据
  */
-export async function updateMenu(id: string, data: Omit<MenuItem, 'children' | 'id'>) {
-  return requestClient.put(`/system/menu/${id}`, data);
+export async function updateMenu(id: string, data: Omit<MenuItem, 'createTime' | 'updateTime'>) {
+  return requestClient.put(`/Menu/UpdateMenu/${id}`, data);
 }
