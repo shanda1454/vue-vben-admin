@@ -48,8 +48,10 @@
     "camunda-bpmn-js-behaviors": "^1.9.1",
     "camunda-bpmn-moddle": "^7.0.1",
     "dayjs": "catalog:",
+    "exceljs": "^4.4.0",
     "pinia": "catalog:",
     "vue": "catalog:",
-    "vue-router": "catalog:"
+    "vue-router": "catalog:",
+    "vxe-table-plugin-export-xlsx": "^4.0.7"
   }
 }

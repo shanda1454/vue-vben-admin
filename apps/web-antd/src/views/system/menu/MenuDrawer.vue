@@ -220,7 +220,7 @@ async function onSubmit(values: Record<string, any>) {
       orderNum: values.orderNum || 0,
       parentId: values.parentId || null,
       type: values.type || 'menu',
-      status: values.status ? '1' : '0', // 根据后端需要转换格式
+      status: values.status, // 根据后端需要转换格式
       affixTab: values.affixTab || false
     };
 

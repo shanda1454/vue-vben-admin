@@ -8,7 +8,13 @@
   "enable": "启用",
   "disable": "停用",
   "add": "新增",
+  "expandAll": "展开全部",
+  "collapseAll": "折叠全部",
   "deleteConfirm": "您确定要删除 {name} 吗？",
+  "search": "搜索",
+  "searchResult": "找到 {count} 条匹配记录",
+  "noResult": "未找到匹配记录",
+  "searchError": "搜索过程中出错，请重试",
   "menuColumn": {
     "menuName": "菜单名称",
     "path": "路由地址",

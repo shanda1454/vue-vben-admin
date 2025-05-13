@@ -29,13 +29,6 @@ export const columns: VxeGridProps['columns'] = [
     title: $t('system.menuColumn.menuName'),
     field: 'name', 
     width: 200,
-    slots: {
-      default: ({ row }: { row: {  name: string } }) => {
-        return h('div', { class: 'flex items-center' }, [
-          h('span', {}, row.name),
-        ]);
-      },
-    },
   },
   {
     title: $t('system.menuColumn.icon'),
@@ -71,7 +64,7 @@ export const columns: VxeGridProps['columns'] = [
         return [
           h(Tag, {
             color: row.status === '1' ? 'success' : 'error',
-          }, () => row.status === '1' ? '启用' : '停用'),
+          }, () => row.status === '1' ? $t('system.enable') : $t('system.disable')),
         ];
       },
     },
@@ -86,7 +79,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: $t('system.menuColumn.action'),
-    width: 200,
+    width: 250,
     fixed: 'right',
     slots: {
       default: 'action'

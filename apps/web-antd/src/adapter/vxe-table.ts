@@ -6,8 +6,14 @@ import { Button, Image } from 'ant-design-vue';
 
 import { useVbenForm } from './form';
 
+// 导入Export Excel插件
+import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx';
+
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
+    // 注册Export Excel插件
+    vxeUI.use(VXETablePluginExportXLSX);
+    
     vxeUI.setConfig({
       grid: {
         align: 'center',

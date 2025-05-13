@@ -13,6 +13,14 @@ import * as AntdIcons from '@ant-design/icons-vue';
 import { useTitle } from '@vueuse/core';
 import Antd from 'ant-design-vue';
 
+// 导入VXE-Table及其插件
+// @ts-ignore
+import VXETable from 'vxe-table';
+// @ts-ignore
+import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx';
+// @ts-ignore
+import ExcelJS from 'exceljs';
+
 import { $t, setupI18n } from '#/locales';
 
 import { initComponentAdapter } from './adapter/component';
@@ -43,6 +51,15 @@ async function bootstrap(namespace: string) {
 
   // 全局注册Ant Design Vue组件
   app.use(Antd);
+
+  // 配置VXE-Table及Excel导出插件
+  VXETable.use(VXETablePluginExportXLSX, {
+    // 传递ExcelJS给插件使用
+    ExcelJS
+  });
+  
+  // 注册VXE-Table
+  app.use(VXETable);
 
   // 注册v-loading指令
   registerLoadingDirective(app, {

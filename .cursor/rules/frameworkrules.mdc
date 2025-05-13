@@ -41,3 +41,15 @@ alwaysApply: true
 - import { columns } from './data';
 - import { getMenuList, deleteMenu, createMenu, updateMenu } from '#/api/core/menu';
 - import { ref } from 'vue';
+
+# 控制台命令
+
+- 不支持“&&”,标记“&&”不是此版本中的有效语句分隔符。
+
+# 功能
+
+- 目前已经实现了后端菜单所以后续不要再前端增加菜单了,我可以自己添加后端菜单,你帮我生成界面代码就好.
+
+
+
+
