@@ -31,5 +31,11 @@
     "action": "操作",
     "parentMenu": "父级菜单",
     "noParentMenu": "无父级菜单"
+  },
+  "fromColumn": {
+    "fromName": "表单管理",
+    "fromCode": "表单编码",
+    "fromType": "表单类型",
+    "fromStatus": "表单状态"
   }
 }

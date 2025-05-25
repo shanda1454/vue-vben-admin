@@ -77,6 +77,25 @@ const routes: RouteRecordRaw[] = [
       order: 9999,
     },
   },
+  {
+    path: '/system',
+    name: 'System',
+    meta: {
+      order: 10,
+      icon: 'ion:settings-outline',
+      title: $t('routes.system.system'),
+    },
+    children: [
+      {
+        path: 'formManagement',
+        name: 'FormManagement',
+        component: () => import('#/views/system/formManagement/Index.vue'),
+        meta: {
+          title: $t('routes.system.formManagement'),
+        },
+      },
+    ],
+  },
 ];
 
 export default routes;

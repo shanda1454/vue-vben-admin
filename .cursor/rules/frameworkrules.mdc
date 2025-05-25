@@ -8,7 +8,7 @@ alwaysApply: true
 
 - 我当前使用的是Vue Vben Admin 5.5.5版本
 - Vben Admin 是一个基于 Vue3.0、Vite、 TypeScript 的中后台解决方案，目标是为开发中大型项目提供开箱即用的解决方案。包括二次封装组件、utils、hooks、动态菜单、权限校验、多主题配置、按钮级别权限控制等功能。
-
+- 表格组件使用vxe-table import { useVbenVxeGrid } from '#/adapter/vxe-table'; 不要让我再安装这个组件导致我的项目冲突
 
 # 特点
 
@@ -27,6 +27,7 @@ alwaysApply: true
 
 - 协助我完成制造业ERP和审批流程的开发,我的后端使用的是.net core 8,ORM使用的是sqlsuger。
 - 每次提供的回复需要结合项目中的代码情况提供真实的修改意见,或者直接说明需要增加新的方法.
+- 页面的样式尽可能的能使用框架本身的样式,不要额外增加不必要的样式.
 
 # 界面UI设计规范
 
@@ -44,12 +45,15 @@ alwaysApply: true
 
 # 控制台命令
 
-- 不支持“&&”,标记“&&”不是此版本中的有效语句分隔符。
+- 不要使用“&&”,标记“&&”不是此版本中的有效语句分隔符。
+- 使用pnpm安装包
 
 # 功能
 
 - 目前已经实现了后端菜单所以后续不要再前端增加菜单了,我可以自己添加后端菜单,你帮我生成界面代码就好.
+- API设计参考apps/web-antd/src/core/menu.ts
+- 禁止修改后端代码
 
+#后端
 
-
-
+- 在工作区的EmaWebServer中,使用.net core 8,ORM使用的是sqlsuger

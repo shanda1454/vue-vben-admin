@@ -31,5 +31,14 @@
     "action": "Action",
     "parentMenu": "Parent Menu",
     "noParentMenu": "No Parent Menu"
+  },
+  "fromColumn": {
+    "fromName": "Form Management",
+    "fromCode": "Form Code",
+    "fromType": "Form Type",
+    "fromStatus": "Form Status",
+    "fromCreateTime": "Form Create Time",
+    "fromUpdateTime": "Form Update Time",
+    "fromAction": "Form Action"
   }
 }

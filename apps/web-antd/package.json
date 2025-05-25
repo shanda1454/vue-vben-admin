@@ -51,7 +51,6 @@
     "exceljs": "^4.4.0",
     "pinia": "catalog:",
     "vue": "catalog:",
-    "vue-router": "catalog:",
-    "vxe-table-plugin-export-xlsx": "^4.0.7"
+    "vue-router": "catalog:"
   }
 }

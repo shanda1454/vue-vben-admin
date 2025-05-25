@@ -424,7 +424,7 @@ watch(searchValue, (val, oldVal) => {
 </script>
 
 <template>
-  <div class="p-5" style="height: 99%;">
+  <div class="p-5" style="height: calc(100vh - 80px) !important;">
     <Grid ref="gridRef">
       <template #toolbar-actions>
         <Button type="primary" @click="openModal">

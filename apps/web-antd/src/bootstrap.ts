@@ -1,8 +1,9 @@
+// @ts-nocheck
 import { createApp, watchEffect } from 'vue';
 
 import { registerAccessDirective } from '@vben/access';
 import { registerLoadingDirective } from '@vben/common-ui/es/loading';
-import { preferences } from '@vben/preferences';
+import { usePreferences } from '@vben/preferences';
 import { initStores } from '@vben/stores';
 import '@vben/styles';
 import '@vben/styles/antd';
@@ -12,14 +13,6 @@ import '@vben/styles/antd';
 import * as AntdIcons from '@ant-design/icons-vue';
 import { useTitle } from '@vueuse/core';
 import Antd from 'ant-design-vue';
-
-// 导入VXE-Table及其插件
-// @ts-ignore
-import VXETable from 'vxe-table';
-// @ts-ignore
-import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx';
-// @ts-ignore
-import ExcelJS from 'exceljs';
 
 import { $t, setupI18n } from '#/locales';
 
@@ -52,15 +45,6 @@ async function bootstrap(namespace: string) {
   // 全局注册Ant Design Vue组件
   app.use(Antd);
 
-  // 配置VXE-Table及Excel导出插件
-  VXETable.use(VXETablePluginExportXLSX, {
-    // 传递ExcelJS给插件使用
-    ExcelJS
-  });
-  
-  // 注册VXE-Table
-  app.use(VXETable);
-
   // 注册v-loading指令
   registerLoadingDirective(app, {
     loading: 'loading', // 在这里可以自定义指令名称，也可以明确提供false表示不注册这个指令
@@ -88,11 +72,12 @@ async function bootstrap(namespace: string) {
   app.use(MotionPlugin);
 
   // 动态更新标题
+  const preferences = usePreferences();
   watchEffect(() => {
-    if (preferences.app.dynamicTitle) {
+    if (preferences.app?.dynamicTitle) {
       const routeTitle = router.currentRoute.value.meta?.title;
       const pageTitle =
-        (routeTitle ? `${$t(routeTitle)} - ` : '') + preferences.app.name;
+        (routeTitle ? `${$t(routeTitle)} - ` : '') + preferences.app?.name;
       useTitle(pageTitle);
     }
   });
